@@ -4,7 +4,6 @@ require 'ftools'
 require 'benchmark'
 
 $LOAD_PATH.push(File.expand_path(File.dirname(__FILE__)))
-$LOAD_PATH.push(File.expand_path(File.join(File.dirname(__FILE__), "lib", "buffet")))
 
 require 'wopen3'
 require 'master'
@@ -116,7 +115,7 @@ module Buffet
     def initialize 
       @running = false
       @status = StatusMessage.new true
-      @buffet_dir = File.expand_path(File.dirname(__FILE__))
+      @buffet_dir = File.expand_path(File.dirname(__FILE__) + "/../..")
       @target_dir = "working-directory"
       @progress = 0
 
@@ -271,7 +270,6 @@ module Buffet
             if $?.exitstatus != 0
               return
             end
-            
           end
 
           @status.set "Copying Buffet to hosts."

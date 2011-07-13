@@ -1,6 +1,8 @@
+$LOAD_PATH.unshift(File.join(File.dirname(__FILE__)) + "/lib")
+
 require 'sinatra'
 require 'erb'
-require File.expand_path('buffet', File.join(File.dirname(__FILE__)))
+require 'buffet/runner'
 
 module Buffet
   # The Buffet Sinatra web server provides a simple frontend to Buffet. The most
