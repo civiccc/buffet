@@ -1,0 +1,35 @@
+#!/bin/sh
+
+export RAILS_ENV=test
+
+if [[ $# -eq 0 ]]
+then
+  echo "Running this script manually is discouraged. If you insist, you must pass in each host individually, and run it from the directory of the rails app."
+  exit 1
+fi
+
+mysql -u root -e 'drop database if exists buffet_causes_test'
+mysql -u root -e 'create database buffet_causes_test'
+mysql -u root -e 'drop database if exists buffet_wishes_test'
+mysql -u root -e 'create database buffet_wishes_test'
+
+bundle exec rake db:migrate # wart here is that we don't migrate wishes
+
+mysqldump --no-data -u root buffet_causes_test > "./tmp/buffet_causes_test.dump"
+mysqldump --no-data -u root wishes_development > "./tmp/buffet_wishes_test.dump"
+mysql -u root buffet_wishes_test < ./tmp/buffet_wishes_test.dump
+
+for host in `$@` #Loop through argument list
+do
+  echo $host
+  sh -c "scp ./tmp/buffet_causes_test.dump \
+             ./tmp/buffet_wishes_test.dump \
+             buffet@$host:~/ &&
+         ssh buffet@$host 'mysql -u root -e \"drop database if exists buffet_causes_test\" && \
+                           mysql -u root -e \"create database buffet_causes_test\" && \
+                           mysql -u root -e \"drop database if exists buffet_wishes_test\" && \
+                           mysql -u root -e \"create database buffet_wishes_test\" && \
+                           mysql -u root buffet_causes_test < buffet_causes_test.dump && \
+                           mysql -u root buffet_wishes_test < buffet_wishes_test.dump'" &
+done
+wait

@@ -1,0 +1,10 @@
+hosts:
+  - hostname1
+  - hostname2
+  - ...
+repository: git@github.com:yourname/somerepo.git
+campfire:
+  username: username
+  password: password
+  subdomain: subdomain
+  room_name: name

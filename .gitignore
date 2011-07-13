@@ -1,0 +1,5 @@
+*.sw*
+.bundle
+failures
+settings.yml
+working-directory

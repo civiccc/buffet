@@ -1,0 +1,197 @@
+body {
+  background-color: #333;
+  font-family: Helvetica, Arial, FreeSans, sans-serif;
+  color: #eee;
+  margin: 0 auto;
+  width: 800px;
+}
+h1 {
+  font-family: Lobster;
+  margin: 60px 0 15px;
+}
+input[type=text] {
+  border: 1px solid #aaa;
+  font-size: 18px;
+  padding: 5px;
+  vertical-align: middle;
+  border-radius: 5px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+}
+#container {
+  margin: 0 auto;
+  width: 700px;
+}
+
+#content {
+  background-color: #f9f9f9;
+  border-left: 1px solid #ccc;
+  color: #333;
+  min-height: 100px;
+  box-shadow: 0 0 10px #111;
+  -moz-box-shadow: 0 0 10px #111;
+  -webkit-box-shadow: 0 0 10px #111;  
+}
+
+#question {
+  background: #eee;
+  border-bottom: 1px solid #ccc;
+  font-size: 1.3em;
+  padding: 12px 0;
+  text-align: center;
+  background-image: -webkit-gradient(
+      linear,
+      left bottom,
+      left top,
+      color-stop(0.26, rgb(221,221,221)),
+      color-stop(0.63, rgb(230,230,230))
+  );
+  background-image: -moz-linear-gradient(
+      center bottom,
+      rgb(221,221,221) 26%,
+      rgb(230,230,230) 63%
+  );
+}
+#question label {
+  vertical-align: middle;
+}
+#stats {
+  font-size: 16px;
+  padding: 40px 20px 0;
+}
+.body {
+  padding-left: 15px;
+}
+
+.date {
+  color:#aaa;
+  font-size:70%;
+  padding-bottom:15px;
+  margin-left:5px;
+}
+
+.title {
+  font-size:250%;
+}
+
+.disqus {
+  border-top: 1px solid #ccc;
+}
+
+/* Fail listings */
+
+.fail {
+  background: #eee;
+  border: 1px solid #ccc;
+  border-bottom: 1px solid #aaa;
+  margin-bottom: 20px;
+  padding: 12px 10px;
+  border-radius: 5px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  background-image: -webkit-gradient(
+      linear,
+      left bottom,
+      left top,
+      color-stop(0.00, rgb(249,249,249)),
+      color-stop(1.0, rgb(254,254,254))
+  );
+  background-image: -moz-linear-gradient(
+      center bottom,
+      rgb(249,249,249) 0%,
+      rgb(254,254,254) 100%
+  );
+  box-shadow: 0 1px 0 #ddd;
+  -moz-box-shadow: 0 1px 0 #ddd;
+  -webkit-box-shadow: 0 1px 0 #ddd;  
+}
+.fail:hover {
+  background-image: -webkit-gradient(
+      linear,
+      left bottom,
+      left top,
+      color-stop(0.00, rgb(255,255,204)),
+      color-stop(1.00, rgb(255,255,255))
+  );
+  background-image: -moz-linear-gradient(
+      center bottom,
+      rgb(255,255,204) 0%,
+      rgb(255,255,255) 100%
+  );
+}
+.fail-location {
+  color: #333;
+  font-size: .8em;
+  font-weight: bold;
+}
+
+.fail-header {
+  cursor: pointer;
+  padding: 2px 0 0;
+  font-size: .8em;
+}
+
+.fail-backtrace {
+  font-family: Courier, monospace;
+  font-size: 12px;
+  display: none;
+  margin: 20px 0 0 10px;
+  padding-left: 15px;
+  border-left: 1px solid #ccc;
+}
+
+/* Textbox */
+#branch {
+  font-family: Helvetica, Arial, FreeSans, sans-serif;
+}
+#failures {
+  padding: 20px;
+}
+/* Autocomplete stuff */
+ul {
+  list-style-type: none;
+}
+
+/* Autocomplete item */
+.ui-corner-all {
+  border-bottom: 1px solid #ddd;
+  margin-left: -40px;
+  background-color: #fff;
+}
+
+.description {
+  margin-top: 10px;
+  margin-bottom: 20px;
+  font-size:80%;
+}
+
+h1 {
+  font-size: 2.8em;
+  padding-bottom: 8px;
+}
+h1 .flat {
+  color: #999;
+  float: right;
+  font-family: Helvetica, sans-serif;
+  font-size: 24px;
+  font-weight: normal;
+  margin-top: 15px;
+}
+h1 .small { font-size: 0.2em; font-weight:normal;}
+h3 { text-align: center; }
+a { color: #0a0a0a; }
+.download { float: right; }
+pre { 
+  background: #eee; 
+  color: #000; 
+  padding: 15px;
+  border: 1px solid #ddd;
+  overflow: auto;
+}
+/* inline code */
+code {
+
+}
+
+hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
+.footer { text-align:center; padding-top:30px; font-size:60%;}
