@@ -176,7 +176,7 @@ module Buffet
     def bundle_install target_dir
       hosts.each do |host|
         @status.set "Bundle install on #{host}"
-        `sh -c "ssh buffet@#{host} 'cd ~/Buffet/#{target_dir} && bundle install --without production --path ~/buffet-gems'" &`
+        `sh -c "ssh buffet@#{host} 'cd ~/buffet/#{target_dir} && bundle install --without production --path ~/buffet-gems'" &`
       end
     end
 
