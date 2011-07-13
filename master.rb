@@ -99,7 +99,7 @@ module Buffet
           Thread.new do
             #TODO: Print an error if this fails
             #TODO: Maybe eventually pull these dirs out of settings.yml
-            results = `ssh buffet@#{host} 'cd ~/buffet/working-directory; RAILS_ENV=test bundle exec ruby ~/buffet/lib/buffet/worker #{server_addr}'`
+            results = `ssh buffet@#{host} 'cd ~/buffet/working-directory; RAILS_ENV=test bundle exec ruby ~/buffet/bin/buffet_worker #{server_addr}'`
           end
         end
 

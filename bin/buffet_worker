@@ -1,9 +1,11 @@
 #!/usr/bin/env ruby
 
+$LOAD_PATH.unshift(File.expand_path(File.dirname(__FILE__) + '/../lib'))
+
 require 'fileutils'
 require 'spec'
 require 'spec/runner/command_line'
-require File.expand_path(File.dirname(__FILE__) + '/augmented_text_formatter')
+require 'buffet/augmented_text_formatter'
 
 # NOTE: ARGV is used by the spec runner. If I leave the drb server address
 # in ARGV, rspec will think it's an argument to the test runner.
