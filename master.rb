@@ -6,7 +6,10 @@ require 'socket'
 require 'memoize'
 
 module Buffet
-  class Server 
+  # The Buffet::Master class runs worker.rb on all of the host machines 
+  # (including itself), and then distributes the tests to the workers.
+  # The workers request more tests after they finish their current tests.
+  class Master 
     extend Memoize
 
     # This will initialize the server.
@@ -68,6 +71,7 @@ module Buffet
 
     # This is RSpec specific.
     def num_tests
+      #TODO: maybe specify
       `grep -r "  it" #{@working_dir}/spec/ | wc`.to_i
     end
 
@@ -77,7 +81,7 @@ module Buffet
     #
     # It is necessary to have both initialize and start because otherwise it 
     # would be impossible to asynchronously check status. Say you had
-    # server = Buffet::Server.new (...) and wanted to go server.get_updates in 
+    # server = Buffet::Master.new (...) and wanted to go server.get_updates in 
     # a separate thread. server does not actually get assigned until .new 
     # completes, which is after when you want to check status.
     #

@@ -6,7 +6,7 @@ require 'benchmark'
 $LOAD_PATH.push(File.expand_path(File.dirname(__FILE__)))
 
 require 'wopen3'
-require 'distribute-tests'
+require 'master'
 require 'settings'
 require 'campfire'
 require 'memoize'
@@ -283,7 +283,7 @@ module Buffet
 
           @status.set ""
 
-          @server = Buffet::Server.new @target_dir, hosts
+          @server = Buffet::Master.new @target_dir, hosts
           @status.set @server.run
           @status.set output + "\n"
         end
