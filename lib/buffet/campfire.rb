@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'uri'
 require 'tinder'
+require 'buffet/settings'
 
 module Campfire
   CAMPFIRE_SETTINGS = ::Buffet.settings["campfire"]

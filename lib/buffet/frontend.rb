@@ -1,5 +1,3 @@
-$LOAD_PATH.unshift(File.join(File.dirname(__FILE__)) + "/lib")
-
 require 'sinatra'
 require 'erb'
 require 'buffet/runner'
@@ -18,8 +16,8 @@ module Buffet
     # There is a bug in Sinatra where if you surreptitiously chdir somewhere then
     # the directory paths get all confused. As a workaround, we set the paths
     # manually.
-    set :views, File.expand_path(File.join(File.dirname(__FILE__), 'views'))
-    set :public, File.expand_path(File.join(File.dirname(__FILE__), 'public'))
+    set :views, File.expand_path(File.join(File.dirname(__FILE__), '../../views'))
+    set :public, File.expand_path(File.join(File.dirname(__FILE__), '../../public'))
 
 
     # Going to hope that no one tries to exploit Buffet by writing a test script

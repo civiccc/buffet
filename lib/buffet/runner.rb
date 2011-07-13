@@ -3,12 +3,10 @@
 require 'ftools'
 require 'benchmark'
 
-$LOAD_PATH.push(File.expand_path(File.dirname(__FILE__)))
-
 require 'wopen3'
-require 'master'
-require 'settings'
-require 'campfire'
+require 'buffet/master'
+require 'buffet/settings'
+require 'buffet/campfire'
 require 'memoize'
 include Memoize
 
