@@ -69,14 +69,6 @@ module Buffet
       @drb_thread.join
     end
 
-    # This is RSpec specific.
-    def num_tests
-      #TODO: maybe specify
-      `grep -r "  it" #{@working_dir}/spec/ | wc`.to_i
-    end
-
-    memoize :num_tests
-
     # This will start distributing specs. It blocks until the tests are complete.
     #
     # It is necessary to have both initialize and start because otherwise it 

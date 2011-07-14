@@ -4,10 +4,6 @@ describe Buffet::Frontend do
   include Rack::Test::Methods
 
   describe "#failures" do
-    before(:all) do
-      get '/failures'
-    end
-
     # You can't stub before :all.
     before(:each) do
       failures = app.runner.stub!(:get_failures).and_return do
@@ -28,6 +24,29 @@ describe Buffet::Frontend do
        last_response.body.should include(string)
      end
    end
+  end
+
+  describe "#titles" do
+    it "indicates that no one is running tests (and does so in a cute way)" do
+      app.runner.stub!(:running?).and_return { false }
+      get '/title'
+      
+      last_response.body.should include("Open")
+    end
+
+    it "indicates that tests are being run" do
+      app.runner.stub!(:running?).and_return { true }
+      get '/title'
+
+      last_response.body.should include("Reserved")
+    end
+
+    it "shows that a nonzero number of tests are being run" do
+      app.runner.stub!(:running?).and_return { true }
+      get '/title'
+
+      last_response.body.should_not include "party of 0"
+    end
   end
 end
 

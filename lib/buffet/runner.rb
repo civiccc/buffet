@@ -296,13 +296,13 @@ module Buffet
       end
     end
 
+    # This is RSpec specific.
     def num_tests
-      if @master
-        @master.num_tests
-      else
-        0
-      end
+      #TODO: maybe specify
+      `grep -r "  it" #{@target_dir}/spec/ | wc`.to_i
     end
+
+    memoize :num_tests
   end
 end
 
