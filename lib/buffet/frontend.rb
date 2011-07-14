@@ -10,8 +10,18 @@ module Buffet
   # start-buffet-server is for terminals.)
   class Frontend < Sinatra::Base
 
-    $runner = Buffet::Runner.new
-    $testing_mode = false
+    @@runner = Buffet::Runner.new
+    @@testing_mode = false
+
+    # This is just for testing.
+    
+    def self.runner
+      @@runner
+    end
+
+    def self.testing_mode
+      @@testing_mode
+    end
 
     # There is a bug in Sinatra where if you surreptitiously chdir somewhere then
     # the directory paths get all confused. As a workaround, we set the paths
@@ -22,10 +32,8 @@ module Buffet
     # Going to hope that no one tries to exploit Buffet by writing a test script
     # that contains JS inside of it. If that happens, you have bigger problems than
     # a broken test framework.
-    class String
-      def sanitize
-        self.gsub("<", "&lt;").gsub(">", "&gt;")
-      end
+    def sanitize(str)
+      str.gsub("<", "&lt;").gsub(">", "&gt;")
     end
 
     # Render the main page.
@@ -34,7 +42,7 @@ module Buffet
       # Also parse out the /remotes/origin/ part which isn't helpful.
       #
       @branches = '["' +
-        $runner.list_branches.
+        @@runner.list_branches.
           split("\n").
           map {|branch| branch[2 + "remotes/origin/".length .. branch.length]}.
           reject {|branch| branch == nil or branch.include? '->'}.
@@ -45,7 +53,7 @@ module Buffet
 
     # Render some sample data
     get '/test-css' do
-      $testing_mode = true
+      @@testing_mode = true
       @branches = '["one", "two", "three"]'
 
       erb :index
@@ -56,9 +64,9 @@ module Buffet
     get '/start-buffet-server/:branch' do
       branch = params[:branch]
 
-      if not $runner.running?
+      if not @@runner.running?
         Thread.new do
-          $runner.run
+          @@runner.run
         end
         "Server started"
       else
@@ -67,26 +75,26 @@ module Buffet
     end
 
     get '/is-running' do
-      $runner.running?.to_s
+      @@runner.running?.to_s
     end
 
     # Returns status of pre-testing setup.
     get '/stats' do
-      if $testing_mode
+      if @@testing_mode
         return "Tests run: <b>256 (23%)</b> Failures: <b>2</b>"
       end
 
-      if $runner.testing?
-        @tests, @percentage, @failures = $runner.get_status.map &:to_s
+      if @@runner.testing?
+        @tests, @percentage, @failures = @@runner.get_status.map &:to_s
         erb :stats
       else
-        $runner.get_status.gsub("\n", "<br>")
+        @@runner.get_status.gsub("\n", "<br>")
       end
     end
 
     get '/title' do
-      if $runner.running?
-        "Reserved for #{$runner.get_repo.gsub(/git@github.com:(.*)\.git/, "\\1")}, party of #{$runner.num_tests}."
+      if @@runner.running?
+        "Reserved for #{@@runner.get_repo.gsub(/git@github.com:(.*)\.git/, "\\1")}, party of #{@@runner.num_tests}."
       else
         "Open for reservations"
       end
@@ -95,9 +103,9 @@ module Buffet
     # Returns all failures in nicely formatted HTML.
     # (The massive concentration of fail in this function makes me laugh.)
     get '/failures' do
-      failures = $runner.get_failures
+      failures = @@runner.get_failures
 
-      if $testing_mode
+      if @@testing_mode
         failures = [ {:location => "Some Ruby File:76", :header => "This is a description of the bug.", :backtrace => "This is a really\n really\n  really\n long backtrace full of 99% useless info."},
                      {:location => "Some Ruby File:22", :header => "Something Bad happened.", :backtrace => "This backtrace is comparatively short."}]
       end
@@ -111,12 +119,13 @@ module Buffet
         # The order of functions (sanitize, then gsub) is important, because
         # otherwise all the <br>s would be rendered as text, which is not what we
         # want at all.
-        fail_html += "<div class='fail-backtrace' id='fail-#{index}-location'> #{fail[:backtrace].sanitize.gsub("\n", "<br>")} </div>"
+        fail_html += "<div class='fail-backtrace' id='fail-#{index}-location'> #{sanitize(fail[:backtrace]).gsub("\n", "<br>")} </div>"
+        
         fail_html += "</div>"
       end
 
       if fail_html == ""
-        if $runner.running?
+        if @@runner.running?
           #TODO: Don't show this when we haven't even started running tests.
           "<div class='you-are-a-winner'>All tests pass! ...so far.</div>"
         else
