@@ -1,6 +1,7 @@
 require 'sinatra'
 require 'erb'
 require 'buffet/runner'
+require 'rack'
 
 module Buffet
   # The Buffet Sinatra web server provides a simple frontend to Buffet. The most
@@ -9,6 +10,10 @@ module Buffet
   # branch if it isn't already running. (In short, test is for browsers,
   # start-buffet-server is for terminals.)
   class Frontend < Sinatra::Base
+
+    configure :development do
+      use Rack::Reloader
+    end
 
     @@runner = Buffet::Runner.new
     @@testing_mode = false
