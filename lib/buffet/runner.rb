@@ -71,13 +71,12 @@ module Buffet
         @should_display = should_display
       end
 
+
       def set(message)
         @message = message
         @show_progress = false
 
-        if @should_display
-          puts get
-        end
+        display
       end
 
       def get
@@ -92,16 +91,18 @@ module Buffet
         @show_progress = true
         @max_progress = max_progress
         @progress = 0
-        if @should_display
-          puts get
-        end
+        display
       end
 
       def increase_progress
         @progress += 1
-        if @should_display
-          puts get
-        end
+        display
+      end
+
+      private 
+
+      def display
+        puts get if @should_display
       end
     end
 
