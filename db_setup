@@ -1,5 +1,15 @@
 #!/bin/sh
 
+# If Bundler exports unhelpful settings, they will mess with our expectations, 
+# particularly when we call bundle exec down below. We sidestep this issue by
+# unsetting them.
+
+unset BUNDLE_BIN_PATH
+unset BUNDLE_GEMFILE
+unset RUBYOPT
+unset GEM_PATH
+unset GEM_HOME
+
 export RAILS_ENV=test
 
 if [[ $# -eq 0 ]]
@@ -10,20 +20,21 @@ fi
 
 mysql -u root -e 'drop database if exists buffet_causes_test'
 mysql -u root -e 'create database buffet_causes_test'
+
 mysql -u root -e 'drop database if exists buffet_wishes_test'
 mysql -u root -e 'create database buffet_wishes_test'
 
 bundle exec rake db:migrate # wart here is that we don't migrate wishes
 
-mysqldump --no-data -u root buffet_causes_test > "./tmp/buffet_causes_test.dump"
-mysqldump --no-data -u root wishes_development > "./tmp/buffet_wishes_test.dump"
-mysql -u root buffet_wishes_test < ./tmp/buffet_wishes_test.dump
+mysqldump --no-data -u root buffet_causes_test > buffet_causes_test.dump
+mysqldump --no-data -u root wishes_development > buffet_wishes_test.dump
+mysql -u root buffet_wishes_test < buffet_wishes_test.dump
 
 for host in `$@` #Loop through argument list
 do
   echo $host
-  sh -c "scp ./tmp/buffet_causes_test.dump \
-             ./tmp/buffet_wishes_test.dump \
+  sh -c "scp buffet_causes_test.dump \
+             buffet_wishes_test.dump \
              buffet@$host:~/ &&
          ssh buffet@$host 'mysql -u root -e \"drop database if exists buffet_causes_test\" && \
                            mysql -u root -e \"create database buffet_causes_test\" && \

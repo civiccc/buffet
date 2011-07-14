@@ -259,20 +259,11 @@ module Buffet
             output, errors = run_open3('bundle', 'install', '--without', 'production', '--path', '~/buffet-gems')
             expect_success("Failed to bundle install on local machine.", output + errors)
 
-            if not File.exist? "./bin/db_setup"
-              #@status.set "bin/db_setup not found in repository; copying Buffet's default script.\n"
-              
-              File.copy(File.join(@buffet_dir, "db_setup"), "./bin/db_setup")
-            end
-            @status.set "Running bin/db_setup\n"
-
-            increase_progress /^== [\d]+ /, 1120, "./bin/db_setup " + hosts.join(" ")
-
-            # TODO: A standardized way to exit on script failure.
-            if $?.exitstatus != 0
-              return
-            end
+            @status.set "Running db_setup\n"
+            increase_progress /^== [\d]+ /, 1120, "./../db_setup " + hosts.join(" ")
+            expect_success("Failed to bundle install on local machine.", output + errors)
           end
+
 
           @status.set "Copying Buffet to hosts."
           sync_hosts @buffet_dir
