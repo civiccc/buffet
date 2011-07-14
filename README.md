@@ -14,7 +14,7 @@ We aim to make this as short as possible.
 How to use
 -------
 
-`bundle exec rackup`. Then navigate to `localhost:9292/test`.
+`bundle exec shotgun`. Then navigate to `localhost:9393/test`.
 
 Or, after you've started the server, try `curl 'localhost:9292/start-buffet-server/BRANCH'`, replacing BRANCH with the correct branch.
 
