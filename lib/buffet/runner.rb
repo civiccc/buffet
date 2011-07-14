@@ -140,6 +140,10 @@ module Buffet
       @running
     end
 
+    def testing?
+      @master
+    end
+
     # Run the command COMMAND, and every time an output line matches PROGRESS_REGEX,
     # add to @progress.
     #
@@ -188,10 +192,10 @@ module Buffet
     # This method is used by the webserver to query our current status. It must 
     # be called asynchronously since run() is blocking
     def get_status
-      if @server
-        tests = @server.get_current_stats[:examples]
+      if @master
+        tests = @master.get_current_stats
 
-        @status.get + "Tests run: <b>" + tests.to_s + " (#{ tests * 100 / @server.num_tests}%).</b> Failures: <b>" + @server.get_current_stats[:failure_count].to_s + "</b>"
+        [tests[:examples], tests[:examples] * 100 / @master.num_tests, tests[:failure_count]]
       else
         @status.get
       end
@@ -280,8 +284,8 @@ module Buffet
 
           @status.set ""
 
-          @server = Buffet::Master.new @target_dir, hosts
-          @status.set @server.run
+          @master = Buffet::Master.new @target_dir, hosts
+          @status.set @master.run
           @status.set output + "\n"
         end
       ensure
@@ -293,16 +297,16 @@ module Buffet
     end
 
     def get_failures
-      if @server
-        @server.get_failures_list
+      if @master
+        @master.get_failures_list
       else
         []
       end
     end
 
     def num_tests
-      if @server
-        @server.num_tests
+      if @master
+        @master.num_tests
       else
         0
       end

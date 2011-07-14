@@ -10,7 +10,7 @@ module Buffet
   # start-buffet-server is for terminals.)
   class Frontend < Sinatra::Base
 
-    $buffet_server = Buffet::Runner.new
+    $runner = Buffet::Runner.new
     $testing_mode = false
 
     # There is a bug in Sinatra where if you surreptitiously chdir somewhere then
@@ -18,7 +18,6 @@ module Buffet
     # manually.
     set :views, File.expand_path(File.join(File.dirname(__FILE__), '../../views'))
     set :public, File.expand_path(File.join(File.dirname(__FILE__), '../../public'))
-
 
     # Going to hope that no one tries to exploit Buffet by writing a test script
     # that contains JS inside of it. If that happens, you have bigger problems than
@@ -35,7 +34,7 @@ module Buffet
       # Also parse out the /remotes/origin/ part which isn't helpful.
       #
       @branches = '["' +
-        $buffet_server.list_branches.
+        $runner.list_branches.
           split("\n").
           map {|branch| branch[2 + "remotes/origin/".length .. branch.length]}.
           reject {|branch| branch == nil or branch.include? '->'}.
@@ -57,9 +56,9 @@ module Buffet
     get '/start-buffet-server/:branch' do
       branch = params[:branch]
 
-      if not $buffet_server.running?
+      if not $runner.running?
         Thread.new do
-          $buffet_server.run
+          $runner.run
         end
         "Server started"
       else
@@ -68,7 +67,7 @@ module Buffet
     end
 
     get '/is-running' do
-      $buffet_server.running?.to_s
+      $runner.running?.to_s
     end
 
     # Returns status of pre-testing setup.
@@ -76,12 +75,18 @@ module Buffet
       if $testing_mode
         return "Tests run: <b>256 (23%)</b> Failures: <b>2</b>"
       end
-      $buffet_server.get_status.gsub("\n", "<br>")
+
+      if $runner.testing?
+        @tests, @percentage, @failures = $runner.get_status.map &:to_s
+        erb :stats
+      else
+        $runner.get_status.gsub("\n", "<br>")
+      end
     end
 
     get '/title' do
-      if $buffet_server.running?
-        "Reserved for #{$buffet_server.get_repo.gsub(/git@github.com:(.*)\.git/, "\\1")}, party of #{$buffet_server.num_tests}."
+      if $runner.running?
+        "Reserved for #{$runner.get_repo.gsub(/git@github.com:(.*)\.git/, "\\1")}, party of #{$runner.num_tests}."
       else
         "Open for reservations"
       end
@@ -90,7 +95,7 @@ module Buffet
     # Returns all failures in nicely formatted HTML.
     # (The massive concentration of fail in this function makes me laugh.)
     get '/failures' do
-      failures = $buffet_server.get_failures
+      failures = $runner.get_failures
 
       if $testing_mode
         failures = [ {:location => "Some Ruby File:76", :header => "This is a description of the bug.", :backtrace => "This is a really\n really\n  really\n long backtrace full of 99% useless info."},
@@ -111,7 +116,7 @@ module Buffet
       end
 
       if fail_html == ""
-        if $buffet_server.running?
+        if $runner.running?
           #TODO: Don't show this when we haven't even started running tests.
           "<div class='you-are-a-winner'>All tests pass! ...so far.</div>"
         else
