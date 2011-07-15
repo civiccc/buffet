@@ -3,18 +3,32 @@ require File.dirname(__FILE__) + "/spec_helper"
 describe Buffet::Frontend do
   include Rack::Test::Methods
 
+  describe "sanitize" do
+    it "properly sanitizes simple HTML" do
+      app.sanitize("<br>").should_not include("<")
+      app.sanitize("<br>").should_not include(">")
+    end
+  end
+
   describe "#failures" do
     # You can't stub before :all.
     before(:each) do
       failures = app.runner.stub!(:get_failures).and_return do
         [ {:location => "Some Ruby File:76", :header => "This is a description of the bug.", :backtrace => "This is a really\n really\n  really\n long backtrace full of 99% useless info."},
-          {:location => "Some Ruby File:22", :header => "Something Bad happened.", :backtrace => "This backtrace is comparatively short."}]
+          {:location => "Some Ruby File:22", :header => "Something Bad happened.", :backtrace => "This backtrace is comparatively short, but has some <div> html <br> elements <blink> <marquee>."}]
       end
     end
 
-    it "does not error when returning failures" do
+    it "returns failures without error" do
       get '/failures'
       last_response.should be_ok
+    end
+
+    it "sanitizes backtraces" do
+      get '/failures'
+
+      last_response.body.should_not include("<blink>")
+      last_response.body.should_not include("<marquee>")
     end
 
    it "contains convincing output for /failures" do
@@ -48,5 +62,15 @@ describe Buffet::Frontend do
       last_response.body.should_not include "party of 0"
     end
   end
+
+  describe "#stats" do
+    it "should return something" do
+      get "/stats"
+
+      last_response.should be_ok
+    end
+  end
+
+
 end
 

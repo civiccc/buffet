@@ -6,7 +6,7 @@ require 'wopen3'
 
 module Buffet
   class StatusMessage
-    def initialize should_display
+    def initialize(should_display=false)
       @message = ""
       @show_progress = false
       @progress = 0

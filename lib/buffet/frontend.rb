@@ -15,7 +15,9 @@ module Buffet
       use Rack::Reloader
     end
 
-    @@runner = Buffet::Runner.new
+    #TODO: we should eventually move all configuation to webapp (not yml).
+
+    @@runner = Buffet::Buffet.new Buffet.settings['repository']
     @@testing_mode = false
 
     # This is just for testing.
@@ -37,7 +39,7 @@ module Buffet
     # Going to hope that no one tries to exploit Buffet by writing a test script
     # that contains JS inside of it. If that happens, you have bigger problems than
     # a broken test framework.
-    def sanitize(str)
+    def self.sanitize(str)
       str.gsub("<", "&lt;").gsub(">", "&gt;")
     end
 
@@ -69,14 +71,14 @@ module Buffet
     get '/start-buffet-server/:branch' do
       branch = params[:branch]
 
-      if not @@runner.running?
-        Thread.new do
-          @@runner.run
-        end
-        "Server started"
-      else
-        "Server already running"
+      if @@runner.running?
+        return "Server already running"
       end
+
+      Thread.new do
+        @@runner.run
+      end
+      "Server started"
     end
 
     get '/is-running' do
@@ -99,7 +101,8 @@ module Buffet
 
     get '/title' do
       if @@runner.running?
-        "Reserved for #{@@runner.get_repo.gsub(/git@github.com:(.*)\.git/, "\\1")}, party of #{@@runner.num_tests}."
+        #TODO: Hardcoded reference to github.
+        "Reserved for #{@@runner.repo.gsub(/git@github.com:(.*)\.git/, "\\1")}, party of #{@@runner.num_tests}."
       else
         "Open for reservations"
       end
@@ -124,7 +127,7 @@ module Buffet
         # The order of functions (sanitize, then gsub) is important, because
         # otherwise all the <br>s would be rendered as text, which is not what we
         # want at all.
-        fail_html += "<div class='fail-backtrace' id='fail-#{index}-location'> #{sanitize(fail[:backtrace]).gsub("\n", "<br>")} </div>"
+        fail_html += "<div class='fail-backtrace' id='fail-#{index}-location'> #{self.class.sanitize(fail[:backtrace]).gsub("\n", "<br>")} </div>"
         
         fail_html += "</div>"
       end

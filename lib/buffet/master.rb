@@ -13,7 +13,7 @@ module Buffet
     extend Memoize
 
     # This will initialize the server.
-    def initialize(working_dir, hosts) 
+    def initialize(working_dir, hosts, status) 
       @ip = Socket.gethostname.split('.').first # For druby
       @port = 8990 # For druby
       @hosts = hosts # All host machines
@@ -21,6 +21,7 @@ module Buffet
       @lock = Mutex.new # Lock objects touched by several threads to avoid race.
       @failure_list = [] # Details of the failure we have.
       @working_dir = working_dir # Directory we clone and run tests in.
+      @status = status #RFCTR: Use status
 
       Dir.chdir(@working_dir) do
         @files = Dir["spec/**/*_spec.rb"].sort #This is specific to rspec.
