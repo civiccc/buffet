@@ -7,6 +7,7 @@ require 'wopen3'
 require 'buffet/master'
 require 'buffet/settings'
 require 'buffet/campfire'
+require 'buffet/status_message'
 require 'memoize'
 include Memoize
 
@@ -59,61 +60,13 @@ end
 module Buffet
   class Runner
 
-    # Maintains a current status message, along with an optional progress amount
-    # (which is generically displayed as (x of y), for example (5 of 100).
-    # The progress amount gets reset when you set a new message. 
-    class StatusMessage
-      def initialize should_display
-        @message = ""
-        @show_progress = false
-        @progress = 0
-        @max_progress = 0
-        @should_display = should_display
-      end
-
-
-      def set(message)
-        @message = message
-        @show_progress = false
-
-        display
-      end
-
-      def get
-        if @show_progress
-          "#{@message} (#{@progress} of #{@max_progress})"
-        else
-          "#{@message}"
-        end
-      end
-
-      def start_progress(max_progress)
-        @show_progress = true
-        @max_progress = max_progress
-        @progress = 0
-        display
-      end
-
-      def increase_progress
-        @progress += 1
-        display
-      end
-
-      private 
-
-      def display
-        puts(get) if @should_display
-      end
-    end
-
-
     # Initialize contains stuff that can be done preliminarily; that is, it's not
     # imperative that we have to be running a test in order to run this function. 
     # Right now, it just sets instance variables and clones the working directory
     # if it doesn't already exist.
     def initialize 
       @running = false
-      @status = StatusMessage.new true
+      @status = Buffet::StatusMessage.new true
       @buffet_dir = File.expand_path(File.dirname(__FILE__) + "/../..")
       @working_dir = "working-directory"
       @progress = 0
@@ -145,36 +98,6 @@ module Buffet
       @master
     end
 
-    # Run the command COMMAND, and every time an output line matches PROGRESS_REGEX,
-    # add to @progress.
-    def increase_progress(progress_regex, expected, command)
-      @status.start_progress(expected)
-      # It's necessary to split along && because passing in multiple commands to
-      # popen3 does not appear to work.
-      command.split('&&').map do |command|
-        Wopen3.popen3(*command.split(" ")) do |stdin, stdout, stderr|
-          Thread.new(stdout) do |out|
-            out.each do |line|
-              if progress_regex =~ line
-                @status.increase_progress
-              end
-            end
-          end
-
-          Thread.new(stderr) do |out|
-            out.each do |line|
-              puts line
-            end
-          end
-        end
-      end
-
-      if $?.exitstatus != 0
-        @status.set "Command #{command} failed."
-      end
-    end
-
-    # Grab all hosts from the yml file.
     def hosts
       Buffet.settings['hosts']
     end
@@ -229,14 +152,14 @@ module Buffet
         expect_success('Rev-parse failed', rev)
 
         @status.set "Updating local repository.\n"
-        result = increase_progress(/a/, 30, 
+        @status.increase_progress(/a/, 30, 
                      "git checkout #{rev} &&
                       git reset --hard #{rev} &&
                       git clean -f &&
                       git submodule update --init &&
                       git submodule foreach git reset --hard HEAD &&
                       git submodule foreach git clean -f".gsub(/\n/, ''))
-        expect_success("Failed to clone local repository.", result)
+        # expect_success("Failed to clone local repository.", result)
 
         ENV['RAILS_ENV'] = 'test'
 
@@ -245,7 +168,7 @@ module Buffet
         expect_success("Failed to bundle install on local machine.", output + errors)
 
         @status.set "Running db_setup\n"
-        increase_progress /^== [\d]+ /, 1120, "./../db_setup " + hosts.join(" ")
+        @status.increase_progress /^== [\d]+ /, 1120, "./../db_setup " + hosts.join(" ")
         expect_success("Failed to bundle install on local machine.", output + errors)
       end
     end
