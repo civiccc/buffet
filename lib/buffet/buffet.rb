@@ -17,9 +17,6 @@ module Buffet
   class Buffet
 
     #TODO: Duplication with settings.rb.
-    def settings
-      @settings ||= YAML.load_file(SETTINGS_FILE)
-    end
 
     #TODO: Util?
     def directory_exists?(path)
@@ -33,11 +30,11 @@ module Buffet
       @state = :not_running
       @threads = []
 
-      if `ps -ef | grep ssh-agent | grep $USER | grep -L 'grep'`.length == 0
-        #TODO: Maybe some sort of warning message. 
-      end
-
       if not directory_exists? @working_directory
+        if `ps -ef | grep ssh-agent | grep $USER | grep -L 'grep'`.length == 0
+          puts "You should run ssh-agent so you don't see so many password prompts."
+        end
+
         @status.set "Cloning #{@repo}. This will only happen once.\n"
 
         `git clone #{@repo} #{@working_directory}`
@@ -57,7 +54,7 @@ module Buffet
     end
 
     def hosts
-      settings['hosts']
+      Settings.get['hosts']
     end
 
     def list_branches

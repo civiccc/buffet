@@ -4,7 +4,7 @@ require 'tinder'
 require 'buffet/settings'
 
 module Campfire
-  CAMPFIRE_SETTINGS = ::Buffet.settings["campfire"]
+  CAMPFIRE_SETTINGS = ::Buffet::Settings.get["campfire"]
   SUBDOMAIN = CAMPFIRE_SETTINGS["subdomain"]
   ROOM_NAME = CAMPFIRE_SETTINGS["room_name"]
   USERNAME  = CAMPFIRE_SETTINGS["username"]
