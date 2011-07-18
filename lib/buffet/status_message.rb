@@ -21,7 +21,7 @@ module Buffet
       display
     end
 
-    def get
+    def to_s
       if @show_progress
         "#{@message} (#{@progress} of #{@max_progress})"
       else
@@ -58,6 +58,12 @@ module Buffet
       end
     end
 
+    # If someone has set() the status to a hash, you can get the values out
+    # by doing status.keyword_in_hash
+    def method_missing(method_sym, *args, &block)
+      @message[method_sym]
+    end
+
     private 
 
     def start_progress(max_progress)
@@ -73,7 +79,7 @@ module Buffet
     end
 
     def display
-      puts(get) if @should_display
+      puts(to_s) if @should_display
     end
   end
 end

@@ -94,7 +94,9 @@ module Buffet
       end
 
       if @@buffet.testing?
-        @tests, @percentage, @failures = @@buffet.get_status.map &:to_s
+        @tests = @@buffet.get_status.examples
+        @failures = @@buffet.get_status.failure_count
+        @percentage = @tests * 100 / @@buffet.num_tests
         erb :stats
       else
         @@buffet.get_status.gsub("\n", "<br>")

@@ -114,7 +114,7 @@ module Buffet
     end
 
     def get_status
-      @status.get
+      @status
     end
 
     def get_failures

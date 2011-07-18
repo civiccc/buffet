@@ -57,7 +57,7 @@ module Buffet
     end
 
     def update_status
-      @status.set @stats.to_s
+      @status.set @stats
     end
 
     def server_addr
@@ -78,6 +78,8 @@ module Buffet
 
     # This will start distributing specs. It blocks until the tests are complete.
     def run
+      update_status
+
       Dir.chdir(@working_dir) do
         @files_to_run = @files.dup
 
