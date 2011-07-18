@@ -19,7 +19,7 @@ def expect_success(failure_msg)
 end
 
 module Buffet
-  class Runner
+  class Setup
 
     # Initialize contains stuff that can be done preliminarily; that is, it's not
     # imperative that we have to be running a test in order to run this function. 
@@ -115,9 +115,4 @@ module Buffet
       end
     end
   end
-end
-
-if __FILE__ == $0
-  b = Buffet::Runner.new
-  b.run ARGV.first
 end

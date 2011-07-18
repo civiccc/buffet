@@ -1,13 +1,12 @@
 require File.dirname(__FILE__) + "/spec_helper"
 
-describe Buffet::Runner do
+describe Buffet::Setup do
   include Rack::Test::Methods
 
   before(:all) do
     status = Buffet::StatusMessage.new
     @test_host = "bowler"
-    #@setup = Runner.new @working_directory, hosts, @status, @repo
-    @runner = Buffet::Runner.new "../working-directory", [@test_host], status, "unnecessary"
+    @runner = Buffet::Setup.new "../working-directory", [@test_host], status, "unnecessary"
   end
 
   describe "#sync" do

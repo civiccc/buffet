@@ -1,7 +1,7 @@
 require 'sinatra'
 require 'erb'
 require 'buffet/buffet'
-require 'buffet/runner'
+require 'buffet/setup'
 require 'rack'
 
 module Buffet

@@ -5,7 +5,7 @@ require 'ftools'
 require 'buffet/master'
 require 'buffet/settings'
 require 'buffet/status_message'
-require 'buffet/runner'
+require 'buffet/setup'
 
 require 'memoize'
 include Memoize
@@ -15,14 +15,6 @@ SETTINGS_FILE = File.expand_path('../../settings.yml', File.join(File.dirname(__
 
 module Buffet
   class Buffet
-
-    #TODO: Duplication with settings.rb.
-
-    #TODO: Util?
-    def directory_exists?(path)
-      File.exists? path and File.directory? path
-    end
-
     def initialize repo
       @status = StatusMessage.new true
       @repo = repo
@@ -30,7 +22,7 @@ module Buffet
       @state = :not_running
       @threads = []
 
-      if not directory_exists? @working_directory
+      if not File.directory? @working_directory
         if `ps -ef | grep ssh-agent | grep $USER | grep -L 'grep'`.length == 0
           puts "You should run ssh-agent so you don't see so many password prompts."
         end
@@ -66,7 +58,6 @@ module Buffet
 
     def num_tests
       # This is RSpec specific.
-      #TODO: maybe specify
       `grep -r "  it" #{@working_directory}/spec/ | wc`.to_i
     end
     memoize :num_tests
@@ -83,7 +74,7 @@ module Buffet
       end
     end
 
-    def run
+    def run(skip_setup=false)
       if File.exists?(PID_FILE)
         if `ps aux | grep buffet | grep -v grep | grep #{File.open(PID_FILE).read}`.length == 0
           # Buffet isn't running, but the PID_FILE exists.
@@ -99,9 +90,11 @@ module Buffet
         begin
           write_pid
       
-          @state = :setup
-          @setup = Runner.new @working_directory, hosts, @status, @repo
-          @setup.run "master"
+          if not skip_setup || true
+            @state = :setup
+            @setup = Setup.new @working_directory, hosts, @status, @repo
+            @setup.run "master"
+          end
 
           @state = :testing
           @master = Master.new @working_directory, hosts, @status
