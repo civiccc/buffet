@@ -4,12 +4,10 @@ describe Buffet::Runner do
   include Rack::Test::Methods
 
   before(:all) do
+    status = Buffet::StatusMessage.new
     @test_host = "bowler"
-    @runner = Buffet::Runner.new
-  end
-
-  before(:each) do
-    @runner.stub!(:hosts).and_return { [@test_host] }
+    #@setup = Runner.new @working_directory, hosts, @status, @repo
+    @runner = Buffet::Runner.new "../working-directory", [@test_host], status, "unnecessary"
   end
 
   describe "#sync" do
