@@ -29,7 +29,7 @@ module Buffet
     def initialize repo
       @status = StatusMessage.new true
       @repo = repo
-      @working_directory = ('working-directory')
+      @working_directory = './working-directory'
       @state = :not_running
       @threads = []
 
@@ -72,17 +72,7 @@ module Buffet
       #TODO: maybe specify
       `grep -r "  it" #{@working_directory}/spec/ | wc`.to_i
     end
-
     memoize :num_tests
-
-    # Only one instance of Buffet should be running at any time. The next three
-    # functions help manage the PID_FILE which ensures this.
-    def running?
-      # Maybe we should do something like if `ps aux | grep buffet | 
-      # grep #{File.open(PID_FILE).chomp}`.length == 0 then `rm #{PID_FILE}.
-      # The hope is that this is rare enough that we don't have to worry.
-      return File.exists?(PID_FILE)
-    end
 
     def write_pid
       File.open(PID_FILE, 'w') do |fh|
@@ -97,9 +87,15 @@ module Buffet
     end
 
     def run
-      if running? 
-        puts "Buffet is already running."
-        exit 1
+      if File.exists?(PID_FILE)
+        if `ps aux | grep buffet | grep -v grep | grep #{File.open(PID_FILE).read}`.length == 0
+          # Buffet isn't running, but the PID_FILE exists.
+          # Get rid of it.
+          `rm #{PID_FILE}`
+        else
+          puts "Buffet is already running. Hold your horses."
+          exit 1
+        end
       end
 
       @threads << Thread.new do
@@ -107,12 +103,12 @@ module Buffet
           write_pid
       
           @state = :setup
-          setup = Runner.new @working_directory, hosts, @status, @repo
-          setup.run "master"
+          @setup = Runner.new @working_directory, hosts, @status, @repo
+          @setup.run "master"
 
           @state = :testing
-          master = Master.new @working_directory, hosts, @status
-          master.run #RFCTR: This method does not take any args right now
+          @master = Master.new @working_directory, hosts, @status
+          @master.run
         
           @state = :not_running
         ensure
@@ -126,9 +122,17 @@ module Buffet
         thread.join
       end
     end
+
+    def get_status
+      @status.get
+    end
+
+    def get_failures
+      if @state == :testing
+        @master.failures
+      else
+        []
+      end
+    end
   end
 end
-
-b = Buffet::Buffet.new "git@github.com:causes/buffet.git"
-b.run
-b.wait_until_done

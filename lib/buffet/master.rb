@@ -39,6 +39,7 @@ module Buffet
     def example_passed(location)
       @lock.synchronize do
         @stats[:examples] += 1
+        update_status
       end
     end
 
@@ -51,7 +52,12 @@ module Buffet
         backtrace ||= "No backtrace found."
 
         @failure_list.push({:location => location, :header => header, :backtrace => backtrace.to_s})
+        update_status
       end
+    end
+
+    def update_status
+      @status.set @stats.to_s
     end
 
     def server_addr
@@ -71,15 +77,6 @@ module Buffet
     end
 
     # This will start distributing specs. It blocks until the tests are complete.
-    #
-    # It is necessary to have both initialize and start because otherwise it 
-    # would be impossible to asynchronously check status. Say you had
-    # server = Buffet::Master.new (...) and wanted to go server.get_updates in 
-    # a separate thread. server does not actually get assigned until .new 
-    # completes, which is after when you want to check status.
-    #
-    # The only way around this is to have two methods.
-
     def run
       Dir.chdir(@working_dir) do
         @files_to_run = @files.dup
@@ -90,15 +87,19 @@ module Buffet
         # Run worker on every host.
         threads = @hosts.map do |host|
           Thread.new do
-            #TODO: Print an error if this fails
             #TODO: Maybe eventually pull these dirs out of settings.yml
-            results = `ssh buffet@#{host} 'cd ~/buffet/working-directory; RAILS_ENV=test bundle exec ruby ~/buffet/bin/buffet_worker #{server_addr}'`
+            `ssh buffet@#{host} 'cd ~/buffet/working-directory; RAILS_ENV=test bundle exec ruby ~/buffet/bin/buffet_worker #{server_addr}'`
+
+            if $?.exitstatus != 0
+              puts "Error on worker machine #{host}."
+            end
           end
         end
 
         threads.each do |t|
           t.join
         end
+
         @end_time = Time.now
         stop_service
       end
@@ -111,14 +112,11 @@ module Buffet
       results += "\n"
       mins, secs = (@end_time - @start_time).divmod(60)
       results += "ran in %d mins %d secs\n" % [mins, secs]
-      results
+
+      @status.set results
     end
 
-    def get_current_stats
-      @stats
-    end
-
-    def get_failures_list
+    def failures
       @failure_list
     end
   end

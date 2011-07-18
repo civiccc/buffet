@@ -10,44 +10,12 @@ require 'buffet/status_message'
 require 'memoize'
 include Memoize
 
-
-def run_open3(*args)
-  output, errors = '', ''
-  Wopen3.popen3(*args) do |stdin, stdout, stderr|
-    threads = []
-    threads << Thread.new(stdout) do |out|
-      out.each do |line|
-        output << line
-      end
-    end
-    threads << Thread.new(stderr) do |err|
-      err.each do |line|
-        errors << line
-        puts "* #{line}"
-      end
-    end
-  end
-  return output, errors
-end
-
-def expect_success(failure_msg, diagnostic_output)
+def expect_success(failure_msg)
   if $?.exitstatus != 0
-    Campfire.speak(tee(failure_msg))
-    Campfire.paste(tee(diagnostic_output))
+    puts failure_msg
+    puts diagnostic_output
     exit 1
   end
-end
-
-# Like "tee" on the commandline, this method just pipes from "stdin" (the
-# method argument) to "stdout" (the return value), while writing a copy
-# somewhere else; in this case the "somewhere else" is the console, where
-# the output will be captured and logged by the detour Sinatra app to aid
-# in problem diagnosis.
-def tee(string)
-  string.lines.each do |line|
-    puts "> #{line}"
-  end
-  string
 end
 
 module Buffet
@@ -92,21 +60,6 @@ module Buffet
       end
     end
 
-    # This method is used by the webserver to query our current status. It must 
-    # be called asynchronously since run() is blocking
-    #
-    # TODO: Status will eventally be maintained by Buffet::Buffet. When that
-    # happens, remove this fn.
-    def get_status
-      if @master
-        tests = @master.get_current_stats
-
-        [tests[:examples], tests[:examples] * 100 / num_tests, tests[:failure_count]]
-      else
-        @status.get
-      end
-    end
-
     def update_working_dir remote, branch
       Dir.chdir(@working_dir) do
         `git fetch #{remote}`
@@ -131,7 +84,7 @@ module Buffet
         ENV['RAILS_ENV'] = 'test'
 
         @status.set "Updating local gems.\n"
-        output, errors = run_open3('bundle', 'install', '--without', 'production', '--path', '~/buffet-gems')
+        `bundle install --without production --path ~/buffet-gems`
         expect_success("Failed to bundle install on local machine.", output + errors)
 
         @status.set "Running db_setup\n"

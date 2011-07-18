@@ -1,5 +1,6 @@
 require 'sinatra'
 require 'erb'
+require 'buffet/buffet'
 require 'buffet/runner'
 require 'rack'
 
@@ -16,14 +17,14 @@ module Buffet
     end
 
     #TODO: we should eventually move all configuation to webapp (not yml).
-
-    @@runner = Buffet::Buffet.new Buffet.settings['repository']
+    #TODO use settings.
+    @@buffet = Buffet.new "git@github.com:causes/buffet.git"
     @@testing_mode = false
 
     # This is just for testing.
     
     def self.runner
-      @@runner
+      @@buffet
     end
 
     def self.testing_mode
@@ -49,7 +50,7 @@ module Buffet
       # Also parse out the /remotes/origin/ part which isn't helpful.
       #
       @branches = '["' +
-        @@runner.list_branches.
+        @@buffet.list_branches.
           split("\n").
           map {|branch| branch[2 + "remotes/origin/".length .. branch.length]}.
           reject {|branch| branch == nil or branch.include? '->'}.
@@ -71,18 +72,19 @@ module Buffet
     get '/start-buffet-server/:branch' do
       branch = params[:branch]
 
-      if @@runner.running?
+      if @@buffet.running?
         return "Server already running"
       end
 
       Thread.new do
-        @@runner.run
+        @@buffet.run
       end
+
       "Server started"
     end
 
     get '/is-running' do
-      @@runner.running?.to_s
+      @@buffet.running?.to_s
     end
 
     # Returns status of pre-testing setup.
@@ -91,18 +93,18 @@ module Buffet
         return "Tests run: <b>256 (23%)</b> Failures: <b>2</b>"
       end
 
-      if @@runner.testing?
-        @tests, @percentage, @failures = @@runner.get_status.map &:to_s
+      if @@buffet.testing?
+        @tests, @percentage, @failures = @@buffet.get_status.map &:to_s
         erb :stats
       else
-        @@runner.get_status.gsub("\n", "<br>")
+        @@buffet.get_status.gsub("\n", "<br>")
       end
     end
 
     get '/title' do
-      if @@runner.running?
+      if @@buffet.running?
         #TODO: Hardcoded reference to github.
-        "Reserved for #{@@runner.repo.gsub(/git@github.com:(.*)\.git/, "\\1")}, party of #{@@runner.num_tests}."
+        "Reserved for #{@@buffet.repo.gsub(/git@github.com:(.*)\.git/, "\\1")}, party of #{@@buffet.num_tests}."
       else
         "Open for reservations"
       end
@@ -111,7 +113,7 @@ module Buffet
     # Returns all failures in nicely formatted HTML.
     # (The massive concentration of fail in this function makes me laugh.)
     get '/failures' do
-      failures = @@runner.get_failures
+      failures = @@buffet.get_failures
 
       if @@testing_mode
         failures = [ {:location => "Some Ruby File:76", :header => "This is a description of the bug.", :backtrace => "This is a really\n really\n  really\n long backtrace full of 99% useless info."},
@@ -133,7 +135,7 @@ module Buffet
       end
 
       if fail_html == ""
-        if @@runner.running?
+        if @@buffet.running?
           #TODO: Don't show this when we haven't even started running tests.
           "<div class='you-are-a-winner'>All tests pass! ...so far.</div>"
         else
