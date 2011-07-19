@@ -31,13 +31,29 @@ describe Buffet::Frontend do
       last_response.body.should_not include("<marquee>")
     end
 
-   it "contains convincing output for /failures" do
+    it "contains convincing output for /failures" do
       get '/failures'
 
      ["Something Bad happened", "Some Ruby File"].each do |string|
        last_response.body.should include(string)
      end
-   end
+    end
+  end
+
+  describe "#failures, before any failures" do
+    it "should not report that all tests pass before any tests have been tested" do
+      get "/failures"
+
+      puts last_response.body
+      last_response.body.should_not include("All tests pass!")
+
+      app.runner.stub!(:running?).and_return { true }
+
+      get "/failures"
+
+      puts last_response.body
+      last_response.body.should_not include("All tests pass!")
+    end
   end
 
   describe "#titles" do
@@ -58,7 +74,7 @@ describe Buffet::Frontend do
     it "shows that a nonzero number of tests are being run" do
       app.runner.stub!(:running?).and_return { true }
       get '/title'
-
+      
       last_response.body.should_not include "party of 0"
     end
   end

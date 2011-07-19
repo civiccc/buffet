@@ -136,7 +136,7 @@ module Buffet
       end
 
       if fail_html == ""
-        if @@buffet.running?
+        if @@buffet.testing?
           #TODO: Don't show this when we haven't even started running tests.
           "<div class='you-are-a-winner'>All tests pass! ...so far.</div>"
         else
