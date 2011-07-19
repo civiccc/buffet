@@ -17,8 +17,7 @@ module Buffet
     end
 
     #TODO: we should eventually move all configuation to webapp (not yml).
-    #TODO use settings.
-    @@buffet = Buffet.new "git@github.com:causes/buffet.git"
+    @@buffet = Buffet.new Settings.get["repository"]
     @@testing_mode = false
 
     # This is just for testing.

@@ -70,7 +70,4 @@ describe Buffet::Frontend do
       last_response.should be_ok
     end
   end
-
-
 end
-
