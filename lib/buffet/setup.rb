@@ -9,15 +9,6 @@ require 'buffet/campfire'
 require 'buffet/status_message'
 require 'memoize'
 include Memoize
-
-def expect_success(failure_msg)
-  if $?.exitstatus != 0
-    puts failure_msg
-    puts diagnostic_output
-    exit 1
-  end
-end
-
 module Buffet
   class Setup
 
@@ -69,7 +60,7 @@ module Buffet
           # probably got passed a SHA-1 hash instead of a branch name
           rev = `git rev-parse #{branch}`.chomp
         end
-        expect_success('Rev-parse failed', rev)
+        expect_success('Rev-parse failed')
 
         @status.set "Updating local repository.\n"
         @status.increase_progress(/a/, 30,
@@ -79,17 +70,17 @@ module Buffet
                       git submodule update --init &&
                       git submodule foreach git reset --hard HEAD &&
                       git submodule foreach git clean -f".gsub(/\n/, ''))
-        # expect_success("Failed to clone local repository.", result)
+        # expect_success("Failed to clone local repository.")
 
         ENV['RAILS_ENV'] = 'test'
 
         @status.set "Updating local gems.\n"
         `bundle install --without production --path ~/buffet-gems`
-        expect_success("Failed to bundle install on local machine.", output + errors)
+        expect_success("Failed to bundle install on local machine.")
 
         @status.set "Running db_setup\n"
         @status.increase_progress /^== [\d]+ /, 1120, "./../db_setup " + @hosts.join(" ")
-        expect_success("Failed to db_setup on local machine.", output + errors)
+        expect_success("Failed to db_setup on local machine.")
       end
     end
 
@@ -114,5 +105,16 @@ module Buffet
         []
       end
     end
+
+    private
+
+    #TODO: Take diagnostic output also.
+    def expect_success(failure_msg)
+      if $?.exitstatus != 0
+        puts failure_msg
+        exit 1
+      end
+    end
+
   end
 end

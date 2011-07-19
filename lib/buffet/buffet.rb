@@ -1,6 +1,7 @@
 $LOAD_PATH.unshift(File.expand_path(File.dirname(__FILE__) + "/.."))
 
 require 'ftools'
+require 'fileutils'
 
 require 'buffet/master'
 require 'buffet/settings'
@@ -79,7 +80,7 @@ module Buffet
         if `ps aux | grep buffet | grep -v grep | grep #{File.open(PID_FILE).read}`.length == 0
           # Buffet isn't running, but the PID_FILE exists.
           # Get rid of it.
-          `rm #{PID_FILE}`
+          FileUtils.rm(PID_FILE)
         else
           puts "Buffet is already running. Hold your horses."
           exit 1
@@ -90,11 +91,9 @@ module Buffet
         begin
           write_pid
       
-          if not skip_setup || true
-            @state = :setup
-            @setup = Setup.new @working_directory, hosts, @status, @repo
-            @setup.run "master"
-          end
+          @state = :setup
+          @setup = Setup.new @working_directory, hosts, @status, @repo
+          @setup.run "master"
 
           @state = :testing
           @master = Master.new @working_directory, hosts, @status
