@@ -95,7 +95,7 @@ module Buffet
 
       if @@buffet.testing?
         @tests = @@buffet.get_status.examples
-        @failures = @@buffet.get_status.failure_count
+        @failures = @@buffet.get_status.failures
         @percentage = @tests * 100 / @@buffet.num_tests
         erb :stats
       else

@@ -17,7 +17,7 @@ module Buffet
       @ip = Socket.gethostname.split('.').first # For druby
       @port = 8990 # For druby
       @hosts = hosts # All host machines
-      @stats = {:examples => 0, :failure_count => 0} # Failures and total test #.
+      @stats = {:examples => 0, :failures => 0} # Failures and total test #.
       @lock = Mutex.new # Lock objects touched by several threads to avoid race.
       @failure_list = [] # Details of the failure we have.
       @working_dir = working_dir # Directory we clone and run tests in.
@@ -46,7 +46,7 @@ module Buffet
     def example_failed(location, header, message, backtrace)
       @lock.synchronize do
         @stats[:examples] += 1
-        @stats[:failure_count] += 1
+        @stats[:failures] += 1
 
         #TODO: This is lame. Need to find out why backtraces are being stifled.
         backtrace ||= "No backtrace found."
