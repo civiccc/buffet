@@ -99,7 +99,7 @@ module Buffet
         @percentage = @tests * 100 / @@buffet.num_tests
         erb :stats
       else
-        @@buffet.get_status.gsub("\n", "<br>")
+        @@buffet.get_status.to_s.gsub("\n", "<br>")
       end
     end
 
