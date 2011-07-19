@@ -30,7 +30,7 @@ module Buffet
     def bundle_install working_dir
       @hosts.each do |host|
         @status.set "Bundle install on #{host}"
-        `ssh buffet@#{host} 'cd ~/buffet/#{working_dir}; bundle install --without production --path ~/buffet-gems' &`
+        `ssh buffet@#{host} 'cd ~/buffet/#{working_dir} && bundle install --without production --path ~/buffet-gems' &`
       end
     end
 
