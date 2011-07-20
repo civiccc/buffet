@@ -17,7 +17,7 @@ describe Buffet::Setup do
      @runner.sync_hosts
 
      #Get the time modified of the working directory on the remote in HH:MM
-     time_modified = `ssh buffet@#{@test_host} 'stat ~/buffet/working-directory/ | grep Modify | cut -d" " -f3 | cut -d"." -f1 | cut -d":" -f1-2'`.chomp
+     time_modified = `ssh buffet@#{@test_host} 'stat ~/#{Buffet::Settings.root_dir}/working-directory/a | grep Modify | cut -d" " -f3 | cut -d"." -f1 | cut -d":" -f1-2'`.chomp
 
      time_modified.should eql(Time.now.strftime("%H:%M"))
      `rm working-directory/a`

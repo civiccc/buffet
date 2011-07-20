@@ -7,6 +7,7 @@ require 'sinatra'
 require 'rack/test'
 
 require 'buffet/frontend'
+require 'buffet/settings'
 
 set :environment, :test
 
