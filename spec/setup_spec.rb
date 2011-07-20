@@ -6,7 +6,7 @@ describe Buffet::Setup do
   before(:all) do
     status = Buffet::StatusMessage.new
     @test_host = "bowler"
-    @setup = Buffet::Setup.new "../working-directory", [@test_host], status, "unnecessary"
+    @setup = Buffet::Setup.new(Buffet::Settings.root_dir + "/working-directory", [@test_host], status, "unnecessary")
   end
 
   describe "#setup_db" do
@@ -20,16 +20,21 @@ describe Buffet::Setup do
         @setup.setup_db
       end
 
-      sleep 100 #Give it time.
-      `ps aux | grep setup_db | grep -v grep`.length.should == 0
-      Thread.kill(thread)
+      sleep 0.1 #Give it time.
+
+      `ps aux | grep db_setup | grep -v grep`.length.should == 0
+      Thread.kill(thread)# The entire setup_db script takes forever, so kill it.
+
+      # setup_db will have changed the current dir, but since we killed it, it's
+      # possible that it wasn't able to change it back.
+      Dir.chdir(Buffet::Settings.root_dir)
     end
   end
 
   describe "#sync" do
    it "syncs convincingly" do
      #Force a small difference in the working directory.
-     `touch working-directory/a`
+     `touch #{Buffet::Settings.working_dir}/working-directory/a`
 
      @setup.sync_hosts [@test_host]
 

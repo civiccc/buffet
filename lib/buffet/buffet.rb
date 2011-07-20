@@ -32,18 +32,17 @@ module Buffet
     def initialize repo
       @status = StatusMessage.new
       @repo = repo
-      @working_directory = './working-directory'
       @state = :not_running
       @threads = []
 
-      if not File.directory? @working_directory
+      if not File.directory? Settings.working_dir
         if `ps -ef | grep ssh-agent | grep $USER | grep -L 'grep'`.length == 0
           puts "You should run ssh-agent so you don't see so many password prompts."
         end
 
         @status.set "Cloning #{@repo}. This will only happen once.\n"
 
-        `git clone #{@repo} #{@working_directory}`
+        `git clone #{@repo} #{Settings.working_dir}`
       end
     end
 
@@ -53,11 +52,11 @@ module Buffet
         ensure_only_one do
           @status.set "Preliminary setup..."
           @state = :setup
-          @setup = Setup.new @working_directory, hosts, @status, @repo
+          @setup = Setup.new Settings.working_dir, hosts, @status, @repo
           @setup.run "master"
 
           @state = :testing
-          @master = Master.new @working_directory, hosts, @status
+          @master = Master.new Settings.working_dir, hosts, @status
           @master.run
         
           @state = :not_running
@@ -147,7 +146,7 @@ module Buffet
 
     # List all branches (found by asking the working directory)
     def list_branches
-      Dir.chdir(@working_directory) do
+      Dir.chdir(Settings.working_dir) do
         `git branch -a`
       end
     end
@@ -156,7 +155,7 @@ module Buffet
     # Count the number of tests. Uses a heuristic that is not 100% accurate.
     def num_tests
       # This is RSpec specific.
-      `grep -r "  it" #{@working_directory}/spec/ | wc`.to_i
+      `grep -r "  it" #{Settings.working_dir}/spec/ | wc`.to_i
     end
     memoize :num_tests
   end

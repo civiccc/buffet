@@ -41,12 +41,10 @@ module Buffet
       # It's necessary to split along && because passing in multiple commands to
       # popen3 does not appear to work.
       command.split('&&').map do |command|
-        puts command
         Wopen3.popen3(*command.split(" ")) do |stdin, stdout, stderr|
           threads = []
           threads << Thread.new(stdout) do |out|
             out.each do |line|
-              puts line
               if progress_regex =~ line
                 add_to_progress
               end

@@ -13,6 +13,10 @@ module Buffet
       File.expand_path(__FILE__ + "../../../../")
     end
 
+    def self.working_dir
+      File.expand_path(__FILE__ + "../../../../working-directory")
+    end
+
     def self.root_dir_name
       File.expand_path(__FILE__ + "../../../../").split("/").last
     end

@@ -42,8 +42,7 @@ module Buffet
 
       hosts.each do |host|
         threads << Thread.new do 
-          puts "rsync -aqz --delete --exclude=tmp --exclude=log --exclude=doc --exclude=.git #{@buffet_dir} -e 'ssh ' buffet@#{host}:~/"
-          `rsync -aqz --delete --exclude=tmp --exclude=log --exclude=doc --exclude=.git #{@buffet_dir} -e "ssh " buffet@#{host}:~/`
+          `rsync -aqz --delete --exclude=tmp --exclude=log --exclude=doc --exclude=.git #{Settings.root_dir} -e "ssh " buffet@#{host}:~/`
         end
       end
 
