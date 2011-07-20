@@ -10,7 +10,15 @@ module Buffet
     end
 
     def self.root_dir
+      File.expand_path(__FILE__ + "../../../../")
+    end
+
+    def self.root_dir_name
       File.expand_path(__FILE__ + "../../../../").split("/").last
+    end
+
+    def self.hostname
+      `uname -n`.split('.').first
     end
   end
 end
