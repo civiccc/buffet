@@ -22,7 +22,7 @@ module Buffet
 
     # This is just for testing.
     
-    def self.runner
+    def self.buffet
       @@buffet
     end
 

@@ -13,7 +13,7 @@ describe Buffet::Frontend do
   describe "#failures" do
     # You can't stub before :all.
     before(:each) do
-      failures = app.runner.stub!(:get_failures).and_return do
+      failures = app.buffet.stub!(:get_failures).and_return do
         [ {:location => "Some Ruby File:76", :header => "This is a description of the bug.", :backtrace => "This is a really\n really\n  really\n long backtrace full of 99% useless info."},
           {:location => "Some Ruby File:22", :header => "Something Bad happened.", :backtrace => "This backtrace is comparatively short, but has some <div> html <br> elements <blink> <marquee>."}]
       end
@@ -47,7 +47,7 @@ describe Buffet::Frontend do
       puts last_response.body
       last_response.body.should_not include("All tests pass!")
 
-      app.runner.stub!(:running?).and_return { true }
+      app.buffet.stub!(:running?).and_return { true }
 
       get "/failures"
 
@@ -58,21 +58,21 @@ describe Buffet::Frontend do
 
   describe "#titles" do
     it "indicates that no one is running tests (and does so in a cute way)" do
-      app.runner.stub!(:running?).and_return { false }
+      app.buffet.stub!(:running?).and_return { false }
       get '/title'
       
       last_response.body.should include("Open")
     end
 
     it "indicates that tests are being run" do
-      app.runner.stub!(:running?).and_return { true }
+      app.buffet.stub!(:running?).and_return { true }
       get '/title'
 
       last_response.body.should include("Reserved")
     end
 
     it "shows that a nonzero number of tests are being run" do
-      app.runner.stub!(:running?).and_return { true }
+      app.buffet.stub!(:running?).and_return { true }
       get '/title'
       
       last_response.body.should_not include "party of 0"
