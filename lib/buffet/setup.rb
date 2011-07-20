@@ -35,13 +35,14 @@ module Buffet
     end
 
     # Synchronize this directory to all hosts.
-    def sync_hosts
+    def sync_hosts hosts
       threads = []
 
-      @status.set "Syncing #{@hosts.join(", ")}"
+      @status.set "Syncing #{hosts.join(", ")}"
 
-      @hosts.each do |host|
+      hosts.each do |host|
         threads << Thread.new do 
+          puts "rsync -aqz --delete --exclude=tmp --exclude=log --exclude=doc --exclude=.git #{@buffet_dir} -e 'ssh ' buffet@#{host}:~/"
           `rsync -aqz --delete --exclude=tmp --exclude=log --exclude=doc --exclude=.git #{@buffet_dir} -e "ssh " buffet@#{host}:~/`
         end
       end
@@ -92,7 +93,7 @@ module Buffet
       update_working_dir remote, branch
 
       @status.set "Copying Buffet to hosts."
-      sync_hosts
+      sync_hosts @hosts
 
       @status.set "Running bundle install on hosts."
       bundle_install @working_dir

@@ -14,7 +14,7 @@ describe Buffet::Setup do
      #Force a small difference in the working directory.
      `touch working-directory/a`
 
-     @runner.sync_hosts
+     @runner.sync_hosts [@test_host]
 
      #Get the time modified of the working directory on the remote in HH:MM
      time_modified = `ssh buffet@#{@test_host} 'stat ~/#{Buffet::Settings.root_dir}/working-directory/a | grep Modify | cut -d" " -f3 | cut -d"." -f1 | cut -d":" -f1-2'`.chomp
