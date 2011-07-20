@@ -10,6 +10,10 @@ We aim to make this as short as possible.
 
 2. Make sure that you have the public keys of all hosts in `~/.ssh/known_hosts`. Otherwise you'll get spammed with 'yes to continue' messages, which is annoying.
 
+3. Copy the sample settings file to settings.yml and change it.
+
+4. Each host computer must have a buffet user, and must also have permissions to access the buffet user on each other host.
+
 
 How to use
 -------
