@@ -52,6 +52,14 @@ module Buffet
       end
     end
 
+    def setup_db
+      Dir.chdir(@working_dir) do
+        @status.set "Running db_setup\n"
+        @status.increase_progress /^== [\d]+ /, 1120, Settings.root_dir + "/db_setup " + @hosts.join(" ")
+        expect_success("Failed to db_setup on local machine.")
+      end
+    end
+
     def update_working_dir remote, branch
       Dir.chdir(@working_dir) do
         `git fetch #{remote}`
@@ -78,11 +86,9 @@ module Buffet
         @status.set "Updating local gems.\n"
         `bundle install --without production --path ~/buffet-gems`
         expect_success("Failed to bundle install on local machine.")
-
-        @status.set "Running db_setup\n"
-        @status.increase_progress /^== [\d]+ /, 1120, "./../db_setup " + @hosts.join(" ")
-        expect_success("Failed to db_setup on local machine.")
       end
+
+      setup_db
     end
 
     # Run the tests. There's lots of setup required before we can actaully run
