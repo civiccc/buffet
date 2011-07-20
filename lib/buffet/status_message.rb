@@ -14,6 +14,9 @@ module Buffet
       @should_display = should_display
     end
 
+    # Set the status message. Support for either setting it to a string or a 
+    # hash. If it's a string, StatusMessage mimics a string; similarly with 
+    # hashes.
     def set(message)
       @message = message
       @show_progress = false
@@ -21,6 +24,8 @@ module Buffet
       display
     end
 
+    # Convenience. This makes things like puts status work without any more 
+    # calls.
     def to_s
       if @show_progress
         "#{@message} (#{@progress} of #{@max_progress})"
@@ -73,6 +78,9 @@ module Buffet
 
     private 
 
+    # The progress messages are for showing (x of y) on commands that take
+    # long enough for users to feel antsy while watching them. The counter
+    # is incremented every time a regex is matched on the output of the command.
     def start_progress(max_progress)
       @show_progress = true
       @max_progress = max_progress
