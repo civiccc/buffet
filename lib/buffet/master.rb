@@ -108,12 +108,12 @@ module Buffet
 
       results = ""
       @stats.each do |key, value|
-        results += "#{key}: #{value}\n"
+        results += "#{key.capitalize}: #{value}\n"
       end
 
       results += "\n"
       mins, secs = (@end_time - @start_time).divmod(60)
-      results += "ran in %d mins %d secs\n" % [mins, secs]
+      results += "Buffet was consumed in %d mins %d secs\n" % [mins, secs]
 
       @status.set results
     end
