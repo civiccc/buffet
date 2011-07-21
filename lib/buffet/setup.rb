@@ -121,8 +121,6 @@ module Buffet
         `bundle install --without production --path ~/buffet-gems`
         expect_success("Failed to bundle install on local machine.")
       end
-
-      setup_db
     end
 
     # Run the tests. There's lots of setup required before we can actaully run
@@ -137,6 +135,8 @@ module Buffet
 
       @status.set "Running bundle install on hosts."
       bundle_install @working_dir
+
+      setup_db
     end
 
     def get_failures
@@ -156,6 +156,5 @@ module Buffet
         exit 1
       end
     end
-
   end
 end
