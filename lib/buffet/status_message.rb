@@ -64,7 +64,7 @@ module Buffet
       end
 
       if $?.exitstatus != 0
-        @status.set "Command #{command} failed."
+        set "Command #{command} failed."
       end
     end
 
