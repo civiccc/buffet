@@ -22,6 +22,21 @@ How to use
 
 Or, after you've started the server, try `curl 'localhost:9292/start-buffet-server/BRANCH'`, replacing BRANCH with the correct branch.
 
+FAQ
+--------
+
+`/usr/lib/ruby/1.8/fileutils.rb:243:in `mkdir': Permission denied - /home/(some user) (Errno::EACCES)`
+
+This means that somehow bundle install was called, but is using args found on the master machine, not the host. (Yes, the error is very obscure..)
+
+There are a few ways to solve this problem:
+1. You can manually solve this by sshing in and calling bundle install.
+2. You can examine the source / bug me to figure out why things are out of order, then fix them.
+
+`unknown database 'buffet_causes'`
+
+You should precede all bundle database commands with `RAILS_ENV=test`.
+
 TODO
 --------
 
@@ -34,3 +49,4 @@ TODO
 4. ???
 
 5. Non-profit
+
