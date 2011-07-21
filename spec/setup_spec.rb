@@ -5,7 +5,7 @@ describe Buffet::Setup do
 
   before(:all) do
     status = Buffet::StatusMessage.new
-    @test_host = "bowler"
+    @test_host = Buffet::Settings.get["hosts"].first
     @setup = Buffet::Setup.new(Buffet::Settings.root_dir + "/working-directory", [@test_host], status, "unnecessary")
   end
 
@@ -34,7 +34,7 @@ describe Buffet::Setup do
   describe "#sync" do
    it "syncs convincingly" do
      #Force a small difference in the working directory.
-     `touch #{Buffet::Settings.working_dir}/working-directory/a`
+     `touch #{Buffet::Settings.working_dir}/a`
 
      @setup.sync_hosts [@test_host]
 
