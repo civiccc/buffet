@@ -2,12 +2,15 @@
 
 require 'ftools'
 require 'benchmark'
+require 'net/ssh'
 
+require 'memoize'
 require 'wopen3'
+
 require 'buffet/master'
 require 'buffet/campfire'
 require 'buffet/status_message'
-require 'memoize'
+
 include Memoize
 module Buffet
   class Setup
@@ -54,7 +57,39 @@ module Buffet
     def setup_db
       Dir.chdir(@working_dir) do
         @status.set "Running db_setup\n"
-        @status.increase_progress /^== [\d]+ /, 1120, Settings.root_dir + "/db_setup " + @hosts.join(" ")
+
+        if Settings.get['hosts'].include? Settings.hostname
+          @status.increase_progress /^== [\d]+ /, 1120, Settings.root_dir + "/db_setup " + @hosts.join(" ")
+        else
+          # We don't want to execute db_setup on current machine, since it's not in the hosts.
+          # Copy db_setup to an arbitrary host we're allowed to use.
+          #
+          # This is primarily useful for developing Buffet, since we want to be 
+          # able to run Buffet from the same computer we run tests on, but we 
+          # don't want to have conflicts on the database.
+
+          new_setup_host = "buffet@#{@hosts.first}"
+          new_setup_location = "~/#{Settings.root_dir_name}/working-directory"
+
+          `scp #{Settings.root_dir}/db_setup #{new_setup_host}:#{new_setup_location}/db_setup`
+          command = "ssh #{new_setup_host} \"cd #{new_setup_location}; ./db_setup " + @hosts.join(" ") + "\""
+          puts command
+          
+          Net::SSH.start(@hosts.first, 'buffet') do |ssh|
+            channel = ssh.open_channel do |ch|
+              ch.exec "cd #{new_setup_location}; ./db_setup " + @hosts.join(" ") do |ch, success|
+                ch.on_data do |c, data|
+                  puts data
+                end
+                # can also capture on_extended_data for stderr
+              end
+            end
+
+            channel.wait
+          end
+
+          #@status.increase_progress /^== [\d]+ /, 1120, command
+        end
         expect_success("Failed to db_setup on local machine.")
       end
     end
