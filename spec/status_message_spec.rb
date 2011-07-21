@@ -18,6 +18,13 @@ describe Buffet::StatusMessage do
     @message.to_s.should == "Three a's (3 of 3)"
   end
 
+  it "should not break &&s inside anything" do
+    @message.set "Three a's"
+    @message.increase_progress /a/, 3, "ssh buffet@jeffws 'echo a && echo a && echo a'"
+    
+    @message.to_s.should == "Three a's (3 of 3)"
+  end
+
   it "turns into a string when needed" do
     @message.set "Test"
     @message.to_s.should == "Test"
