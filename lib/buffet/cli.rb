@@ -22,8 +22,8 @@ module Buffet
 
       puts "Running Buffet on branch #{@branch}."
 
-      buffet = Buffet.new(Settings.get["repository"], @branch, true)
-      buffet.run({:skip_setup => @skip_setup, :run_migrations => @run_migrations})
+      buffet = Buffet.new(Settings.get["repository"], true)
+      buffet.run(@branch, {:skip_setup => @skip_setup, :run_migrations => @run_migrations})
     end
 
     def process_args

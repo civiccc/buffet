@@ -17,7 +17,7 @@ module Buffet
     end
 
     #TODO: we should eventually move all configuation to webapp (not yml).
-    @@buffet = Buffet.new Settings.get["repository"], "master"
+    @@buffet = Buffet.new Settings.get["repository"]
     @@testing_mode = false
 
     # This is just for testing.
@@ -66,8 +66,7 @@ module Buffet
       erb :index
     end
 
-    # Runs buffet on branch given. (More explicitly, navigate or curl to
-    # /start-buffet-server/the_original_gangsta to run tests on that branch.)
+    # Runs buffet on provided branch.
     get '/start-buffet-server/:branch' do
       branch = params[:branch]
 
@@ -76,7 +75,7 @@ module Buffet
       end
 
       Thread.new do
-        @@buffet.run
+        @@buffet.run branch
       end
 
       "Server started"

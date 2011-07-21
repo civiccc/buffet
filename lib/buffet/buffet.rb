@@ -29,10 +29,9 @@ module Buffet
     # specified in settings.yml into working-directory if necessary.
     #
     # Initialize will NOT begin testing.
-    def initialize repo, branch, verbosity=false
+    def initialize repo, verbosity=false
       @status = StatusMessage.new verbosity
       @repo = repo
-      @branch = branch
       @state = :not_running
       @threads = []
 
@@ -47,8 +46,17 @@ module Buffet
       end
     end
 
-    # Run is the core method of Buffet. It sets up and tests the working directory.
-    def run kwargs #skip_setup=false
+    # Run sets up and tests the working directory.
+    # 
+    # Run takes keyword arguments. 
+    #
+    #   :skip_setup => Don't do any preliminary setup with the working directory.
+    #       This is more helpful for testing then actually running Buffet, since
+    #       in theory you should have changed SOMETHING in Buffet between tests.
+    #
+    #   :run_migrations => Run the database migrations.
+    def run branch, kwargs={}
+      @branch = branch
       ensure_only_one do
         @status.set "Buffet is starting..."
 
