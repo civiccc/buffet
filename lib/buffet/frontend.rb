@@ -17,7 +17,7 @@ module Buffet
     end
 
     #TODO: we should eventually move all configuation to webapp (not yml).
-    @@buffet = Buffet.new Settings.get["repository"]
+    @@buffet = Buffet.new Settings.get["repository"], "master"
     @@testing_mode = false
 
     # This is just for testing.

@@ -29,9 +29,10 @@ module Buffet
     # specified in settings.yml into working-directory if necessary.
     #
     # Initialize will NOT begin testing.
-    def initialize repo, verbosity=false
+    def initialize repo, branch, verbosity=false
       @status = StatusMessage.new verbosity
       @repo = repo
+      @branch = branch
       @state = :not_running
       @threads = []
 

@@ -20,7 +20,7 @@ module Buffet
 
       process_args
 
-      puts "Running Buffet on branch #{@branch}." #TODO: I'm actually not...
+      puts "Running Buffet on branch #{@branch}."
 
       buffet = Buffet.new(Settings.get["repository"], @branch, true)
       buffet.run({:skip_setup => @skip_setup, :run_migrations => @run_migrations})
@@ -51,6 +51,8 @@ module Buffet
           @skip_setup = true
         elsif arg == "--run-migrations"
           @run_migrations = true
+        elsif arg.match(/^--branch=/)
+          @branch = arg.gsub(/--branch=([\w*])/, "\\1")
         end
       end
     end
