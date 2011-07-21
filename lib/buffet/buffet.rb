@@ -47,13 +47,14 @@ module Buffet
     end
 
     # Run is the core method of Buffet. It sets up and tests the working directory.
-    def run(skip_setup=false)
+    def run kwargs #skip_setup=false
       ensure_only_one do
-        @status.set "Preliminary setup..."
-        if not skip_setup
+        @status.set "Buffet is starting..."
+
+        if not kwargs[:skip_setup]
           @state = :setup
           @setup = Setup.new Settings.working_dir, hosts, @status, @repo
-          @setup.run "master"
+          @setup.run kwargs[:run_migrations], @branch
         end
 
         @state = :testing

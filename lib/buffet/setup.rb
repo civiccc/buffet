@@ -125,7 +125,7 @@ module Buffet
 
     # Run the tests. There's lots of setup required before we can actaully run
     # them, including grabbing the latest version, installing gems, etc.
-    def run(branch="master")
+    def run(run_migrations, branch="master")
       remote = 'origin'
 
       update_working_dir remote, branch
@@ -136,7 +136,9 @@ module Buffet
       @status.set "Running bundle install on hosts."
       bundle_install @working_dir
 
-      setup_db
+      if run_migrations
+        setup_db
+      end
     end
 
     def get_failures

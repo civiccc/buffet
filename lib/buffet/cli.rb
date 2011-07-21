@@ -12,15 +12,18 @@ require 'buffet/settings'
 module Buffet
   class CLI
     def initialize
+      # Set some initial settings. These may be changed by process_args.
       @branch = "master"
+      #TODO: Annoying how one is yes and one is no.
       @skip_setup = false
+      @run_migrations = false
 
       process_args
 
       puts "Running Buffet on branch #{@branch}." #TODO: I'm actually not...
 
-      buffet = Buffet.new(Settings.get["repository"], true)
-      buffet.run @skip_setup
+      buffet = Buffet.new(Settings.get["repository"], @branch, true)
+      buffet.run({:skip_setup => @skip_setup, :run_migrations => @run_migrations})
     end
 
     def process_args
@@ -34,6 +37,9 @@ module Buffet
           puts "\t--skip-setup"
           puts "\t\tSkip the setup step and just run tests."
           puts ""
+          puts "\t--run-migrations"
+          puts "\t\tRun database migrations."
+          puts ""
           puts "\t--branch=some_branch" #TODO
           puts "\t\tRun tests on branch some_branch."
           puts ""
@@ -43,6 +49,8 @@ module Buffet
           exit 0
         elsif arg == "--skip-setup"
           @skip_setup = true
+        elsif arg == "--run-migrations"
+          @run_migrations = true
         end
       end
     end
