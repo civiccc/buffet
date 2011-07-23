@@ -54,7 +54,7 @@ module Buffet
     #       This is more helpful for testing then actually running Buffet, since
     #       in theory you should have changed SOMETHING in Buffet between tests.
     #
-    #   :run_migrations => Run the database migrations.
+    #   :dont_run_migrations => Don't run the database migrations.
     def run branch, kwargs={}
       @branch = branch
       ensure_only_one do
@@ -63,7 +63,7 @@ module Buffet
         if not kwargs[:skip_setup]
           @state = :setup
           @setup = Setup.new Settings.working_dir, hosts, @status, @repo
-          @setup.run kwargs[:run_migrations], @branch
+          @setup.run kwargs[:dont_run_migrations], @branch
         end
 
         @state = :testing

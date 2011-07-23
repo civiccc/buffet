@@ -16,14 +16,14 @@ module Buffet
       @branch = "master"
       #TODO: Annoying how one is yes and one is no.
       @skip_setup = false
-      @run_migrations = false
+      @dont_run_migrations = true
 
       process_args
 
       puts "Running Buffet on branch #{@branch}."
 
       buffet = Buffet.new(Settings.get["repository"], true)
-      buffet.run(@branch, {:skip_setup => @skip_setup, :run_migrations => @run_migrations})
+      buffet.run(@branch, {:skip_setup => @skip_setup, :dont_run_migrations => @dont_run_migrations})
     end
 
     def process_args
@@ -37,8 +37,8 @@ module Buffet
           puts "\t--skip-setup"
           puts "\t\tSkip the setup step and just run tests."
           puts ""
-          puts "\t--run-migrations"
-          puts "\t\tRun database migrations."
+          puts "\t--dont-run-migrations"
+          puts "\t\tDon't run database migrations."
           puts ""
           puts "\t--branch=some_branch" #TODO
           puts "\t\tRun tests on branch some_branch."
@@ -49,8 +49,8 @@ module Buffet
           exit 0
         elsif arg == "--skip-setup"
           @skip_setup = true
-        elsif arg == "--run-migrations"
-          @run_migrations = true
+        elsif arg == "--dont-run-migrations"
+          @dont_run_migrations = false
         elsif arg.match(/^--branch=/)
           @branch = arg.gsub(/--branch=([\w*])/, "\\1")
         end
