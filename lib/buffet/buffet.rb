@@ -11,7 +11,7 @@ require 'buffet/setup'
 require 'memoize'
 include Memoize
 
-PID_FILE = "/tmp/buffet.pid"
+PID_FILE = "/tmp/#{Buffet::Settings.root_dir_name}-buffet.pid"
 SETTINGS_FILE = File.expand_path('../../settings.yml', File.join(File.dirname(__FILE__)))
 
 module Buffet
