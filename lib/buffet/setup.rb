@@ -29,11 +29,13 @@ module Buffet
       @repo = repo
     end
 
+    # TODO: The following two methods can be merged for a minor speedup.
+
     # Install bundles on all remote machines.
     def bundle_install working_dir
       @hosts.each do |host|
         @status.set "Bundle install on #{host}"
-        `ssh buffet@#{host} 'cd ~/#{Settings.root_dir_name}/working-directory && bundle install --without production --path ~/buffet-gems' &`
+        `ssh buffet@#{host} 'cd ~/#{Settings.root_dir_name}/working-directory && bundle check > /dev/null; if (($? != 0)); then bundle install --without production --path ~/buffet-gems; fi'`
       end
     end
 
