@@ -2,26 +2,29 @@
 
 $LOAD_PATH.unshift(File.expand_path(File.dirname(__FILE__) + '/../lib'))
 
+require 'drb'
 require 'fileutils'
-require 'spec'
-require 'spec/runner/command_line'
-require 'buffet/augmented_text_formatter'
+
+RSPEC_FAILURES_REGEX = /^  \d+\) ([\w\W]+?)\n\n/
+RSPEC_COUNTS_REGEX = /^(\d+) examples, (\d+) failures$/
 
 # NOTE: ARGV is used by the spec runner. If I leave the drb server address
 # in ARGV, rspec will think it's an argument to the test runner.
 buffet_server = DRbObject.new_with_uri(ARGV.pop)
 
-Spec::Runner::Formatter::AugmentedTextFormatter.buffet_server = buffet_server
 
 FileUtils.mkdir_p('./tmp')
 while file = buffet_server.next_file
-  stdout = File.open("./tmp/buffet.out.log", 'a')
-  stderr = File.open("./tmp/buffet.error.log", 'a')
+  output = `bundle exec rspec #{file}`
+  failures_detail = output.scan(/\n  \d+\) ([\w\W]+?)\n\n/)
+  example_count, failure_count = output.scan(/\n(\d+) examples?, (\d+) failures?$/)[0].to_a.map &:to_i
 
-  success = ::Spec::Runner::CommandLine.run(
-     ::Spec::Runner::OptionParser.parse(
-       ['--format', 'Spec::Runner::Formatter::AugmentedTextFormatter', file], stderr, stdout
-     )
-   )
+  (example_count - failure_count).times do
+    buffet_server.example_passed(nil)
+  end
 
+  failure_count.times do |i|
+    backtrace = failures_detail[i].last(failures_detail[i].length - 1)
+    buffet_server.example_failed(file, failures_detail[i][0], backtrace)
+  end
 end

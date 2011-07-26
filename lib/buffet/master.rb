@@ -43,12 +43,12 @@ module Buffet
       end
     end
 
-    def example_failed(location, header, message, backtrace)
+    #TODO: Kwargs?
+    def example_failed(location, header, backtrace)
       @lock.synchronize do
         @stats[:examples] += 1
         @stats[:failures] += 1
 
-        #TODO: This is lame. Need to find out why backtraces are being stifled.
         backtrace ||= "No backtrace found."
 
         @failure_list.push({:location => location, :header => header, :backtrace => backtrace.to_s})
