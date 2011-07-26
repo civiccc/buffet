@@ -35,15 +35,28 @@ module Buffet
       @state = :not_running
       @threads = []
 
-      if not File.directory? Settings.working_dir
-        if `ps -ef | grep ssh-agent | grep $USER | grep -L 'grep'`.length == 0
-          puts "You should run ssh-agent so you don't see so many password prompts."
-        end
+      clone_repo
+    end
 
-        @status.set "Cloning #{@repo}. This will only happen once.\n"
 
-        `git clone #{@repo} #{Settings.working_dir}`
+    # Clone the repository into the working directory, if necessary. Will happen
+    # if the dir is nonexistent or a clone of the wrong repository.
+    def clone_repo
+      remote = `cd #{Settings.working_dir} && git remote -v | grep fetch | cut -f2 | cut -d" " -f1`.chomp
+
+      return if remote == Settings.get["repository"]
+      puts "DELETING EVERYTHING."
+
+      `rm -rf #{Settings.working_dir}` if File.directory? Settings.working_dir
+
+      # Running ssh-agent?
+      if `ps -ef | grep ssh-agent | grep $USER | grep -L 'grep'`.length == 0
+        puts "You should run ssh-agent so you don't see so many password prompts."
       end
+
+      @status.set "Cloning #{@repo}. This will only happen once.\n"
+
+      `git clone #{@repo} #{Settings.working_dir}`
     end
 
     # Run sets up and tests the working directory.
