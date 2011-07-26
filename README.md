@@ -42,9 +42,10 @@ TODO
 
 1. Get rid of all TODOs.
 
-2. Only run migrations if a hash check doesn't match up.
-
-3. Separate Causes specific files into a .gitignore'd causes/ directory
+2. Feature requests:
+* What user did this run on?
+* Regression testing.
+* Testing on other repos.
 
 4. ???
 
