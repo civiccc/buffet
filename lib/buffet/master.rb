@@ -14,17 +14,20 @@ module Buffet
 
     # This will initialize the server.
     def initialize(working_dir, hosts, status) 
+      #TODO: Move ip into Settings.
       @ip = Socket.gethostname.split('.').first # For druby
-      @port = 8990 # For druby
+      @port = Settings.get["port"] + 1 # For druby
       @hosts = hosts # All host machines
       @stats = {:examples => 0, :failures => 0} # Failures and total test #.
       @lock = Mutex.new # Lock objects touched by several threads to avoid race.
       @failure_list = [] # Details of the failure we have.
       @working_dir = working_dir # Directory we clone and run tests in.
-      @status = status #RFCTR: Use status
+      @status = status
 
+      # Get all tests.
       Dir.chdir(@working_dir) do
         @files = Dir["spec/**/*_spec.rb"].sort #This is specific to rspec.
+        @files = @files[0..Settings.get['test_count'] - 1] if Settings.get['test_count']
       end
     end
 
