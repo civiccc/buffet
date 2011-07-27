@@ -20,7 +20,8 @@ module Buffet
       @hosts = hosts # All host machines
       @stats = {:examples => 0, :failures => 0} # Failures and total test #.
       @lock = Mutex.new # Lock objects touched by several threads to avoid race.
-      @failure_list = [] # Details of the failure we have.
+      @failure_list = [] # Details of our failed test cases.
+      @pass_list = [] # Our passed test cases.
       @working_dir = working_dir # Directory we clone and run tests in.
       @status = status
 
@@ -38,12 +39,14 @@ module Buffet
     end
 
     # These two methods are called on passes and fails, respectively.
-
-    def example_passed(location)
+    # TODO: This functionality should be moved into another class, I think.
+    def example_passed(details)
       @lock.synchronize do
         @stats[:examples] += 1
         update_status
       end
+
+      @pass_list.push({:description => details[:description]})
     end
 
     #TODO: Kwargs?
@@ -123,6 +126,10 @@ module Buffet
 
     def failures
       @failure_list
+    end
+
+    def passes
+      @pass_list
     end
   end
 end
