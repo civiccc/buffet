@@ -49,15 +49,16 @@ module Buffet
       @pass_list.push({:description => details[:description]})
     end
 
-    #TODO: Kwargs?
-    def example_failed(location, header, backtrace)
+    #TODO?: Kwargs
+    def example_failed(f, details)
       @lock.synchronize do
         @stats[:examples] += 1
         @stats[:failures] += 1
 
         backtrace ||= "No backtrace found."
 
-        @failure_list.push({:location => location, :header => header, :backtrace => backtrace.to_s})
+        @failure_list.push(details)
+
         update_status
       end
     end
