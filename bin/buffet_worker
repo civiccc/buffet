@@ -10,6 +10,11 @@ require 'drb'
 # in ARGV, rspec will think it's an argument to the test runner.
 buffet_server = DRbObject.new_with_uri(ARGV.pop)
 
+FileUtils.mkdir_p('./tmp')
+
+stdout = File.open("./tmp/buffet.out.log", 'a')
+stderr = File.open("./tmp/buffet.error.log", 'a')
+
 if Gem.available?('rspec')
   # RSpec 2
   
@@ -17,11 +22,6 @@ if Gem.available?('rspec')
   require 'buffet/rspec2_formatter'
 
   RSpec::Core::Formatters::AugmentedTextFormatter.buffet_server = buffet_server
-
-  FileUtils.mkdir_p('./tmp')
-
-  stdout = File.open("./tmp/buffet.out.log", 'a')
-  stderr = File.open("./tmp/buffet.error.log", 'a')
 
   while file = buffet_server.next_file
     success = ::RSpec::Core::CommandLine.new(
@@ -34,17 +34,11 @@ elsif Gem.available?('spec')
 
   require 'spec'
   require 'spec/runner/command_line'
-  require 'buffet/augmented_text_formatter'
+  require 'buffet/rspec1_formatter'
 
   Spec::Runner::Formatter::AugmentedTextFormatter.buffet_server = buffet_server
 
-  FileUtils.mkdir_p('./tmp')
-
-  stdout = File.open("./tmp/buffet.out.log", 'a')
-  stderr = File.open("./tmp/buffet.error.log", 'a')
-
   while file = buffet_server.next_file
-
     success = ::Spec::Runner::CommandLine.run(
        ::Spec::Runner::OptionParser.parse(
          ['--format', 'Spec::Runner::Formatter::AugmentedTextFormatter', file], stderr, stdout
