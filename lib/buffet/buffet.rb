@@ -7,6 +7,7 @@ require 'buffet/master'
 require 'buffet/settings'
 require 'buffet/status_message'
 require 'buffet/setup'
+require 'buffet/regression'
 
 require 'memoize'
 include Memoize
@@ -61,8 +62,15 @@ module Buffet
         @state = :testing
         @master = Master.new Settings.working_dir, hosts, @status
         @master.run
-      
+
+        @state = :finding_regressions
+        @status.set "Looking for regressions..."
+
+        @regression_finder = Regression.new(@master.passes, @master.failures)
+        puts @regression_finder.regressions
+
         @state = :not_running
+        @status.set "Done"
       end
     end
 

@@ -3,3 +3,5 @@
 failures
 settings.yml
 working-directory
+test
+data/
