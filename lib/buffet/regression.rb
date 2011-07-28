@@ -1,9 +1,12 @@
 #!/usr/bin/env ruby
 
+require 'buffet/settings'
+
 DATA_PATH = File.expand_path(File.dirname(__FILE__) + '/../../data')
 
 FAIL_FILE = DATA_PATH + "/fails.dat"
 ALL_FILE  = DATA_PATH + "/all.dat"
+REPO_FILE = DATA_PATH + "/repo.dat"
 
 require 'fileutils'
 
@@ -12,8 +15,19 @@ module Buffet
     def initialize(new_passes, new_fails)
       FileUtils.mkdir_p(DATA_PATH)
       regressions, old_all, old_fails = [], [], []
+      old_repo = ""
       
-      if has_old_data
+      # Don't bother checking for regressions if the repos are the same.
+      if File.exist? REPO_FILE
+        File.open(REPO_FILE, 'r') do |file|
+          old_repo = file.readlines.join ""
+        end
+      end
+
+      if old_repo != Settings.get['repository']
+        File.delete(FAIL_FILE)
+        File.delete(ALL_FILE)
+      elsif has_old_data
         File.open(ALL_FILE , 'r') do |file|
           old_all = eval(file.readlines.join "")
         end
@@ -32,6 +46,10 @@ module Buffet
 
       File.open(FAIL_FILE, 'w') do |file|
         file.write new_fails.inspect
+      end
+
+      File.open(REPO_FILE, 'w') do |file|
+        file.write Settings.get['repository']
       end
 
       @regressions = regressions
