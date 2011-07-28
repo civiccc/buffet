@@ -24,19 +24,21 @@ module Buffet
         end
       end
 
-      if old_repo != Settings.get['repository']
-        File.delete(FAIL_FILE)
-        File.delete(ALL_FILE)
-      elsif has_old_data
-        File.open(ALL_FILE , 'r') do |file|
-          old_all = eval(file.readlines.join "")
-        end
+      if has_old_data
+        if old_repo != Settings.get['repository']
+          File.delete(FAIL_FILE)
+          File.delete(ALL_FILE)
+        else
+          File.open(ALL_FILE , 'r') do |file|
+            old_all = eval(file.readlines.join "")
+          end
 
-        File.open(FAIL_FILE, 'r') do |file|
-          old_fails = eval(file.readlines.join "")
-        end
+          File.open(FAIL_FILE, 'r') do |file|
+            old_fails = eval(file.readlines.join "")
+          end
 
-        regressions = get_regressions(old_fails, old_all, new_fails)
+          regressions = get_regressions(old_fails, old_all, new_fails)
+        end
       end
 
       File.open(ALL_FILE , 'w') do |file|
