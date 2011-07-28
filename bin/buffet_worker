@@ -12,9 +12,6 @@ buffet_server = DRbObject.new_with_uri(ARGV.pop)
 
 FileUtils.mkdir_p('./tmp')
 
-stdout = File.open("./tmp/buffet.out.log", 'a')
-stderr = File.open("./tmp/buffet.error.log", 'a')
-
 if Gem.available?('rspec')
   # RSpec 2
   
@@ -24,6 +21,9 @@ if Gem.available?('rspec')
   RSpec::Core::Formatters::AugmentedTextFormatter.buffet_server = buffet_server
 
   while file = buffet_server.next_file
+    stdout = File.open("./tmp/buffet.out.log", 'a')
+    stderr = File.open("./tmp/buffet.error.log", 'a')
+
     success = ::RSpec::Core::CommandLine.new(
       ['--format', 'RSpec::Core::Formatters::AugmentedTextFormatter', file]
      ).run(stderr, stdout)
@@ -39,6 +39,12 @@ elsif Gem.available?('spec')
   Spec::Runner::Formatter::AugmentedTextFormatter.buffet_server = buffet_server
 
   while file = buffet_server.next_file
+
+    # RSpec1 surreptitiously closes stdout/stderr, so we have to open them every
+    # test. 
+    stdout = File.open("./tmp/buffet.out.log", 'a')
+    stderr = File.open("./tmp/buffet.error.log", 'a')
+
     success = ::Spec::Runner::CommandLine.run(
        ::Spec::Runner::OptionParser.parse(
          ['--format', 'Spec::Runner::Formatter::AugmentedTextFormatter', file], stderr, stdout
