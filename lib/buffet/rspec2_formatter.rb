@@ -31,8 +31,7 @@ module RSpec
           failure = {:header    => description,
                      :backtrace => "No backtrace yet.", #TODO.
                      :message   => message, 
-                     :location  => backtrace
-                    }
+                     :location  => backtrace}
 
           @@buffet_server.example_failed({:a => "ff"}, failure)
         end

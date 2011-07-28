@@ -16,11 +16,10 @@ module Spec
         def example_failed(example_proxy, counter, failure)
           super
           @@buffet_server.example_failed(
-            example_proxy.location,
-            failure.header,
-            failure.exception.message,
-            failure.exception.backtrace
-          )
+            {:location  => example_proxy.location,
+             :header    => failure.header,
+             :message   => failure.exception.message,
+             :backtrace => failure.exception.backtrace.join("\n")})
         end
 
         def example_pending(example, message, deprecated_pending_location=nil)

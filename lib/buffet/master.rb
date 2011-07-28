@@ -50,7 +50,7 @@ module Buffet
     end
 
     #TODO?: Kwargs
-    def example_failed(f, details)
+    def example_failed(details)
       @lock.synchronize do
         @stats[:examples] += 1
         @stats[:failures] += 1
