@@ -3,25 +3,47 @@
 $LOAD_PATH.unshift(File.expand_path(File.dirname(__FILE__) + '/../lib'))
 
 require 'fileutils'
-require 'spec'
-require 'spec/runner/command_line'
-require 'buffet/augmented_text_formatter'
+require 'rubygems'
+require 'drb'
 
 # NOTE: ARGV is used by the spec runner. If I leave the drb server address
 # in ARGV, rspec will think it's an argument to the test runner.
 buffet_server = DRbObject.new_with_uri(ARGV.pop)
 
-Spec::Runner::Formatter::AugmentedTextFormatter.buffet_server = buffet_server
-
 FileUtils.mkdir_p('./tmp')
-while file = buffet_server.next_file
-  stdout = File.open("./tmp/buffet.out.log", 'a')
-  stderr = File.open("./tmp/buffet.error.log", 'a')
 
-  success = ::Spec::Runner::CommandLine.run(
-     ::Spec::Runner::OptionParser.parse(
-       ['--format', 'Spec::Runner::Formatter::AugmentedTextFormatter', file], stderr, stdout
+stdout = File.open("./tmp/buffet.out.log", 'a')
+stderr = File.open("./tmp/buffet.error.log", 'a')
+
+if Gem.available?('rspec')
+  # RSpec 2
+  
+  require 'rspec'
+  require 'buffet/rspec2_formatter'
+
+  RSpec::Core::Formatters::AugmentedTextFormatter.buffet_server = buffet_server
+
+  while file = buffet_server.next_file
+    success = ::RSpec::Core::CommandLine.new(
+      ['--format', 'RSpec::Core::Formatters::AugmentedTextFormatter', file]
+     ).run(stderr, stdout)
+  end
+
+elsif Gem.available?('spec')
+  # RSpec 1
+
+  require 'spec'
+  require 'spec/runner/command_line'
+  require 'buffet/rspec1_formatter'
+
+  Spec::Runner::Formatter::AugmentedTextFormatter.buffet_server = buffet_server
+
+  while file = buffet_server.next_file
+    success = ::Spec::Runner::CommandLine.run(
+       ::Spec::Runner::OptionParser.parse(
+         ['--format', 'Spec::Runner::Formatter::AugmentedTextFormatter', file], stderr, stdout
+       )
      )
-   )
 
+  end
 end

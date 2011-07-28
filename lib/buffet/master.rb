@@ -14,17 +14,21 @@ module Buffet
 
     # This will initialize the server.
     def initialize(working_dir, hosts, status) 
+      #TODO: Move ip into Settings.
       @ip = Socket.gethostname.split('.').first # For druby
-      @port = 8990 # For druby
+      @port = Settings.get["port"] + 1 # For druby
       @hosts = hosts # All host machines
       @stats = {:examples => 0, :failures => 0} # Failures and total test #.
       @lock = Mutex.new # Lock objects touched by several threads to avoid race.
-      @failure_list = [] # Details of the failure we have.
+      @failure_list = [] # Details of our failed test cases.
+      @pass_list = [] # Our passed test cases.
       @working_dir = working_dir # Directory we clone and run tests in.
-      @status = status #RFCTR: Use status
+      @status = status
 
+      # Get all tests.
       Dir.chdir(@working_dir) do
         @files = Dir["spec/**/*_spec.rb"].sort #This is specific to rspec.
+        @files = @files[0..Settings.get['test_count'] - 1] if Settings.get['test_count']
       end
     end
 
@@ -35,23 +39,26 @@ module Buffet
     end
 
     # These two methods are called on passes and fails, respectively.
-
-    def example_passed(location)
+    # TODO: This functionality should be moved into another class, I think.
+    def example_passed(details)
       @lock.synchronize do
         @stats[:examples] += 1
         update_status
       end
+
+      @pass_list.push({:description => details[:description]})
     end
 
-    def example_failed(location, header, message, backtrace)
+    #TODO?: Kwargs
+    def example_failed(f, details)
       @lock.synchronize do
         @stats[:examples] += 1
         @stats[:failures] += 1
 
-        #TODO: This is lame. Need to find out why backtraces are being stifled.
         backtrace ||= "No backtrace found."
 
-        @failure_list.push({:location => location, :header => header, :backtrace => backtrace.to_s})
+        @failure_list.push(details)
+
         update_status
       end
     end
@@ -120,6 +127,10 @@ module Buffet
 
     def failures
       @failure_list
+    end
+
+    def passes
+      @pass_list
     end
   end
 end

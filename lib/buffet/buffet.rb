@@ -7,11 +7,12 @@ require 'buffet/master'
 require 'buffet/settings'
 require 'buffet/status_message'
 require 'buffet/setup'
+require 'buffet/regression'
 
 require 'memoize'
 include Memoize
 
-PID_FILE = "/tmp/buffet.pid"
+PID_FILE = "/tmp/#{Buffet::Settings.root_dir_name}-buffet.pid"
 SETTINGS_FILE = File.expand_path('../../settings.yml', File.join(File.dirname(__FILE__)))
 
 module Buffet
@@ -29,22 +30,14 @@ module Buffet
     # specified in settings.yml into working-directory if necessary.
     #
     # Initialize will NOT begin testing.
+    # TODO: kwargs.
     def initialize repo, verbosity=false
       @status = StatusMessage.new verbosity
       @repo = repo
       @state = :not_running
       @threads = []
-
-      if not File.directory? Settings.working_dir
-        if `ps -ef | grep ssh-agent | grep $USER | grep -L 'grep'`.length == 0
-          puts "You should run ssh-agent so you don't see so many password prompts."
-        end
-
-        @status.set "Cloning #{@repo}. This will only happen once.\n"
-
-        `git clone #{@repo} #{Settings.working_dir}`
-      end
     end
+
 
     # Run sets up and tests the working directory.
     # 
@@ -69,8 +62,15 @@ module Buffet
         @state = :testing
         @master = Master.new Settings.working_dir, hosts, @status
         @master.run
-      
+
+        @state = :finding_regressions
+        @status.set "Looking for regressions..."
+
+        @regression_finder = Regression.new(@master.passes, @master.failures)
+        puts @regression_finder.regressions
+
         @state = :not_running
+        @status.set "Done"
       end
     end
 
