@@ -115,7 +115,7 @@ module Buffet
 
       results = ""
       @stats.each do |key, value|
-        results += "#{key.capitalize}: #{value}\n"
+        results += "#{key}: #{value}\n"
       end
 
       results += "\n"
