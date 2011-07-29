@@ -14,8 +14,7 @@ module Buffet
 
     # This will initialize the server.
     def initialize(working_dir, hosts, status) 
-      #TODO: Move ip into Settings.
-      @ip = Socket.gethostname.split('.').first # For druby
+      @ip = Settings.hostname # For druby
       @port = Settings.get["port"] + 1 # For druby
       @hosts = hosts # All host machines
       @stats = {:examples => 0, :failures => 0} # Failures and total test #.
@@ -49,7 +48,6 @@ module Buffet
       @pass_list.push({:description => details[:description]})
     end
 
-    #TODO?: Kwargs
     def example_failed(details)
       @lock.synchronize do
         @stats[:examples] += 1
@@ -96,7 +94,6 @@ module Buffet
         # Run worker on every host.
         threads = @hosts.map do |host|
           Thread.new do
-            #TODO: Maybe eventually pull these dirs out of settings.yml
             `ssh buffet@#{host} 'cd ~/#{Settings.root_dir_name}/working-directory; RAILS_ENV=test bundle exec ruby ~/#{Settings.root_dir_name}/bin/buffet_worker #{server_addr}'`
 
             if $?.exitstatus != 0
