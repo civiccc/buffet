@@ -8,7 +8,7 @@ module Campfire
   SUBDOMAIN = CAMPFIRE_SETTINGS["subdomain"]
   ROOM_NAME = CAMPFIRE_SETTINGS["room_name"]
   USERNAME  = CAMPFIRE_SETTINGS["username"]
-  PASSWORD  = CAMPFIRE_SETTINGS["subdomain"]
+  PASSWORD  = CAMPFIRE_SETTINGS["password"]
 
   def self.connect_and_login(user=USERNAME, pass=PASSWORD)
     Tinder::Campfire.new(
