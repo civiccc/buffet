@@ -1,29 +1,29 @@
-Buffet
-========
+# Buffet
 
-How to install
--------
+## How to install
 
 We aim to make this as short as possible.
 
-1. Create a file called `db_setup`, and put it in `[your repo]/bin`. This file should nuke and recreate the testing databases. Currently, it also sshes into the other hosts and does the same thing. That behaviour is a little confusing. It should probably change. (If you don't create db_setup, the default one will be copied out of Buffet).
+1. Copy the sample settings file to settings.yml and change it.
 
-2. Make sure that you have the public keys of all hosts in `~/.ssh/known_hosts`. Otherwise you'll get spammed with 'yes to continue' messages, which is annoying.
-
-3. Copy the sample settings file to settings.yml and change it.
-
-4. Each host computer must have a buffet user, and must also have permissions to access the buffet user on each other host.
+2. Create a file called `db_setup`, and put it in `[your repo]/bin`. This file should nuke and recreate the testing databases. Currently, it also sshes into the other hosts and does the same thing. That behaviour is a little confusing. It should probably change. This step is currently optional; if a db_setup script doesn't exist, nothing will happen. 
 
 
-How to use
--------
+### How to use
+
+The CLI is a little more powerful than the web interface. Currently working on making them equal.
+
+
+
+`bundle exec lib/cli.rb --help` to see options. `bundle exec lib/cli.rb` is basic functionality. Also, you may be interested in `bundle exec lib/cli.rb --watch`. 
+
+### Web interface:
 
 `bundle exec rackup`. Then navigate to `localhost:9292/test`.
 
 Or, after you've started the server, try `curl 'localhost:9292/start-buffet-server/BRANCH'`, replacing BRANCH with the correct branch.
 
-FAQ
---------
+## FAQ
 
 `/usr/lib/ruby/1.8/fileutils.rb:243:in `mkdir': Permission denied - /home/(some user) (Errno::EACCES)`
 
@@ -37,19 +37,17 @@ There are a few ways to solve this problem:
 
 You should precede all bundle database commands with `RAILS_ENV=test`.
 
-TODO
---------
+## TODO
 
 1. Get rid of all TODOs.
 
 2. Feature requests:
 * What user did this run on?
 
-4. ???
+3. ???
 
-5. Non-profit
+4. Non-profit
 
-Looking Forward
---------
+## Looking Forward
 
 1. Use a git wrapper, not inline shell commands.
