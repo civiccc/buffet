@@ -34,7 +34,7 @@ module Buffet
     # Clone the repository into the working directory, if necessary. Will happen
     # if the dir is nonexistent or a clone of the wrong repository.
     def clone_repo
-      remote = `cd #{Settings.working_dir} && git remote -v | grep fetch | cut -f2 | cut -d" " -f1`.chomp
+      remote = `cd #{Settings.working_dir} && git remote -v | grep (fetch) | head -1 | cut -f2 | cut -d" " -f1`.chomp
 
       return if remote == Settings.get["repository"]
       puts "DELETING EVERYTHING."
