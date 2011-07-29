@@ -2,6 +2,12 @@ hosts:
   - hostname1
   - hostname2
   - ...
+github:
+  username: a-valid-github-user
+  token: usernames-token
+  repository: a-repo
+  owner: owner-of-repository
+port: 8990
 repository: git@github.com:yourname/somerepo.git
 campfire:
   username: username
