@@ -25,7 +25,7 @@ module Buffet
       if not @watch
         puts "Running Buffet on branch #{@branch}."
 
-        buffet = Buffet.new(Settings.get["repository"], @quiet)
+        buffet = Buffet.new(Settings.get["repository"], {:verbose => @quiet})
         buffet.run(@branch, {:skip_setup => @skip_setup, :dont_run_migrations => @dont_run_migrations})
       else
         puts "Watching #{Settings.get["repository"]}/master. Ctrl-C to quit."
@@ -46,7 +46,7 @@ module Buffet
         if commit_message != old_commit_message 
           puts "New commit on master."
 
-          buffet = Buffet.new(Settings.get["repository"], @quiet)
+          buffet = Buffet.new(Settings.get["repository"], {:verbose => @quiet})
           buffet.run(@branch, {:skip_setup => false, :dont_run_migrations => false})
         end
 
