@@ -16,16 +16,16 @@ module Buffet
       # Set some initial settings. These may be changed by process_args.
       @branch = "master"
       @watch = false
-      #TODO: Annoying how one is yes and one is no.
       @skip_setup = false
       @dont_run_migrations = true
+      @quiet = false
 
       process_args
 
       if not @watch
         puts "Running Buffet on branch #{@branch}."
 
-        buffet = Buffet.new(Settings.get["repository"], true)
+        buffet = Buffet.new(Settings.get["repository"], @quiet)
         buffet.run(@branch, {:skip_setup => @skip_setup, :dont_run_migrations => @dont_run_migrations})
       else
         puts "Watching #{Settings.get["repository"]}/master. Ctrl-C to quit."
@@ -46,7 +46,7 @@ module Buffet
         if commit_message != old_commit_message 
           puts "New commit on master."
 
-          buffet = Buffet.new(Settings.get["repository"], true)
+          buffet = Buffet.new(Settings.get["repository"], @quiet)
           buffet.run(@branch, {:skip_setup => false, :dont_run_migrations => false})
         end
 
@@ -74,10 +74,10 @@ module Buffet
           puts "\t--dont-run-migrations"
           puts "\t\tDon't run database migrations."
           puts ""
-          puts "\t--branch=some_branch" #TODO
+          puts "\t--branch=some_branch"
           puts "\t\tRun tests on branch some_branch."
           puts ""
-          puts "\t--quiet" #TODO
+          puts "\t--quiet"
           puts "\t\tDon't output anything while testing, except ./F."
 
           exit 0
@@ -87,6 +87,8 @@ module Buffet
           @skip_setup = true
         elsif arg == "--dont-run-migrations"
           @dont_run_migrations = false
+        elsif arg == "--quiet"
+          @quiet = true
         elsif arg.match(/^--branch=/)
           @branch = arg.gsub(/--branch=([\w*])/, "\\1")
         end
