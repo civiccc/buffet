@@ -28,7 +28,8 @@ module Buffet
     ################
 
     # Initialize sets up preliminary data, and will clone the repository 
-    # specified in settings.yml into working-directory if necessary.
+    # specified in settings.yml into working-directory if necessary. Also 
+    # verifies that all hosts are able to run Buffet.
     #
     # Initialize will NOT begin testing.
     def initialize repo, kwargs
@@ -36,6 +37,8 @@ module Buffet
       @repo = repo
       @state = :not_running
       @threads = []
+
+      check_hosts
     end
 
 
@@ -87,7 +90,48 @@ module Buffet
       end
     end
 
-    ###################### 
+    ######################
+    #     HOST SETUP     #
+    ######################
+    
+    def check_hosts
+      if not File.exists? "~/.ssh/id_rsa.pub"
+        puts "You should create a ssh public/private key pair before running"
+        puts "Buffet."
+      end
+      shown_error = false
+
+      # Create a buffet user on each uninitialized host.
+      Settings.get["hosts"].each do |host|
+        # id writes to stderr on fail, so we need to redirect.
+        if `ssh root@#{host} 'id buffet 2>&1'`.include? "No such user"
+          if not shown_error
+            puts "#############################################################"
+            puts "Buffet user not found on #{host}."
+            puts ""
+            puts "If this is the first time you've run Buffet, you may want to"
+            puts "consider providing passwordless root access to every machine"
+            puts "in the hosts you specified in settings.yml."
+            puts ""
+            puts "Although this is not strictly necessary, it may save you some"
+            puts "of annoyance, since you're going to see password prompts a"
+            puts "lot."
+            puts ""
+            puts "Buffet needs root access only on the first run, as it needs"
+            puts "to create buffet users on each machine."
+            puts "#############################################################"
+
+            shown_error = true
+          end
+
+          `ssh root@#{host} 'adduser buffet'`
+          `scp ~/.ssh/id_rsa.pub root@#{host}:id_rsa_buffet.pub`
+          `ssh root@#{host} 'mkdir -p /home/buffet/.ssh && cat ~/id_rsa_buffet.pub >> /home/buffet/.ssh/authorized_keys && chmod 644 /home/buffet/.ssh/authorized_keys'`
+        end
+      end
+    end
+
+    ######################
     # ENSURE EXCLUSIVITY #
     ###################### 
 
