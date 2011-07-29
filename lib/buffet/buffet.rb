@@ -3,6 +3,7 @@ $LOAD_PATH.unshift(File.expand_path(File.dirname(__FILE__) + "/.."))
 require 'ftools'
 require 'fileutils'
 
+require 'buffet/campfire'
 require 'buffet/master'
 require 'buffet/settings'
 require 'buffet/status_message'
@@ -49,9 +50,13 @@ module Buffet
     #
     #   :dont_run_migrations => Don't run the database migrations.
     def run branch, kwargs={}
+      Campfire.connect_and_login
+
       @branch = branch
       ensure_only_one do
         @status.set "Buffet is starting..."
+
+        Campfire.speak "Buffet is running on #{@repo} : #{branch}."
 
         if not kwargs[:skip_setup]
           @state = :setup
@@ -62,6 +67,15 @@ module Buffet
         @state = :testing
         @master = Master.new Settings.working_dir, hosts, @status
         @master.run
+
+        if @master.failures.length == 0
+          Campfire.paste "All tests pass!"
+        else
+          nice_output = @master.failures.map do |fail|
+            "#{fail[:header]} FAILED.\nLocation: #{fail[:location]}\n\n"
+          end.join ""
+          Campfire.paste "#{nice_output}"
+        end
 
         @state = :finding_regressions
         @status.set "Looking for regressions..."
