@@ -39,7 +39,7 @@ module Buffet
       return if remote == Settings.get["repository"]
       puts "DELETING EVERYTHING."
 
-      `rm -rf #{Settings.working_dir}` if File.directory? Settings.working_dir
+      FileUtils.rm_rf Settings.working_dir if File.directory? Settings.working_dir
 
       # Running ssh-agent?
       if `ps -ef | grep ssh-agent | grep $USER | grep -L 'grep'`.length == 0
