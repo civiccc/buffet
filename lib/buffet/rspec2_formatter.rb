@@ -33,7 +33,7 @@ module RSpec
                      :message   => message, 
                      :location  => backtrace}
 
-          @@buffet_server.example_failed({:a => "ff"}, failure)
+          @@buffet_server.example_failed(failure)
         end
 
         def example_pending(example, message, deprecated_pending_location=nil)
