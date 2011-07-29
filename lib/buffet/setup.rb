@@ -52,25 +52,19 @@ module Buffet
     end
 
 
-    # TODO: The following two methods can be merged for a minor speedup.
-
-    # Install bundles on all remote machines.
-    def bundle_install working_dir
-      @hosts.each do |host|
-        @status.set "Bundle install on #{host}"
-        `ssh buffet@#{host} 'cd ~/#{Settings.root_dir_name}/working-directory && bundle check > /dev/null; if (($? != 0)); then bundle install --without production --path ~/buffet-gems; fi'`
-      end
-    end
-
     # Synchronize this directory (the buffet directory) to all hosts.
     def sync_hosts hosts
       threads = []
 
-      @status.set "Syncing #{hosts.join(", ")}"
+      @status.set "Updating #{hosts.join(", ")}"
 
       hosts.each do |host|
         threads << Thread.new do 
+          # Sync all of Buffet.
           `rsync -aqz --delete --exclude=tmp --exclude=.bundle --exclude=log --exclude=doc --exclude=.git #{Settings.root_dir} -e "ssh " buffet@#{host}:~/`
+
+          # Run bundle install if necessary.
+          `ssh buffet@#{host} 'cd ~/#{Settings.root_dir_name}/working-directory && bundle check > /dev/null; if (($? != 0)); then bundle install --without production --path ~/buffet-gems; fi'`
         end
       end
 
@@ -112,8 +106,6 @@ module Buffet
 
             channel.wait
           end
-
-          #@status.increase_progress /^== [\d]+ /, 1120, command
         end
         expect_success("Failed to db_setup on local machine.")
       end
@@ -159,9 +151,7 @@ module Buffet
       sync_hosts @hosts
 
       @status.set "Running bundle install on hosts."
-      bundle_install @working_dir
 
-      # TODO : double negative.
       setup_db unless dont_run_migrations
     end
 
