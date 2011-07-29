@@ -18,9 +18,25 @@
         
         function hide_question(){
           $("#question").hide();
-          $(".ui-autocomplete").hide();
         }
 
+        function show_question(){
+          $("#question").show();
+        }
+
+        function should_show_question(){
+          /* This is a little hacky. Instead of making a new poller, we just
+             ask the title if it has the word Reserved in it, which indicates
+             that tests are currently running.
+
+             If more changes are made to the Buffet page, this should be
+             changed. */
+          if ($("#title").html().indexOf("Reserved") == -1){
+            show_question();
+          } else {
+            hide_question();
+          }
+        }
 
         /* Make div ID update its contents in realtime. */
         function create_poller(id){
@@ -55,6 +71,7 @@
             for (var i = 0; i < pollers.length; i++){
               pollers[i]();
             }
+            should_show_question();
         }, 100);
 
         /* For the 'Go!' link. */
