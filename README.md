@@ -44,10 +44,12 @@ TODO
 
 2. Feature requests:
 * What user did this run on?
-* Regression testing.
-* Testing on other repos.
 
 4. ???
 
 5. Non-profit
 
+Looking Forward
+--------
+
+1. Use a git wrapper, not inline shell commands.
