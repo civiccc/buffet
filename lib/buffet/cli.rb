@@ -9,6 +9,7 @@ $LOAD_PATH.unshift(File.expand_path(File.dirname(__FILE__) + "/.."))
 require 'buffet/buffet'
 require 'json'
 require 'buffet/settings'
+require 'buffet/commit_watcher'
 
 module Buffet
   class CLI
@@ -30,28 +31,19 @@ module Buffet
       else
         puts "Watching #{Settings.get["repository"]}/master. Ctrl-C to quit."
 
-        watch
-      end
-    end
+        settings = { :username   => Settings.get["github"]["username"], 
+                     :token      => Settings.get["github"]["token"],
+                     :owner      => Settings.get["github"]["owner"],
+                     :repository => Settings.get["github"]["repository"],
+                     :branch     => Settings.get["token"]
+                   }
 
-    def watch
-      buffet_lock = Mutex.new
-
-      old_commit_message = ""
-      while true
-        api_call = "curl -u '#{Settings.get['github']['username']}/token:#{Settings.get['github']['token']}' 'https://github.com/api/v2/json/commits/list/#{Settings.get['github']['owner']}/#{Settings.get['github']['repository']}/master'"
-
-        commit_message = JSON.parse(`#{api_call}`)["commits"].first["message"]
-
-        if commit_message != old_commit_message 
+        CommitWatcher.watch settings do
           puts "New commit on master."
 
           buffet = Buffet.new(Settings.get["repository"], {:verbose => @verbose})
           buffet.run(@branch, {:skip_setup => false, :dont_run_migrations => false})
         end
-
-        old_commit_message = commit_message
-        sleep 2
       end
     end
 
