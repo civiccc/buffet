@@ -43,7 +43,7 @@ module Buffet
 
         commit_message = JSON.parse(`#{api_call}`)["commits"].first["message"]
 
-        if commit_message != old_commit_message and old_commit_message != ""
+        if commit_message != old_commit_message 
           puts "New commit on master."
 
           buffet = Buffet.new(Settings.get["repository"], true)
