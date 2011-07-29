@@ -140,10 +140,7 @@ module Buffet
 
     # An array of failed test cases.
     def get_failures
-      if @master
-        @master.failures
-      else []
-      end
+      @master ? @master.failures : []
     end
 
     # The URL of the respository.
