@@ -127,10 +127,9 @@ module Buffet
 
     # An array of failed test cases.
     def get_failures
-      if @state == :testing
+      if @master
         @master.failures
-      else
-        []
+      else []
       end
     end
 
