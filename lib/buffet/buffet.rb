@@ -73,9 +73,11 @@ module Buffet
         if @master.failures.length == 0
           Campfire.paste "All tests pass!"
         else
+          rev = `cd working-directory && git rev-parse HEAD`.chomp
           nice_output = @master.failures.map do |fail|
             "#{fail[:header]} FAILED.\nLocation: #{fail[:location]}\n\n"
           end.join ""
+          nice_output = "On revision #{rev}:\n\n" + nice_output
           Campfire.paste "#{nice_output}"
         end
 
