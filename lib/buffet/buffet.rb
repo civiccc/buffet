@@ -27,8 +27,8 @@ module Buffet
     # CORE METHODS #
     ################
 
-    # Initialize sets up preliminary data, and will clone the repository 
-    # specified in settings.yml into working-directory if necessary. Also 
+    # Initialize sets up preliminary data, and will clone the repository
+    # specified in settings.yml into working-directory if necessary. Also
     # verifies that all hosts are able to run Buffet.
     #
     # Initialize will NOT begin testing.
@@ -109,13 +109,9 @@ module Buffet
             puts "#############################################################"
             puts "Buffet user not found on #{host}."
             puts ""
-            puts "If this is the first time you've run Buffet, you may want to"
-            puts "consider providing passwordless root access to every machine"
-            puts "in the hosts you specified in settings.yml."
-            puts ""
-            puts "Although this is not strictly necessary, it may save you some"
-            puts "of annoyance, since you're going to see password prompts a"
-            puts "lot."
+            puts "Buffet will need the root password to every machine you plan"
+            puts "to use as a host. This will be the only time the password is"
+            puts "needed."
             puts ""
             puts "Buffet needs root access only on the first run, as it needs"
             puts "to create buffet users on each machine."
@@ -124,9 +120,8 @@ module Buffet
             shown_error = true
           end
 
-          `ssh root@#{host} 'adduser buffet'`
           `scp ~/.ssh/id_rsa.pub root@#{host}:id_rsa_buffet.pub`
-          `ssh root@#{host} 'mkdir -p /home/buffet/.ssh && cat ~/id_rsa_buffet.pub >> /home/buffet/.ssh/authorized_keys && chmod 644 /home/buffet/.ssh/authorized_keys'`
+          `ssh root@#{host} 'adduser buffet && mkdir -p ~buffet/.ssh && cat ~/id_rsa_buffet.pub >> ~buffet/.ssh/authorized_keys && chmod 644 ~buffet/.ssh/authorized_keys'`
         end
       end
     end
