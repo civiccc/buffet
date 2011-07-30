@@ -9,6 +9,7 @@ $LOAD_PATH.unshift(File.expand_path(File.dirname(__FILE__) + "/.."))
 require 'buffet/buffet'
 require 'json'
 require 'buffet/settings'
+require 'buffet/commit_watcher'
 
 module Buffet
   class CLI
@@ -16,42 +17,33 @@ module Buffet
       # Set some initial settings. These may be changed by process_args.
       @branch = "master"
       @watch = false
-      #TODO: Annoying how one is yes and one is no.
       @skip_setup = false
       @dont_run_migrations = true
+      @verbose = true
 
       process_args
 
       if not @watch
         puts "Running Buffet on branch #{@branch}."
 
-        buffet = Buffet.new(Settings.get["repository"], true)
+        buffet = Buffet.new(Settings.get["repository"], {:verbose => @verbose})
         buffet.run(@branch, {:skip_setup => @skip_setup, :dont_run_migrations => @dont_run_migrations})
       else
         puts "Watching #{Settings.get["repository"]}/master. Ctrl-C to quit."
 
-        watch
-      end
-    end
+        settings = { :username   => Settings.get["github"]["username"], 
+                     :token      => Settings.get["github"]["token"],
+                     :owner      => Settings.get["github"]["owner"],
+                     :repository => Settings.get["github"]["repository"],
+                     :branch     => Settings.get["token"]
+                   }
 
-    def watch
-      buffet_lock = Mutex.new
-
-      old_commit_message = ""
-      while true
-        api_call = "curl -u '#{Settings.get['github']['username']}/token:#{Settings.get['github']['token']}' 'https://github.com/api/v2/json/commits/list/#{Settings.get['github']['owner']}/#{Settings.get['github']['repository']}/master'"
-
-        commit_message = JSON.parse(`#{api_call}`)["commits"].first["message"]
-
-        if commit_message != old_commit_message 
+        CommitWatcher.watch settings do
           puts "New commit on master."
 
-          buffet = Buffet.new(Settings.get["repository"], true)
+          buffet = Buffet.new(Settings.get["repository"], {:verbose => @verbose})
           buffet.run(@branch, {:skip_setup => false, :dont_run_migrations => false})
         end
-
-        old_commit_message = commit_message
-        sleep 2
       end
     end
 
@@ -74,10 +66,10 @@ module Buffet
           puts "\t--dont-run-migrations"
           puts "\t\tDon't run database migrations."
           puts ""
-          puts "\t--branch=some_branch" #TODO
+          puts "\t--branch=some_branch"
           puts "\t\tRun tests on branch some_branch."
           puts ""
-          puts "\t--quiet" #TODO
+          puts "\t--quiet"
           puts "\t\tDon't output anything while testing, except ./F."
 
           exit 0
@@ -87,6 +79,8 @@ module Buffet
           @skip_setup = true
         elsif arg == "--dont-run-migrations"
           @dont_run_migrations = false
+        elsif arg == "--quiet"
+          @verbose = false
         elsif arg.match(/^--branch=/)
           @branch = arg.gsub(/--branch=([\w*])/, "\\1")
         end

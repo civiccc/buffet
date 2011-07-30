@@ -16,8 +16,7 @@ module Buffet
       use Rack::Reloader
     end
 
-    #TODO: we should eventually move all configuation to webapp (not yml).
-    @@buffet = Buffet.new Settings.get["repository"]
+    @@buffet = Buffet.new Settings.get["repository"], {:verbose => false}
     @@testing_mode = false
 
     # This is just for testing.
@@ -103,8 +102,7 @@ module Buffet
 
     get '/title' do
       if @@buffet.running?
-        #TODO: Hardcoded reference to github.
-        "Reserved for #{@@buffet.repo.gsub(/git@github.com:(.*)\.git/, "\\1")}, party of #{@@buffet.num_tests}."
+        "Reserved for #{Settings.get["github"]["repository"]}, party of #{@@buffet.num_tests}."
       else
         "Open for reservations"
       end
@@ -136,7 +134,6 @@ module Buffet
 
       if fail_html == ""
         if @@buffet.testing?
-          #TODO: Don't show this when we haven't even started running tests.
           "<div class='you-are-a-winner'>All tests pass! ...so far.</div>"
         else
           ""

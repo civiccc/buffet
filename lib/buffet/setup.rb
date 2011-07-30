@@ -34,12 +34,12 @@ module Buffet
     # Clone the repository into the working directory, if necessary. Will happen
     # if the dir is nonexistent or a clone of the wrong repository.
     def clone_repo
-      remote = `cd #{Settings.working_dir} && git remote -v | grep fetch | cut -f2 | cut -d" " -f1`.chomp
+      remote = `cd #{Settings.working_dir} && git remote -v | grep (fetch) | head -1 | cut -f2 | cut -d" " -f1`.chomp
 
       return if remote == Settings.get["repository"]
       puts "DELETING EVERYTHING."
 
-      `rm -rf #{Settings.working_dir}` if File.directory? Settings.working_dir
+      FileUtils.rm_rf Settings.working_dir if File.directory? Settings.working_dir
 
       # Running ssh-agent?
       if `ps -ef | grep ssh-agent | grep $USER | grep -L 'grep'`.length == 0
@@ -52,25 +52,19 @@ module Buffet
     end
 
 
-    # TODO: The following two methods can be merged for a minor speedup.
-
-    # Install bundles on all remote machines.
-    def bundle_install working_dir
-      @hosts.each do |host|
-        @status.set "Bundle install on #{host}"
-        `ssh buffet@#{host} 'cd ~/#{Settings.root_dir_name}/working-directory && bundle check > /dev/null; if (($? != 0)); then bundle install --without production --path ~/buffet-gems; fi'`
-      end
-    end
-
     # Synchronize this directory (the buffet directory) to all hosts.
     def sync_hosts hosts
       threads = []
 
-      @status.set "Syncing #{hosts.join(", ")}"
+      @status.set "Updating #{hosts.join(", ")}"
 
       hosts.each do |host|
         threads << Thread.new do 
+          # Sync all of Buffet.
           `rsync -aqz --delete --exclude=tmp --exclude=.bundle --exclude=log --exclude=doc --exclude=.git #{Settings.root_dir} -e "ssh " buffet@#{host}:~/`
+
+          # Run bundle install if necessary.
+          `ssh buffet@#{host} 'cd ~/#{Settings.root_dir_name}/working-directory && bundle check > /dev/null; if (($? != 0)); then bundle install --without production --path ~/buffet-gems; fi'`
         end
       end
 
@@ -112,8 +106,6 @@ module Buffet
 
             channel.wait
           end
-
-          #@status.increase_progress /^== [\d]+ /, 1120, command
         end
         expect_success("Failed to db_setup on local machine.")
       end
@@ -159,9 +151,7 @@ module Buffet
       sync_hosts @hosts
 
       @status.set "Running bundle install on hosts."
-      bundle_install @working_dir
 
-      # TODO : double negative.
       setup_db unless dont_run_migrations
     end
 

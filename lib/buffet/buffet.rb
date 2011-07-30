@@ -27,16 +27,18 @@ module Buffet
     # CORE METHODS #
     ################
 
-    # Initialize sets up preliminary data, and will clone the repository 
-    # specified in settings.yml into working-directory if necessary.
+    # Initialize sets up preliminary data, and will clone the repository
+    # specified in settings.yml into working-directory if necessary. Also
+    # verifies that all hosts are able to run Buffet.
     #
     # Initialize will NOT begin testing.
-    # TODO: kwargs.
-    def initialize repo, verbosity=false
-      @status = StatusMessage.new verbosity
+    def initialize repo, kwargs
+      @status = StatusMessage.new kwargs[:verbose]
       @repo = repo
       @state = :not_running
       @threads = []
+
+      check_hosts
     end
 
 
@@ -71,9 +73,11 @@ module Buffet
         if @master.failures.length == 0
           Campfire.paste "All tests pass!"
         else
+          rev = `cd working-directory && git rev-parse HEAD`.chomp
           nice_output = @master.failures.map do |fail|
             "#{fail[:header]} FAILED.\nLocation: #{fail[:location]}\n\n"
           end.join ""
+          nice_output = "On revision #{rev}:\n\n" + nice_output
           Campfire.paste "#{nice_output}"
         end
 
@@ -88,7 +92,43 @@ module Buffet
       end
     end
 
-    ###################### 
+    ######################
+    #     HOST SETUP     #
+    ######################
+    
+    def check_hosts
+      if not File.exists? "~/.ssh/id_rsa.pub"
+        puts "You should create a ssh public/private key pair before running"
+        puts "Buffet."
+      end
+      shown_error = false
+
+      # Create a buffet user on each uninitialized host.
+      Settings.get["hosts"].each do |host|
+        # id writes to stderr on fail, so we need to redirect.
+        if `ssh root@#{host} 'id buffet 2>&1'`.include? "No such user"
+          if not shown_error
+            puts "#############################################################"
+            puts "Buffet user not found on #{host}."
+            puts ""
+            puts "Buffet will need the root password to every machine you plan"
+            puts "to use as a host. This will be the only time the password is"
+            puts "needed."
+            puts ""
+            puts "Buffet needs root access only on the first run, as it needs"
+            puts "to create buffet users on each machine."
+            puts "#############################################################"
+
+            shown_error = true
+          end
+
+          `scp ~/.ssh/id_rsa.pub root@#{host}:id_rsa_buffet.pub`
+          `ssh root@#{host} 'adduser buffet && mkdir -p ~buffet/.ssh && cat ~/id_rsa_buffet.pub >> ~buffet/.ssh/authorized_keys && chmod 644 ~buffet/.ssh/authorized_keys'`
+        end
+      end
+    end
+
+    ######################
     # ENSURE EXCLUSIVITY #
     ###################### 
 
@@ -141,10 +181,7 @@ module Buffet
 
     # An array of failed test cases.
     def get_failures
-      if @master
-        @master.failures
-      else []
-      end
+      @master ? @master.failures : []
     end
 
     # The URL of the respository.
