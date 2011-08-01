@@ -101,6 +101,12 @@ module Buffet
         puts "You should create a ssh public/private key pair before running"
         puts "Buffet."
       end
+      
+      # Running ssh-agent?
+      if `ps -ef | grep ssh-agent | grep $USER | grep -L 'grep'`.length == 0
+        puts "You should run ssh-agent so you don't see so many password prompts."
+      end
+
       shown_error = false
 
       # Create a buffet user on each uninitialized host.
