@@ -12,7 +12,13 @@ buffet_server = DRbObject.new_with_uri(ARGV.pop)
 
 FileUtils.mkdir_p('./tmp')
 
-if Gem.available?('rspec')
+def rspec1?
+  # TODO: This method will error if user is not using RSpec1 or 2 (because no 
+  # RSpec Gem will be found).
+  File.open(Buffet::Settings.working_dir + "/Gemfile").find_all {|line| line.include? "'rspec'"}.first.include? "'1."
+end
+
+if not rspec1?
   # RSpec 2
   
   require 'rspec'
@@ -29,7 +35,7 @@ if Gem.available?('rspec')
      ).run(stderr, stdout)
   end
 
-elsif Gem.available?('spec')
+else
   # RSpec 1
 
   require 'spec'
