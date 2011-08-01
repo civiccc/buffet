@@ -111,8 +111,7 @@ module Buffet
 
       # Create a buffet user on each uninitialized host.
       Settings.get["hosts"].each do |host|
-        # id writes to stderr on fail, so we need to redirect.
-        if `ssh root@#{host} 'id buffet 2>&1'`.include? "No such user"
+        if not `ssh buffet@#{host} 'echo aaaaa'`.include? "aaaaa"
           if not shown_error
             puts "#############################################################"
             puts "Buffet user not found on #{host}."
