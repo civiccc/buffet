@@ -9,6 +9,10 @@ module Buffet
       @settings ||= YAML.load_file(SETTINGS_FILE)
     end
 
+    def self.home_dir
+      `echo ~`.chomp
+    end
+
     def self.root_dir
       File.expand_path(__FILE__ + "../../../../")
     end

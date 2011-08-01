@@ -97,7 +97,7 @@ module Buffet
     ######################
     
     def check_hosts
-      if not File.exists? "~/.ssh/id_rsa.pub"
+      if not File.exists? "#{Settings.home_dir}/.ssh/id_rsa.pub"
         puts "You should create a ssh public/private key pair before running"
         puts "Buffet."
       end
