@@ -62,7 +62,8 @@ module Buffet
     end
 
     def update_status
-      @status.set @stats
+      new_status = (@stats.to_a.map {|keyvalue| "#{keyvalue[0].to_s}: #{keyvalue[1]}"}).join " "
+      @status.set new_status
     end
 
     def server_addr
@@ -109,7 +110,7 @@ module Buffet
         @end_time = Time.now
         stop_service
       end
-
+      @status.set "Done. Final results:"
       results = ""
       @stats.each do |key, value|
         results += "#{key}: #{value}\n"
