@@ -58,7 +58,7 @@ module Buffet
     end
 
     def regressions
-      @regressions
+      @regressions.map {|item| "REGRESSION: #{item[:header]}\n #{item[:location]}\n #{item[:backtrace]}"}.join "\n\n"
     end
 
     private
