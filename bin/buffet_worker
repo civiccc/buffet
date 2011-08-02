@@ -14,9 +14,12 @@ buffet_server = DRbObject.new_with_uri(ARGV.pop)
 FileUtils.mkdir_p('./tmp')
 
 def rspec1?
-  # TODO: This method will error if user is not using RSpec1 or 2 (because no 
-  # RSpec Gem will be found).
-  File.open(Buffet::Settings.working_dir + "/Gemfile").find_all {|line| line.include? "'rspec'"}.first.include? "'1."
+  begin
+    File.open(Buffet::Settings.working_dir + "/Gemfile").find_all {|line| line.include? "'rspec'"}.first.include? "'1."
+  rescue
+    # Error, rspec not found in Gemfile. Default to settings.yml configuration.
+    Buffet::Settings.get["framework"].upcase == "RSPEC1"
+  end
 end
 
 if not rspec1?

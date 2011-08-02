@@ -10,6 +10,7 @@ github:
 port: 8990
 repository: git@github.com:yourname/somerepo.git
 use_campfire: true
+framework: rspec2
 campfire:
   username: username
   password: password
