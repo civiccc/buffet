@@ -31,12 +31,11 @@ if not rspec1?
   RSpec::Core::Formatters::AugmentedTextFormatter.buffet_server = buffet_server
 
   while file = buffet_server.next_file
-    stdout = File.open("./tmp/buffet.out.log", 'a')
-    stderr = File.open("./tmp/buffet.error.log", 'a')
-
     success = ::RSpec::Core::CommandLine.new(
       ['--format', 'RSpec::Core::Formatters::AugmentedTextFormatter', file]
-     ).run(stderr, stdout)
+     ).run($stderr, $stdout)
+
+     RSpec.world.reset
   end
 
 else
