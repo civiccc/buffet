@@ -1,10 +1,4 @@
 source "http://rubygems.org"
-gem 'tinder'
-gem 'memoize'
-gem 'sinatra'
-gem 'wopen3'
-gem 'rack-test'
-gem 'rspec'
-gem 'shotgun'
-gem 'net-ssh'
-gem 'json'
+
+# Specify your gem's dependencies in skeleton.gemspec
+gemspec
