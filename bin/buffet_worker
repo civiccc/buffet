@@ -5,6 +5,7 @@ $LOAD_PATH.unshift(File.expand_path(File.dirname(__FILE__) + '/../lib'))
 require 'fileutils'
 require 'rubygems'
 require 'drb'
+require 'buffet/settings'
 
 # NOTE: ARGV is used by the spec runner. If I leave the drb server address
 # in ARGV, rspec will think it's an argument to the test runner.
