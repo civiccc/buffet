@@ -11,7 +11,6 @@ require 'buffet/setup'
 require 'buffet/regression'
 
 require 'memoize'
-include Memoize
 
 PID_FILE = "/tmp/#{Buffet::Settings.root_dir_name}-buffet.pid"
 SETTINGS_FILE = File.expand_path('../../settings.yml', File.join(File.dirname(__FILE__)))
@@ -22,6 +21,7 @@ module Buffet
   # some helpful methods to give immediate information about the state of the 
   # tests and other relevant information.
   class Buffet
+    include Memoize
 
     ################
     # CORE METHODS #
