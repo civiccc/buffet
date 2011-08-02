@@ -68,7 +68,7 @@ module Buffet
 
       new_fails.each do |fail|
         if not old_fails.include? fail and old_all.include? fail
-          regressions.push(new_fails)
+          regressions.push(fail)
         end
       end
 
