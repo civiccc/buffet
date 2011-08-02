@@ -9,6 +9,7 @@ github:
   owner: owner-of-repository
 port: 8990
 repository: git@github.com:yourname/somerepo.git
+use_campfire: true
 campfire:
   username: username
   password: password

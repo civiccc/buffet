@@ -52,13 +52,13 @@ module Buffet
     #
     #   :dont_run_migrations => Don't run the database migrations.
     def run branch, kwargs={}
-      Campfire.connect_and_login
+      initialize_chat
 
       @branch = branch
       ensure_only_one do
         @status.set "Buffet is starting..."
 
-        Campfire.speak "Buffet is running on #{@repo} : #{branch}."
+        chat "Buffet is running on #{@repo} : #{branch}."
 
         if not kwargs[:skip_setup]
           @state = :setup
@@ -71,14 +71,14 @@ module Buffet
         @master.run
 
         if @master.failures.length == 0
-          Campfire.paste "All tests pass!"
+          chat "All tests pass!"
         else
           rev = `cd working-directory && git rev-parse HEAD`.chomp
           nice_output = @master.failures.map do |fail|
             "#{fail[:header]} FAILED.\nLocation: #{fail[:location]}\n\n"
           end.join ""
           nice_output = "On revision #{rev}:\n\n" + nice_output
-          Campfire.paste "#{nice_output}"
+          chat "#{nice_output}"
         end
 
         @state = :finding_regressions
@@ -91,6 +91,33 @@ module Buffet
         @status.set "Done"
       end
     end
+
+    #####################
+    # CHAT  INTEGRATION #
+    #####################
+
+    def initialize_chat
+      @using_chat = Settings.get["use_campfire"]
+
+      if @using_chat
+        Campfire.connect_and_login
+      end
+    end
+
+    # This is like a higher priority @status.set. It's currently reserved for
+    # starting and finishing a test run.
+    def chat(message)
+      if @using_chat
+        if message.include? "\n"
+          Campfire.paste message
+        else
+          Campfire.speak message
+        end
+      else
+        @status.set message
+      end
+    end
+
 
     ######################
     #     HOST SETUP     #
