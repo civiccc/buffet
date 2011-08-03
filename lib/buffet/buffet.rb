@@ -134,29 +134,13 @@ module Buffet
         puts "You should run ssh-agent so you don't see so many password prompts."
       end
 
-      shown_error = false
-
-      # Create a buffet user on each uninitialized host.
+      # Have access to each host?
       Settings.get["hosts"].each do |host|
-        if not `ssh buffet@#{host} 'echo aaaaa'`.include? "aaaaa"
-          if not shown_error
-            puts "#############################################################"
-            puts "Buffet user not found on #{host}."
-            puts ""
-            puts "Buffet will need the root password to every machine you plan"
-            puts "to use as a host. This will be the only time the password is"
-            puts "needed."
-            puts ""
-            puts "Buffet needs root access only on the first run, as it needs"
-            puts "to create buffet users on each machine."
-            puts "#############################################################"
+        next if `ssh buffet@#{host} -o PasswordAuthentication=no 'echo aaaaa'`.include? "aaaaa"
 
-            shown_error = true
-          end
+        puts "Unable to access #{host}."
 
-          `scp ~/.ssh/id_rsa.pub root@#{host}:id_rsa_buffet.pub`
-          `ssh root@#{host} 'adduser buffet && mkdir -p ~buffet/.ssh && cat ~/id_rsa_buffet.pub >> ~buffet/.ssh/authorized_keys && chmod 644 ~buffet/.ssh/authorized_keys'`
-        end
+        Settings.get["hosts"].delete host
       end
     end
 
