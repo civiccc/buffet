@@ -60,5 +60,11 @@ PLATFORMS
 
 DEPENDENCIES
   buffet!
+  json
+  memoize
+  net-ssh
   rack-test
   rspec
+  sinatra
+  tinder
+  wopen3
