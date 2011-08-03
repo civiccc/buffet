@@ -87,6 +87,4 @@ module Buffet
       end
     end
   end
-
-  CLI.new
 end
