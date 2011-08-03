@@ -52,6 +52,11 @@ module Buffet
     #
     #   :dont_run_migrations => Don't run the database migrations.
     def run branch, kwargs={}
+      if Settings.get["hosts"].length == 0
+        @status.set "No hosts have been configured! Look into settings.yml and check your ssh configuarations."
+        return
+      end
+
       initialize_chat
 
       @branch = branch
