@@ -130,7 +130,7 @@ module Buffet
       end
       
       # Running ssh-agent?
-      if `ps -ef | grep ssh-agent | grep $USER | grep -L 'grep'`.length == 0
+      if `ps -ef | grep ssh-agent | grep $USER | grep -v 'grep'`.length == 0
         puts "You should run ssh-agent so you don't see so many password prompts."
       end
 
