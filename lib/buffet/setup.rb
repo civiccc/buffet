@@ -108,7 +108,7 @@ module Buffet
       end
     end
 
-    def update_working_dir remote, branch
+    def update_local_dir remote, branch
       Dir.chdir(@working_dir) do
         `git fetch #{remote}`
 
@@ -127,8 +127,7 @@ module Buffet
                       git submodule update --init &&
                       git submodule foreach git reset --hard HEAD &&
                       git submodule foreach git clean -f".gsub(/\n/, ''))
-        # expect_success("Failed to clone local repository.")
-
+        expect_success("Failed to clone local repository.")
         ENV['RAILS_ENV'] = 'test'
 
         @status.set "Updating local gems.\n"
@@ -142,14 +141,14 @@ module Buffet
     def run(dont_run_migrations, branch="master")
       remote = 'origin'
 
-      update_working_dir remote, branch
+      update_local_dir remote, branch
 
       @status.set "Copying Buffet to hosts."
       sync_hosts @hosts
 
       @status.set "Running bundle install on hosts."
 
-      setup_db unless dont_run_migrations
+      setup_db unless dont_run_migrations or (not File.exists?(Settings.root_dir + "/setup_db"))
     end
 
     def get_failures
