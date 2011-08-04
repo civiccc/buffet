@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    buffet (1.0.0alpha)
+    buffet-gem (1.0.1alpha)
       json
       memoize
       net-ssh
@@ -59,6 +59,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  buffet!
+  buffet-gem!
   rack-test
   rspec
