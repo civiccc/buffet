@@ -4,7 +4,7 @@
 # Edit it to include relevant information about the project you are 
 # testing. Save and quit when you're done.
 #
-# If you want to change settings later, edit "~/.buffet".
+# If you want to change settings later, run buffet --settings.
 
 # The hosts that Buffet will test with.
 hosts:
