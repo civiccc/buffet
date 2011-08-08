@@ -96,7 +96,7 @@ module Buffet
         # Run worker on every host.
         threads = @hosts.map do |host|
           Thread.new do
-            `ssh buffet@#{host} 'cd ~/#{Settings.root_dir_name}/working-directory; RAILS_ENV=test bundle exec ruby ~/#{Settings.root_dir_name}/buffet/bin/buffet-worker #{server_addr}'`
+            `ssh buffet@#{host} 'cd ~/#{Settings.root_dir_name}/working-directory; RAILS_ENV=test bundle exec ruby ~/#{Settings.root_dir_name}/bin/buffet-worker #{server_addr}'`
 
             if $?.exitstatus != 0
               puts "Error on worker machine #{host}."
