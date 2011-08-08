@@ -63,7 +63,8 @@ module Buffet
 
     def update_status
       new_status = (@stats.to_a.map {|keyvalue| "#{keyvalue[0].to_s}: #{keyvalue[1]}"}).join " "
-      @status.set new_status
+      @status.set new_status, true
+      @status.set @stats, false
     end
 
     def server_addr

@@ -83,7 +83,7 @@ module Buffet
         puts @regression_finder.regressions
 
         @state = :not_running
-        @status.set "Done"
+        @status.set @master.failures.length > 0 ? "Go fix your bugs." : "All tests pass!"
       end
     end
 

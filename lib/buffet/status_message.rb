@@ -17,15 +17,14 @@ module Buffet
     # Set the status message. Support for either setting it to a string or a 
     # hash. If it's a string, StatusMessage mimics a string; similarly with 
     # hashes.
-    def set(message)
+    def set(message, hide=false)
       @message = message
       @show_progress = false
 
-      display
+      display if not hide
     end
 
-    # Convenience. This makes things like puts status work without any more 
-    # calls.
+    # Convenience method. This makes things like puts status work.
     def to_s
       if @show_progress
         "#{@message} (#{@progress} of #{@max_progress})"
