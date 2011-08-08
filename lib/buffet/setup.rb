@@ -39,7 +39,7 @@ module Buffet
       remote = `cd #{Settings.working_dir} && git remote -v | grep "(fetch)" | head -1 | cut -f2 | cut -d" " -f1`.chomp
 
       return if remote == Settings.get["repository"]
-      puts "About to delete everything. Continue? (y/n)"
+      puts "About to delete #{Settings.working_dir}, and replace it with a new clone. Continue? (y/n)"
       exit 0 unless gets.chomp == "y"
 
       FileUtils.rm_rf Settings.working_dir if File.directory? Settings.working_dir
