@@ -74,16 +74,7 @@ module Buffet
         @master = Master.new Settings.working_dir, hosts, @status
         @master.run
 
-        if @master.failures.length == 0
-          chat "All tests pass!"
-        else
-          rev = `cd working-directory && git rev-parse HEAD`.chomp
-          nice_output = @master.failures.map do |fail|
-            "#{fail[:header]} FAILED.\nLocation: #{fail[:location]}\n\n"
-          end.join ""
-          nice_output = "On revision #{rev}:\n\n" + nice_output
-          chat "#{nice_output}"
-        end
+        display_failures
 
         @state = :finding_regressions
         @status.set "Looking for regressions..."
@@ -191,6 +182,20 @@ module Buffet
     ##################
     # TESTING STATUS #
     ##################
+
+    # Prettyprint the failures that Master has found.
+    def display_failures
+      if @master.failures.length == 0
+        chat "All tests pass!"
+      else
+        rev = `cd working-directory && git rev-parse HEAD`.chomp
+        nice_output = @master.failures.map do |fail|
+          "#{fail[:header]} FAILED.\nLocation: #{fail[:location]}\n\n"
+        end.join ""
+        nice_output = "On revision #{rev}:\n\n" + nice_output
+        chat "#{nice_output}"
+      end
+    end
 
     # What is Buffet currently doing?
     # This method is only meaningful when called from a separate thread then 
