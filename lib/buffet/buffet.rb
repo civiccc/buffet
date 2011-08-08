@@ -13,7 +13,6 @@ require 'buffet/regression'
 require 'memoize'
 
 PID_FILE = "/tmp/#{Buffet::Settings.root_dir_name}-buffet.pid"
-SETTINGS_FILE = File.expand_path('../../settings.yml', File.join(File.dirname(__FILE__)))
 
 module Buffet
   # This is the core Buffet class. It uses Setup and Master to bring the working
