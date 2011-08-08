@@ -2,6 +2,6 @@
 
 $LOAD_PATH.unshift(File.expand_path(File.dirname(__FILE__) + '/../lib'))
 
-require "buffet/frontend"
+require "buffet/settings"
 
-`bundle exec rackup`
+`rackup -p #{Buffet::Settings.get["port"]}`
