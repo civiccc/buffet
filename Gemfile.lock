@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    buffet-gem (1.0.2alpha)
+    buffet-gem (1.0.3alpha)
       json
       memoize
       net-ssh
