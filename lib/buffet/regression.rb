@@ -2,7 +2,7 @@
 
 require 'buffet/settings'
 
-DATA_PATH = File.expand_path(File.dirname(__FILE__) + '/../../data')
+DATA_PATH = File.expand_path(Buffet::Settings.root_dir + '/data')
 
 FAIL_FILE = DATA_PATH + "/fails.dat"
 ALL_FILE  = DATA_PATH + "/all.dat"
