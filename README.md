@@ -1,24 +1,22 @@
 # Buffet
 
-## How to install
+## Usage
 
-`gem install buffet-gem --pre`
+Install: `gem install buffet-gem --pre`
 
-`buffet`
+Start testing: `buffet` or `buffet-web`. Your choice.
 
-Optional: Create a file called `db_setup`, to be run every time Buffet runs, and put it in `[your repo]/bin`. We use this script to reset the testing databases. Be sure that this script also rests the databases on the hosts as well.
+## Details
 
-### How to use
+Help: `buffet --help`. 
 
-The CLI is a little more powerful than the web interface. Currently working on making them equal.
+Settings: `buffet --settings`.
 
-`buffet --help` to see options. `buffet` starts testing. For continuous integration, you may be interested in `buffet --watch`. 
+Continuous integration: `buffet --watch`. 
 
-### Web interface:
+If you have databases that need to be refreshed every time you test: Create a file called `db_setup` to do this, and put it in `[your repo]/bin`. Be sure that this script also rests the databases on the hosts as well.
 
-`buffet-web`. Then navigate to `localhost:9292/test`.
-
-After you've started the server, try `curl 'localhost:9292/start-buffet-server/[BRANCH]'`
+The CLI currently has more options than the web interface. Working on this.
 
 ## FAQ
 
