@@ -59,7 +59,8 @@ module Buffet
       hosts.each do |host|
         threads << Thread.new do 
           # Sync all of Buffet.
-          `rsync -aqz --delete --exclude=tmp --exclude=.bundle --exclude=log --exclude=doc --exclude=.git #{Settings.root_dir} -e "ssh " buffet@#{host}:~/`
+          # TODO: The .git repository needs to be synced once, and only once.
+          `rsync -aqz --delete --exclude=tmp --exclude=.bundle --exclude=log --exclude=doc #{Settings.root_dir} -e "ssh " buffet@#{host}:~/`
 
           # Run bundle install if necessary.
           `ssh buffet@#{host} 'cd ~/#{Settings.root_dir_name}/working-directory && bundle check > /dev/null; if (($? != 0)); then bundle install --without production --path ~/buffet-gems; fi'`
