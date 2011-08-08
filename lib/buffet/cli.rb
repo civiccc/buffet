@@ -20,8 +20,15 @@ module Buffet
       @skip_setup = false
       @dont_run_migrations = true
       @verbose = true
+      @settings = false
 
       process_args
+
+      if @settings
+        editor = ENV["EDITOR"] || "vi"
+        system "#{editor} #{SETTINGS_FILE}"
+        return
+      end
 
       if not @watch
         puts "Running Buffet on branch #{@branch}."
@@ -75,6 +82,8 @@ module Buffet
           exit 0
         elsif arg == "--watch"
           @watch = true
+        elsif arg == "--settings"
+          @settings = true
         elsif arg == "--skip-setup"
           @skip_setup = true
         elsif arg == "--dont-run-migrations"
