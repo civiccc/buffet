@@ -44,7 +44,7 @@ module Buffet
 
       FileUtils.rm_rf Settings.working_dir if File.directory? Settings.working_dir
 
-      @status.set "Cloning #{@repo}. This will only happen once.\n"
+      @status.set "Cloning #{@repo} into #{Settings.working_dir}.\n"
 
       `git clone #{@repo} #{Settings.working_dir}`
     end
