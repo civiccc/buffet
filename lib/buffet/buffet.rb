@@ -138,6 +138,12 @@ If you've done all this and still can't get things to work, let me know."
       end
 
       # Have access to each host?
+
+      if Settings.get["hosts"] == nil
+        puts "No hosts have been listed in the settings file. Run buffet --settings."
+        exit 0
+      end
+
       Settings.get["hosts"].each do |host|
         next if `ssh buffet@#{host} -o PasswordAuthentication=no 'echo aaaaa'`.include? "aaaaa"
 

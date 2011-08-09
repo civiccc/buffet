@@ -6,7 +6,7 @@ module Buffet
   ROOT_DIR = File.expand_path('~/.buffet') 
   WORKING_DIR = File.expand_path('~/.buffet/working-directory')
 
-  SETTINGS_FILE = File.expand_path('~/.buffet/settings')
+  SETTINGS_FILE = File.expand_path('~/.buffet/settings.yml')
   SAMPLE_SETTINGS_FILE = File.expand_path('../../settings.sample.yml', File.join(File.dirname(__FILE__)))
 
   class Settings
