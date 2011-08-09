@@ -18,7 +18,8 @@ module Buffet
         # TODO: I only really need to move bin/buffet-worker and 
         # working-directory/ here; the rest is unnecessary. 
         FileUtils.mkdir_p WORKING_DIR
-        `cp -r #{GEM_DIR}/* #{File.expand_path("~/.buffet")}`
+        FileUtils.cp_r GEM_DIR, File.expand_path("~/.buffet")
+        
         FileUtils.cp SAMPLE_SETTINGS_FILE, SETTINGS_FILE
 
         # Launch user's favorite editor for first time configuration.
