@@ -2,13 +2,17 @@
 
 Buffet is a test distribution framework for Ruby. It has been designed to be super simple to set up and use. 
 
-Buffet is still under development. Feel free to send pull requests or questions my way.
+Buffet is in an alpha state. It should work, but there may be some rough patches. Feel free to send questions, or better, pull requests, my way.
 
-## Usage
+## Installation
 
 Install: `gem install buffet-gem --pre`
 
-Start testing: `buffet` or `buffet-web`. Your choice. Create a user named 'buffet' on each host; Buffet can take care of the rest. 
+Create a user named 'buffet' on each host; Buffet can take care of the rest. 
+
+## Usage
+
+Run tests: `buffet` for the command line, or `buffet-web`. Your choice. 
 
 ## Details
 

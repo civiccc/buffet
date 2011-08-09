@@ -52,7 +52,14 @@ module Buffet
     #   :dont_run_migrations => Don't run the database migrations.
     def run branch, kwargs={}
       if Settings.get["hosts"].length == 0
-        @status.set "No hosts have been configured! Look into settings.yml and check your ssh configuarations."
+        @status.set "Buffet was unable to access any machines you listed. Be sure that you have:
+
+1. Created a buffet user on each host you intend to run tests on. 
+
+2. Given passwordless ssh access to each of these hosts. (If you type in ssh buffet@yourhost, it should work immediately.)
+        
+If you've done all this and still can't get things to work, let me know."
+
         return
       end
 
