@@ -1,6 +1,6 @@
 # Buffet
 
-Buffet is a test distribution framework for Ruby. It has been designed to be super simple to set up and use. 
+Buffet is a test distribution framework for Ruby. This means that it distributes your tests across all your worker machines and runs them in parallel, which significantly speeds up the testing cycle. 
 
 Buffet is in an alpha state. It should work, but there may be some rough patches. Feel free to send questions, or better, pull requests, my way.
 
