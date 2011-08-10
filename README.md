@@ -4,6 +4,8 @@ Buffet is a test distribution framework for Ruby. It has been designed to be sup
 
 Buffet is in an alpha state. It should work, but there may be some rough patches. Feel free to send questions, or better, pull requests, my way.
 
+![A screenshot of Buffet](http://i.imgur.com/sU247.png)
+
 ## Installation
 
 Install: `gem install buffet-gem --pre`
