@@ -10,6 +10,7 @@ require 'buffet/buffet'
 require 'json'
 require 'buffet/settings'
 require 'buffet/commit_watcher'
+require 'buffet/checker'
 require 'optparse'
 
 module Buffet
@@ -52,6 +53,11 @@ module Buffet
         end
       end.parse!(args)
      
+      if @check_mode
+        Checker.check @verbose
+        return
+      end
+
       if not @watch
         puts "Running Buffet on branch #{@branch}."
 
