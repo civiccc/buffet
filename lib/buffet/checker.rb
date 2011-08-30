@@ -11,7 +11,6 @@ module Buffet
       local_ruby_version = get_version_from_versionstring(`ruby --version`)
 
       hosts.each do |host|
-
         # check availability of each host
         exit_status, result = run_remote_command host, 'uptime'
         unless exit_status.zero?
@@ -30,8 +29,8 @@ module Buffet
         end
 
         # Check for presence of bundler
-        exit_status, result = run_remote_command hosts, 'bundle --version'
-        unless result.to_i.zero?
+        exit_status, result = run_remote_command host, 'bundle --version'
+        unless result.match(/^Bundler/)
           hosts.delete(host)
           puts "#{host} doesn't have bundle"
         end
