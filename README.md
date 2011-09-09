@@ -16,13 +16,19 @@ Create a user named 'buffet' on each host; Buffet can take care of the rest.
 
 Run tests: `buffet` for the command line, or `buffet-web`. Your choice. 
 
+## Continuous Integration
+
+`buffet --watch` will scan the master branch of the repository specified in settings, and run the tests on a change.
+
+## Remote testing
+
+You can run `buffet --listen` on the main Buffet machine, and then `buffet-remote HOSTNAME` on any machine that can talk to the main machine to tell it to run the tests.
+
 ## Details
 
 Help: `buffet --help`. 
 
-Settings: `buffet --settings`.
-
-Continuous integration: `buffet --watch`. 
+Edit settings: `buffet --settings`.
 
 If you have databases that need to be refreshed every time you test: Create a file called `db_setup` to do this, and put it in `[your repo]/bin`. Be sure that this script also rests the databases on the hosts as well.
 
@@ -45,3 +51,5 @@ You should precede all bundle database commands with `RAILS_ENV=test`.
 ## Looking Forward
 
 1. Use a git wrapper, not inline shell commands.
+
+2. Kill the web interface. Yeah, it looks fancy, but no one seems interested in using it.
