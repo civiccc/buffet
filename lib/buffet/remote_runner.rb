@@ -1,8 +1,13 @@
+$LOAD_PATH.unshift(File.expand_path(File.dirname(__FILE__) + "/.."))
+
 module Buffet
   class RemoteRunner
+    def initialize
+      @lock = Mutex.new
+    end
+
     def run
-      #TODO: Should probably use a mutex here.
-      if not @someone_running
+      @lock.synchronize do
         @someone_running = true
 
         buffet = Buffet.new(Settings.get["repository"], {:verbose => @verbose})
@@ -10,7 +15,7 @@ module Buffet
         return true
       end
 
-      #return false
+      return false
     end
   end
 end
