@@ -8,6 +8,7 @@ module Buffet
 
   SETTINGS_FILE = File.expand_path('~/.buffet/settings.yml')
   SAMPLE_SETTINGS_FILE = File.expand_path('../../settings.sample.yml', File.join(File.dirname(__FILE__)))
+  LISTEN_URI = "druby://localhost:4567"
 
   class Settings
     # Simple memoized wrapper around the settings yml file.

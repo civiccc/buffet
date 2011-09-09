@@ -12,8 +12,26 @@ require 'buffet/settings'
 require 'buffet/commit_watcher'
 require 'buffet/checker'
 require 'optparse'
+require 'drb/drb'
 
 module Buffet
+
+  #TODO: Move into another file.
+  class RemoteRunner
+    def run
+      #TODO: Should probably use a mutex here.
+      if not @someone_running
+        @someone_running = true
+
+        buffet = Buffet.new(Settings.get["repository"], {:verbose => @verbose})
+        buffet.run(@branch, {:skip_setup => false, :dont_run_migrations => false})
+        return true
+      end
+
+      #return false
+    end
+  end
+
   class CLI
     def initialize args
       # Set some initial settings. 
@@ -31,26 +49,37 @@ module Buffet
         opts.on "--watch", "Watch a repository" do
           @watch = true
         end
+
+        opts.on "--listen", "Listen for buffet-remote requests" do
+          @listen = true
+        end
+
         opts.on "--settings", "Edit Buffet settings." do
           editor = ENV["EDITOR"] || "vi"
           system "#{editor} #{SETTINGS_FILE}"
           return
         end
+
         opts.on "--check-mode", "Ensure all machines are set up properly." do
           @check_mode = true
         end
+
         opts.on "--skip-setup", "Only run tests." do
           @skip_setup = true
         end
+
         opts.on "--dont-run-migrations", "Don't run migrations." do
           @dont_run_migrations = false
         end
+
         opts.on "--quiet", "Don't output excessively." do
           @verbose = false
         end
+
         opts.on "--branch BRANCH", "Run on a specific branch" do |branch|
           @branch = branch
         end
+
       end.parse!(args)
      
       if @check_mode
@@ -58,12 +87,14 @@ module Buffet
         return
       end
 
-      if not @watch
+      normal_run = !(@watch or @listen)
+
+      if normal_run
         puts "Running Buffet on branch #{@branch}."
 
         buffet = Buffet.new(Settings.get["repository"], {:verbose => @verbose})
         buffet.run(@branch, {:skip_setup => @skip_setup, :dont_run_migrations => @dont_run_migrations})
-      else
+      elsif @watch
         puts "Watching #{Settings.get["repository"]}/master. Ctrl-C to quit."
 
         settings = { :username   => Settings.get["github"]["username"], 
@@ -79,6 +110,13 @@ module Buffet
           buffet = Buffet.new(Settings.get["repository"], {:verbose => @verbose})
           buffet.run(@branch, {:skip_setup => false, :dont_run_migrations => false})
         end
+      elsif @listen
+        someone_running = false
+
+        puts "Listening for requests on #{LISTEN_URI}"
+
+        DRb.start_service(LISTEN_URI, RemoteRunner.new)
+        DRb.thread.join
       end
     end
   end
