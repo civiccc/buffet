@@ -9,7 +9,7 @@ describe Buffet::Setup do
     @setup = Buffet::Setup.new(Buffet::Settings.root_dir + "/working-directory", [@test_host], status, "unnecessary")
   end
 
-  describe "#setup_db" do
+  describe "#db_setup" do
     it "doesn't run setup db from this computer if settings.yml doesn't include this computer" do
       # Return a yaml file that doesn't include the current host.
       Buffet::Settings.stub!(:get).and_return do
@@ -17,15 +17,15 @@ describe Buffet::Setup do
       end
 
       thread = Thread.new do 
-        @setup.setup_db
+        @setup.db_setup
       end
 
       sleep 0.1 #Give it time.
 
       `ps aux | grep db_setup | grep -v grep`.length.should == 0
-      Thread.kill(thread)# The entire setup_db script takes forever, so kill it.
+      Thread.kill(thread)# The entire db_setup script takes forever, so kill it.
 
-      # setup_db will have changed the current dir, but since we killed it, it's
+      # db_setup will have changed the current dir, but since we killed it, it's
       # possible that it wasn't able to change it back.
       Dir.chdir(Buffet::Settings.root_dir)
     end

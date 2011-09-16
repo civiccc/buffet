@@ -72,7 +72,7 @@ module Buffet
       end
     end
 
-    def setup_db
+    def db_setup
       Dir.chdir(@working_dir) do
         @status.set "Running db_setup\n"
 
@@ -150,7 +150,7 @@ module Buffet
 
       @status.set "Running bundle install on hosts."
 
-      setup_db unless dont_run_migrations or (not File.exists?(Settings.root_dir + "/setup_db"))
+      db_setup unless dont_run_migrations or (not File.exists?(Settings.root_dir + "/setup_db"))
     end
 
     def get_failures
