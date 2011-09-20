@@ -12,8 +12,6 @@ require 'buffet/regression'
 
 require 'memoize'
 
-PID_FILE = "/tmp/#{Buffet::Settings.root_dir_name}-buffet.pid"
-
 module Buffet
   # This is the core Buffet class. It uses Setup and Master to bring the working
   # directory up to sync and to run tests remotely, respectively. It exposes 
@@ -141,22 +139,24 @@ module Buffet
     # Ensure that only one instance of the block passed in runs at any time,
     # across the entire machine.
     def ensure_only_runner
+      pid_file = "/tmp/#{Settings.root_dir_name}-buffet.pid"
+
       # We ensure exclusivity by writing a file to /tmp, and checking to see if it
       # exists before we start testing.
-      def write_pid
-        File.open(PID_FILE, 'w') do |fh|
+      write_pid = lambda do
+        File.open(pid_file, 'w') do |fh|
           fh.write(Process.pid)
         end
       end
 
-      def clear_pid
-        if File.read(PID_FILE).to_i == Process.pid
-          File.delete(PID_FILE)
+      clear_pid = lambda do
+        if File.read(pid_file).to_i == Process.pid
+          File.delete(pid_file)
         end
       end
 
-      if File.exists?(PID_FILE)
-        puts "#{PID_FILE} exists, which indicates to me that Buffet is already"
+      if File.exists?(pid_file)
+        puts "#{pid_file} exists, which indicates to me that Buffet is already"
         puts "running. If you have reason to think it's not, you can delete the"
         puts "file."
         return
