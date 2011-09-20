@@ -17,6 +17,9 @@ module Campfire
       :username => user,
       :password => pass
     )
+
+  rescue Tinder::AuthenticationFailed
+    puts "Campfire username or password not valid."
   end
 
   def self.campfire
