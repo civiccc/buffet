@@ -150,7 +150,7 @@ module Buffet
 
       @status.set "Running bundle install on hosts."
 
-      db_setup unless dont_run_migrations or (not File.exists?(Settings.root_dir + "/setup_db"))
+      db_setup unless dont_run_migrations or (not File.exists?(Settings.root_dir + "/db_setup"))
     end
 
     def get_failures

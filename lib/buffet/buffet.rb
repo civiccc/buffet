@@ -52,21 +52,13 @@ module Buffet
     #   :dont_run_migrations => Don't run the database migrations.
     def run branch, kwargs={}
       if Settings.get["hosts"].length == 0
-        @status.set "Buffet was unable to access any machines you listed. Be sure that you have:
-
-1. Created a buffet user on each host you intend to run tests on. 
-
-2. Given passwordless ssh access to each of these hosts. (If you type in ssh buffet@yourhost, it should work immediately.)
-        
-If you've done all this and still can't get things to work, let me know."
-
+        @status.set "Buffet was unable to access any machines you listed. You should run buffet --check-mode."
         return
       end
 
       initialize_chat
 
-      @branch = branch
-      ensure_only_one do
+      ensure_only_runner do
         @status.set "Buffet is starting..."
 
         chat "Buffet is running on #{@repo} : #{branch}."
@@ -74,7 +66,7 @@ If you've done all this and still can't get things to work, let me know."
         if not kwargs[:skip_setup]
           @state = :setup
           @setup = Setup.new Settings.working_dir, hosts, @status, @repo
-          @setup.run kwargs[:dont_run_migrations], @branch
+          @setup.run kwargs[:dont_run_migrations], branch
         end
 
         @state = :testing
@@ -126,17 +118,6 @@ If you've done all this and still can't get things to work, let me know."
     ######################
     
     def check_hosts
-      if not File.exists? "#{Settings.home_dir}/.ssh/id_rsa.pub" and 
-         not File.exists? "#{Settings.home_dir}/.ssh/id_dsa.pub" 
-        puts "You should create a ssh public/private key pair before running"
-        puts "Buffet."
-      end
-      
-      # Running ssh-agent?
-      if `ps -ef | grep ssh-agent | grep $USER | grep -v 'grep'`.length == 0
-        puts "You should run ssh-agent so you don't see so many password prompts."
-      end
-
       # Have access to each host?
 
       if Settings.get["hosts"] == nil
@@ -159,7 +140,7 @@ If you've done all this and still can't get things to work, let me know."
 
     # Ensure that only one instance of the block passed in runs at any time,
     # across the entire machine.
-    def ensure_only_one
+    def ensure_only_runner
       # We ensure exclusivity by writing a file to /tmp, and checking to see if it
       # exists before we start testing.
       def write_pid
@@ -175,14 +156,10 @@ If you've done all this and still can't get things to work, let me know."
       end
 
       if File.exists?(PID_FILE)
-        if `ps aux | grep buffet | grep -v grep | grep #{File.open(PID_FILE).read}`.length == 0
-          # Buffet isn't running, but the PID_FILE exists.
-          # Get rid of it.
-          FileUtils.rm(PID_FILE)
-        else
-          puts "Buffet is already running. Hold your horses."
-          return
-        end
+        puts "#{PID_FILE} exists, which indicates to me that Buffet is already"
+        puts "running. If you have reason to think it's not, you can delete the"
+        puts "file."
+        return
       end
 
       begin

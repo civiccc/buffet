@@ -52,7 +52,7 @@ module Buffet
 
           threads << Thread.new(stderr) do |out|
             out.each do |line|
-              puts line
+              puts "ERR: #{line}"
             end
           end
 

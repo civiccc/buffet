@@ -23,7 +23,7 @@ module Buffet
       @branch = "master"
       @watch = false
       @skip_setup = false
-      @dont_run_migrations = true
+      @dont_run_migrations = false
       @verbose = true
       @settings = false
 
