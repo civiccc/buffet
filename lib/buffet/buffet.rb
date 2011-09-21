@@ -49,7 +49,9 @@ module Buffet
     #
     #   :dont_run_migrations => Don't run the database migrations.
     def run branch, kwargs={}
-      if Settings.get["hosts"].length == 0
+      hosts = Settings.get["hosts"]
+
+      if hosts.length == 0
         @status.set "Buffet was unable to access any machines you listed. You should run buffet --check-mode."
         return
       end
@@ -71,16 +73,18 @@ module Buffet
         @master = Master.new Settings.working_dir, hosts, @status
         @master.run
 
-        display_failures
+        failures = @master.failures
+
+        display_failures failures
 
         @state = :finding_regressions
         @status.set "Looking for regressions..."
 
-        @regression_finder = Regression.new(@master.passes, @master.failures)
+        @regression_finder = Regression.new(@master.passes, failures)
         puts @regression_finder.regressions
 
         @state = :not_running
-        @status.set @master.failures.length > 0 ? "Go fix your bugs." : "All tests pass!"
+        @status.set failures.length > 0 ? "Go fix your bugs." : "All tests pass!"
       end
     end
 
@@ -116,19 +120,15 @@ module Buffet
     ######################
     
     def check_hosts
-      # Have access to each host?
+      hosts = Settings.get["hosts"]
 
-      if Settings.get["hosts"] == nil
-        puts "No hosts have been listed in the settings file. Run buffet --settings."
-        exit 0
-      end
+      raise "No hosts have been listed in the settings file. Run buffet --settings." if hosts == nil
 
-      Settings.get["hosts"].each do |host|
+      hosts.each do |host|
         next if `ssh buffet@#{host} -o PasswordAuthentication=no 'echo aaaaa'`.include? "aaaaa"
 
         puts "Unable to access #{host}."
-
-        Settings.get["hosts"].delete host
+        Settings.remove_host host
       end
     end
 
@@ -140,25 +140,26 @@ module Buffet
     # across the entire machine.
     def ensure_only_runner
       pid_file = "/tmp/#{Settings.root_dir_name}-buffet.pid"
+      my_id = Process.pid
 
       # We ensure exclusivity by writing a file to /tmp, and checking to see if it
       # exists before we start testing.
       write_pid = lambda do
         File.open(pid_file, 'w') do |fh|
-          fh.write(Process.pid)
+          fh.write(my_id)
         end
       end
 
       clear_pid = lambda do
-        if File.read(pid_file).to_i == Process.pid
+        if File.read(pid_file).to_i == my_id
           File.delete(pid_file)
         end
       end
 
       if File.exists?(pid_file)
-        puts "#{pid_file} exists, which indicates to me that Buffet is already"
-        puts "running. If you have reason to think it's not, you can delete the"
-        puts "file."
+        puts "#{pid_file} exists, which indicates to me that Buffet is already
+        running. If you have reason to think it's not, you can delete the
+        file."
         return
       end
 
@@ -175,12 +176,12 @@ module Buffet
     ##################
 
     # Prettyprint the failures that Master has found.
-    def display_failures
-      if @master.failures.length == 0
+    def display_failures failures
+      if failures.length == 0
         chat "All tests pass!"
       else
         rev = `cd working-directory && git rev-parse HEAD`.chomp
-        nice_output = @master.failures.map do |fail|
+        nice_output = failures.map do |fail|
           "#{fail[:header]} FAILED.\nLocation: #{fail[:location]}\n\n"
         end.join ""
         nice_output = "On revision #{rev}:\n\n" + nice_output
@@ -189,7 +190,7 @@ module Buffet
     end
 
     # What is Buffet currently doing?
-    # This method is only meaningful when called from a separate thread then 
+    # This method is only meaningful when called from a separate thread then
     # the one running Buffet.
     def get_status
       @status
@@ -214,25 +215,5 @@ module Buffet
     def testing?
       @state == :testing
     end
-
-    # List all the hosts (found in settings.yml)
-    def hosts
-      Settings.get['hosts']
-    end
-
-    # List all branches (found by asking the working directory)
-    def list_branches
-      Dir.chdir(Settings.working_dir) do
-        `git branch -a`
-      end
-    end
-    memoize :list_branches
-
-    # Count the number of tests. Uses a heuristic that is not 100% accurate.
-    def num_tests
-      # This is RSpec specific.
-      `grep -r "  it" #{Settings.working_dir}/spec/ | wc`.to_i
-    end
-    memoize :num_tests
   end
 end

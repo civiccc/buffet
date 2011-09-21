@@ -5,6 +5,8 @@ require 'buffet/buffet'
 require 'buffet/settings'
 
 module Buffet
+  # Checker ensures that all machines Buffet is hooked up to will be able to
+  # run Buffet correctly.
   class Checker
     def self.check verbosity
       hosts = Settings.get['hosts']

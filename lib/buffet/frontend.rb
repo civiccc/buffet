@@ -48,7 +48,7 @@ module Buffet
       # Also parse out the /remotes/origin/ part which isn't helpful.
       #
       @branches = '["' +
-        @@buffet.list_branches.
+        Settings.list_branches.
           split("\n").
           map {|branch| branch[2 + "remotes/origin/".length .. branch.length]}.
           reject {|branch| branch == nil or branch.include? '->'}.
@@ -93,7 +93,7 @@ module Buffet
       if @@buffet.testing?
         @tests = @@buffet.get_status.examples
         @failures = @@buffet.get_status.failures
-        @percentage = @tests * 100 / @@buffet.num_tests
+        @percentage = @tests * 100 / Settings.num_tests
         erb :stats
       else
         @@buffet.get_status.to_s.gsub("\n", "<br>")
@@ -102,7 +102,7 @@ module Buffet
 
     get '/title' do
       if @@buffet.running?
-        "Reserved for #{Settings.get["github"]["repository"]}, party of #{@@buffet.num_tests}."
+        "Reserved for #{Settings.get["github"]["repository"]}, party of #{@Settings.num_tests}."
       else
         "Open for reservations"
       end

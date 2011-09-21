@@ -1,10 +1,9 @@
 require 'wopen3'
 
-# Maintains a status message, along with an optional progress amount
-# (which is generically displayed as (x of y), for example (5 of 100).
-# The progress amount gets reset when you set a new message. 
-
 module Buffet
+  # Maintains a status message, along with an optional progress amount
+  # (which is generically displayed as (x of y), for example (5 of 100).
+  # The progress amount gets reset when you set a new message.
   class StatusMessage
     def initialize(should_display=false)
       @message = ""
@@ -50,8 +49,8 @@ module Buffet
             end
           end
 
-          threads << Thread.new(stderr) do |out|
-            out.each do |line|
+          threads << Thread.new(stderr) do |err|
+            err.each do |line|
               puts "ERR: #{line}"
             end
           end

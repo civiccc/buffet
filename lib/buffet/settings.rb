@@ -10,24 +10,17 @@ module Buffet
   SAMPLE_SETTINGS_FILE = File.expand_path('../../settings.sample.yml', File.join(File.dirname(__FILE__)))
   LISTEN_PORT = "4567"
 
+  # Singleton-style class that contains all Buffet-related settings and
+  # constants.
   class Settings
     # Simple memoized wrapper around the settings yml file.
     def self.get
-      while not File.exists? SETTINGS_FILE
-        # Create ~/.buffet directory. Sync this directory to ~/.buffet.
-        #
-        # TODO: I only really need to move bin/buffet-worker and 
-        # working-directory/ here; the rest is unnecessary. 
-        FileUtils.mkdir_p WORKING_DIR
-        FileUtils.cp_r GEM_DIR, File.expand_path("~/.buffet")
-        
-        FileUtils.cp SAMPLE_SETTINGS_FILE, SETTINGS_FILE
-
-        # Launch user's favorite editor for first time configuration.
-        editor = ENV["EDITOR"] || "vi"
-        system "#{editor} #{SETTINGS_FILE}"
-      end
+      self.create_settings_file while not File.exists? SETTINGS_FILE
       @settings ||= YAML.load_file(SETTINGS_FILE)
+    end
+
+    def self.remove_host hostname
+      self.get["hosts"].delete hostname
     end
 
     # Path to ~/.
@@ -57,6 +50,18 @@ module Buffet
       ".buffet"
     end
 
+    def self.list_branches
+      Dir.chdir(Settings.working_dir) do
+        `git branch -a`
+      end
+    end
+
+    # Count the number of tests. Uses a heuristic.
+    def num_tests
+      # This is RSpec specific.
+      `grep -r "  it" #{Settings.working_dir}/spec/ | wc`.to_i
+    end
+
     # Name of this host.
     def self.hostname
       `uname -n`.split('.').first
@@ -68,4 +73,20 @@ module Buffet
   end
 
   LISTEN_URI = Settings.druby_listen_url Settings.hostname
+
+  private
+
+  def create_settings_file
+    # Create ~/.buffet directory. Sync this directory to ~/.buffet.
+    #
+    # TODO: I only really need to move bin/buffet-worker and
+    # working-directory/ here; the rest is unnecessary.
+    FileUtils.mkdir_p WORKING_DIR
+    FileUtils.cp_r GEM_DIR, File.expand_path("~/.buffet")
+    FileUtils.cp SAMPLE_SETTINGS_FILE, SETTINGS_FILE
+
+    # Launch user's favorite editor for first time configuration.
+    editor = ENV["EDITOR"] || "vi"
+    system "#{editor} #{SETTINGS_FILE}"
+  end
 end

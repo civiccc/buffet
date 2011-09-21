@@ -13,12 +13,14 @@ require 'buffet/status_message'
 
 include Memoize
 module Buffet
+
+  # Setup takes the repository to be tested and ensures that it is in its most
+  # up-to-date state, including installing gems, updating the repository to the
+  # latest revision, etc.
   class Setup
 
-    # Initialize contains stuff that can be done preliminarily; that is, it's not
-    # imperative that we have to be running a test in order to run this function. 
-    # Right now, it just sets instance variables and clones the working directory
-    # if it doesn't already exist.
+    # Initialize will not start updating the working directory, but it will do
+    # everything else necessary to prepare.
     def initialize working_dir, hosts, status, repo
       @status = status
       @buffet_dir = File.expand_path(File.dirname(__FILE__) + "/../..")
@@ -36,17 +38,17 @@ module Buffet
     def clone_repo
       # TODO: This is a sloppy way to get the remote. Move towards using a ruby
       # git wrapper. 
-      remote = `cd #{Settings.working_dir} && git remote -v | grep "(fetch)" | head -1 | cut -f2 | cut -d" " -f1`.chomp
+      remote = `cd #{@working_dir} && git remote -v | grep "(fetch)" | head -1 | cut -f2 | cut -d" " -f1`.chomp
 
       return if remote == Settings.get["repository"]
-      puts "About to delete #{Settings.working_dir}, and replace it with a new clone. Continue? (y/n)"
+      puts "About to delete #{@working_dir}, and replace it with a new clone. Continue? (y/n)"
       exit 0 unless gets.chomp == "y"
 
-      FileUtils.rm_rf Settings.working_dir if File.directory? Settings.working_dir
+      FileUtils.rm_rf @working_dir if File.directory? @working_dir
 
-      @status.set "Cloning #{@repo} into #{Settings.working_dir}.\n"
+      @status.set "Cloning #{@repo} into #{@working_dir}.\n"
 
-      `git clone #{@repo} #{Settings.working_dir}`
+      `git clone #{@repo} #{@working_dir}`
     end
 
 
@@ -63,7 +65,8 @@ module Buffet
           `rsync -aqz --delete --exclude=tmp --exclude=.bundle --exclude=log --exclude=doc #{Settings.root_dir} -e "ssh " buffet@#{host}:~/`
 
           # Run bundle install if necessary.
-          `ssh buffet@#{host} 'cd ~/#{Settings.root_dir_name}/working-directory && bundle check > /dev/null; if (($? != 0)); then bundle install --without production --path ~/buffet-gems; fi'`
+          # TODO: Hardcoded version of ruby here.
+          `ssh buffet@#{host} 'rvm use 1.8.7 ; cd ~/#{Settings.root_dir_name}/working-directory && bundle check > /dev/null; if (($? != 0)); then bundle install --without production --path ~/buffet-gems; fi'`
         end
       end
 
@@ -75,37 +78,7 @@ module Buffet
     def db_setup
       Dir.chdir(@working_dir) do
         @status.set "Running db_setup\n"
-
-        if Settings.get['hosts'].include? Settings.hostname
-          @status.increase_progress /^== [\d]+ /, 1120, Settings.root_dir + "/db_setup " + @hosts.join(" ")
-        else
-          # We don't want to execute db_setup on current machine, since it's not in the hosts.
-          # Copy db_setup to an arbitrary host we're allowed to use.
-          #
-          # This is primarily useful for developing Buffet, since we want to be 
-          # able to run Buffet from the same computer we run tests on, but we 
-          # don't want to have conflicts on the database.
-
-          new_setup_host = "buffet@#{@hosts.first}"
-          new_setup_location = "~/#{Settings.root_dir_name}/working-directory"
-
-          `scp #{Settings.root_dir}/db_setup #{new_setup_host}:#{new_setup_location}/db_setup`
-          command = "ssh #{new_setup_host} \"cd #{new_setup_location}; ./db_setup " + @hosts.join(" ") + "\""
-          puts command
-          
-          Net::SSH.start(@hosts.first, 'buffet') do |ssh|
-            channel = ssh.open_channel do |ch|
-              ch.exec "cd #{new_setup_location}; ./db_setup " + @hosts.join(" ") do |ch, success|
-                ch.on_data do |c, data|
-                  puts data
-                end
-                # can also capture on_extended_data for stderr
-              end
-            end
-
-            channel.wait
-          end
-        end
+        @status.increase_progress /^== [\d]+ /, 1120, Settings.root_dir + "/db_setup " + @hosts.join(" ")
         expect_success("Failed to db_setup on local machine.")
       end
     end
@@ -151,14 +124,6 @@ module Buffet
       @status.set "Running bundle install on hosts."
 
       db_setup unless dont_run_migrations or (not File.exists?(Settings.root_dir + "/db_setup"))
-    end
-
-    def get_failures
-      if @master
-        @master.get_failures_list
-      else
-        []
-      end
     end
 
     private

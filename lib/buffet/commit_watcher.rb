@@ -26,9 +26,7 @@ class CommitWatcher
 
         commit_message = JSON.parse(`#{api_call}`)["commits"].first["message"]
 
-        if commit_message != old_commit_message 
-          yield
-        end
+        yield if commit_message != old_commit_message
 
         old_commit_message = commit_message
         sleep 2
