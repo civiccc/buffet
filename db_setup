@@ -30,7 +30,7 @@ mysqldump --no-data -u root buffet_causes_test > buffet_causes_test.dump
 mysqldump --no-data -u root wishes_development > buffet_wishes_test.dump
 mysql -u root buffet_wishes_test < buffet_wishes_test.dump
 
-for host in `$@` #Loop through argument list
+for host in "$@" #Loop through argument list
 do
   echo $host
   sh -c "scp buffet_causes_test.dump \
