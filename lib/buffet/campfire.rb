@@ -1,4 +1,3 @@
-require 'rubygems'
 require 'uri'
 require 'tinder'
 require 'buffet/settings'
