@@ -10,7 +10,7 @@ module Buffet
 
   runner = DRbObject.new_with_uri(Settings.druby_listen_url ARGV[0])
   if runner.can_run?
-    puts "Output will be in Campfire when Buffet finishes."
+    puts "Running."
     runner.run
   else
     puts "Someone else is already running Buffet. Chill!"

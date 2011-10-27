@@ -13,7 +13,7 @@ describe Buffet::Setup do
     it "doesn't run setup db from this computer if settings.yml doesn't include this computer" do
       # Return a yaml file that doesn't include the current host.
       Buffet::Settings.stub!(:get).and_return do
-        {"campfire"=>{"username"=>"escher", "room_name"=>"Operations", "subdomain"=>"causes", "password"=>"some_bogus_password"}, "repository"=>"git@github.com:causes/causes.git", "hosts"=>["chrisws"]} 
+        {"repository"=>"git@github.com:causes/causes.git", "hosts"=>["chrisws"]}
       end
 
       thread = Thread.new do 

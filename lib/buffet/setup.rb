@@ -8,7 +8,6 @@ require 'memoize'
 require 'wopen3'
 
 require 'buffet/master'
-require 'buffet/campfire'
 require 'buffet/status_message'
 
 include Memoize

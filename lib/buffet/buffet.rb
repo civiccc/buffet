@@ -3,7 +3,6 @@ $LOAD_PATH.unshift(File.expand_path(File.dirname(__FILE__) + "/.."))
 require 'ftools'
 require 'fileutils'
 
-require 'buffet/campfire'
 require 'buffet/master'
 require 'buffet/settings'
 require 'buffet/status_message'
@@ -55,12 +54,8 @@ module Buffet
         return
       end
 
-      initialize_chat
-
       ensure_only_runner do
-        @status.set "Buffet is starting..."
-
-        chat "Buffet is running on #{@repo} : #{branch}."
+        @status.set "Buffet is running #{@repo} : #{branch}."
 
         if not kwargs[:skip_setup]
           @state = :setup
@@ -80,33 +75,6 @@ module Buffet
         @status.set failures.length > 0 ? "Go fix your bugs." : "All tests pass!"
       end
     end
-
-    #####################
-    # CHAT  INTEGRATION #
-    #####################
-
-    def initialize_chat
-      @using_chat = Settings.get["use_campfire"]
-
-      if @using_chat
-        Campfire.connect_and_login
-      end
-    end
-
-    # This is like a higher priority @status.set. It's currently reserved for
-    # starting and finishing a test run.
-    def chat(message)
-      if @using_chat
-        if message.include? "\n"
-          Campfire.paste message
-        else
-          Campfire.speak message
-        end
-      else
-        @status.set message
-      end
-    end
-
 
     ######################
     #     HOST SETUP     #
@@ -171,14 +139,14 @@ module Buffet
     # Prettyprint the failures that Master has found.
     def display_failures failures
       if failures.length == 0
-        chat "All tests pass!"
+        @status.set "All tests pass!"
       else
         rev = `cd working-directory && git rev-parse HEAD`.chomp
         nice_output = failures.map do |fail|
           "#{fail[:header]} FAILED.\nLocation: #{fail[:location]}\n\n"
         end.join ""
         nice_output = "On revision #{rev}:\n\n" + nice_output
-        chat "#{nice_output}"
+        @status.set "#{nice_output}"
       end
     end
 

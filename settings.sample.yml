@@ -26,11 +26,3 @@ port: 8990
 # What framework are you using? Buffet takes an educated guess, but will use this
 # as a fallback.
 framework: rspec2 or rspec1
-
-#If you use campfire, set this to true and fill out the details. 
-use_campfire: false
-campfire:
-  username: username
-  password: password
-  subdomain: subdomain # subdomain.campfirenow.com
-  room_name: name
