@@ -9,7 +9,6 @@ $LOAD_PATH.unshift(File.expand_path(File.dirname(__FILE__) + "/.."))
 require 'buffet/buffet'
 require 'json'
 require 'buffet/settings'
-require 'buffet/commit_watcher'
 require 'buffet/remote_runner'
 require 'buffet/checker'
 require 'optparse'
@@ -21,7 +20,6 @@ module Buffet
       # Set some initial settings. 
       @check_mode = false
       @branch = "master"
-      @watch = false
       @skip_setup = false
       @dont_run_migrations = false
       @verbose = true
@@ -29,10 +27,6 @@ module Buffet
 
       opts = OptionParser.new do |opts|
         opts.banner = "Usage: buffet.rb [options]"
-        
-        opts.on "--watch", "Watch a repository" do
-          @watch = true
-        end
 
         opts.on "--listen", "Listen for buffet-remote requests" do
           @listen = true
@@ -71,29 +65,13 @@ module Buffet
         return
       end
 
-      normal_run = !(@watch or @listen)
+      normal_run = !@listen
 
       if normal_run
         puts "Running Buffet on branch #{@branch}."
 
         buffet = Buffet.new(Settings.get["repository"], {:verbose => @verbose})
         buffet.run(@branch, {:skip_setup => @skip_setup, :dont_run_migrations => @dont_run_migrations})
-      elsif @watch
-        puts "Watching #{Settings.get["repository"]}/master. Ctrl-C to quit."
-
-        settings = { :username   => Settings.get["github"]["username"], 
-                     :token      => Settings.get["github"]["token"],
-                     :owner      => Settings.get["github"]["owner"],
-                     :repository => Settings.get["github"]["repository"],
-                     :branch     => Settings.get["token"]
-                   }
-
-        CommitWatcher.watch settings do
-          puts "New commit on master."
-
-          buffet = Buffet.new(Settings.get["repository"], {:verbose => @verbose})
-          buffet.run(@branch, {:skip_setup => false, :dont_run_migrations => false})
-        end
       elsif @listen
         someone_running = false
 
