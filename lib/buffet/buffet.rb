@@ -8,7 +8,6 @@ require 'buffet/master'
 require 'buffet/settings'
 require 'buffet/status_message'
 require 'buffet/setup'
-require 'buffet/regression'
 
 require 'memoize'
 
@@ -76,12 +75,6 @@ module Buffet
         failures = @master.failures
 
         display_failures failures
-
-        @state = :finding_regressions
-        @status.set "Looking for regressions..."
-
-        @regression_finder = Regression.new(@master.passes, failures)
-        puts @regression_finder.regressions
 
         @state = :not_running
         @status.set failures.length > 0 ? "Go fix your bugs." : "All tests pass!"
