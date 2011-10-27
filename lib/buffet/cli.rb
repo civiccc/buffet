@@ -19,19 +19,12 @@ module Buffet
       @skip_setup = false
       @dont_run_migrations = false
       @verbose = true
-      @settings = false
 
       opts = OptionParser.new do |opts|
         opts.banner = "Usage: buffet.rb [options]"
 
         opts.on "--listen", "Listen for buffet-remote requests" do
           @listen = true
-        end
-
-        opts.on "--settings", "Edit Buffet settings." do
-          editor = ENV["EDITOR"] || "vi"
-          system "#{editor} #{SETTINGS_FILE}"
-          return
         end
 
         opts.on "--check-mode", "Ensure all machines are set up properly." do

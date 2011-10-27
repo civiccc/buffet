@@ -2,12 +2,10 @@ require 'yaml'
 require 'fileutils'
 
 module Buffet
-  GEM_DIR = File.expand_path(File.join(File.dirname(__FILE__) + '../../../'))
   ROOT_DIR = File.expand_path('~/.buffet') 
   WORKING_DIR = File.expand_path('~/.buffet/working-directory')
 
   SETTINGS_FILE = File.expand_path('~/.buffet/settings.yml')
-  SAMPLE_SETTINGS_FILE = File.expand_path('../../settings.sample.yml', File.join(File.dirname(__FILE__)))
   LISTEN_PORT = "4567"
 
   # Singleton-style class that contains all Buffet-related settings and
@@ -15,7 +13,6 @@ module Buffet
   class Settings
     # Simple memoized wrapper around the settings yml file.
     def self.get
-      self.create_settings_file while not File.exists? SETTINGS_FILE
       @settings ||= YAML.load_file(SETTINGS_FILE)
     end
 
@@ -69,20 +66,6 @@ module Buffet
 
     def self.druby_listen_url host
       "druby://#{host}.:#{LISTEN_PORT}"
-    end
-
-    def self.create_settings_file
-      # Create ~/.buffet directory. Sync this directory to ~/.buffet.
-      #
-      # TODO: I only really need to move bin/buffet-worker and
-      # working-directory/ here; the rest is unnecessary.
-      FileUtils.mkdir_p WORKING_DIR
-      FileUtils.cp_r GEM_DIR, File.expand_path("~/.buffet")
-      FileUtils.cp SAMPLE_SETTINGS_FILE, SETTINGS_FILE
-
-      # Launch user's favorite editor for first time configuration.
-      editor = ENV["EDITOR"] || "vi"
-      system "#{editor} #{SETTINGS_FILE}"
     end
   end
 
