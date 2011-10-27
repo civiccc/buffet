@@ -20,12 +20,10 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   s.add_dependency 'memoize'
-  s.add_dependency 'sinatra'
   s.add_dependency 'wopen3'
   s.add_dependency 'grit'
   s.add_dependency 'net-ssh'
   s.add_dependency 'json'
 
-  s.add_development_dependency 'rack-test'
   s.add_development_dependency 'rspec'
 end

@@ -2,12 +2,8 @@
 $LOAD_PATH.unshift(File.expand_path(File.dirname(__FILE__) + "/.."))
 
 # The Buffet command line interface.
-#
-# Sinatra is unfortunately quiet about a lot of errors, so the CLI is a boon to
-# bug hunting.
 
 require 'buffet/buffet'
-require 'json'
 require 'buffet/settings'
 require 'buffet/remote_runner'
 require 'buffet/checker'
