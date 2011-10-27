@@ -30,7 +30,7 @@ module Buffet
     def initialize repo, kwargs
       @status = StatusMessage.new kwargs[:verbose]
       @repo = repo
-      @state = :not_running
+      @state = :idle
       @threads = []
 
       check_hosts
@@ -71,7 +71,7 @@ module Buffet
 
         display_failures failures
 
-        @state = :not_running
+        @state = :idle
         @status.set failures.length > 0 ? "Go fix your bugs." : "All tests pass!"
       end
     end
@@ -169,7 +169,7 @@ module Buffet
 
     # Is Buffet running (where running is either testing or setting up)?
     def running?
-      @state != :not_running
+      @state != :idle
     end
 
     # Is Buffet testing?
