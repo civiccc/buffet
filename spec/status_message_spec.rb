@@ -1,4 +1,7 @@
-require File.dirname(__FILE__) + "/spec_helper"
+require 'spec_helper'
+
+require 'buffet/status_message'
+require 'buffet/settings'
 
 describe Buffet::StatusMessage do
   before(:all) do
@@ -14,14 +17,7 @@ describe Buffet::StatusMessage do
   it "should increase progress on a trivial command" do
     @message.set "Three a's"
     @message.increase_progress /a/, 3, "echo a && echo a && echo a"
-    
-    @message.to_s.should == "Three a's (3 of 3)"
-  end
 
-  it "should not break &&s inside anything" do
-    @message.set "Three a's"
-    @message.increase_progress /a/, 3, "ssh buffet@#{Buffet::Settings.get["hosts"].first} 'echo a && echo a && echo a'"
-    
     @message.to_s.should == "Three a's (3 of 3)"
   end
 
