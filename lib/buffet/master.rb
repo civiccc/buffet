@@ -5,12 +5,12 @@ require 'thread'
 require 'socket'
 
 module Buffet
-  # The Buffet::Master class runs worker on all of the host machines 
+  # The Buffet::Master class runs worker on all of the host machines
   # (including itself), and then distributes the tests to the workers.
   # The workers request more tests after they finish their current tests.
   class Master
     # This will initialize the server.
-    def initialize(working_dir, hosts, status) 
+    def initialize(working_dir, hosts, status)
       @ip = Settings.hostname # For druby
       @port = Settings.get["port"] + 1 # For druby
       @hosts = hosts # All host machines
