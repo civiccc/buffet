@@ -18,8 +18,8 @@ require 'drb/drb'
 module Buffet
   class CLI
     def initialize args
-      # Set some initial settings. 
-      @check_mode = false
+      # Set some initial settings.
+      @check = false
       @branch = "master"
       @watch = false
       @skip_setup = false
@@ -44,8 +44,8 @@ module Buffet
           return
         end
 
-        opts.on "--check-mode", "Ensure all machines are set up properly." do
-          @check_mode = true
+        opts.on "--check", "Ensure all machines are set up properly." do
+          @check = true
         end
 
         opts.on "--skip-setup", "Only run tests." do
@@ -65,8 +65,8 @@ module Buffet
         end
 
       end.parse!(args)
-     
-      if @check_mode
+
+      if @check
         Checker.check @verbose
         return
       end
