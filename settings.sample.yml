@@ -1,7 +1,7 @@
-# This is the settings file for Buffet.
+# This is the settings file for Buffet. 
 #
 # You are seeing this because you are running Buffet for the first time.
-# Edit it to include relevant information about the project you are
+# Edit it to include relevant information about the project you are 
 # testing. Save and quit when you're done.
 #
 # If you want to change settings later, run buffet --settings.
@@ -12,7 +12,12 @@ hosts:
   - hostname2
   - ...
 
-# Details about the github repository we are testing.
+# Details about the github repository we are testing. 
+github:
+  username: your-github-username
+  token: your-token
+  repository: name-of-testing-repo
+  owner: owner-of-repository
 repository: git@github.com:yourname/somerepo.git (full path to testing repo)
 
 # Port should not be in use by any other application; neither should (port + 1).

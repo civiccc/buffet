@@ -14,8 +14,8 @@ require 'memoize'
 
 module Buffet
   # This is the core Buffet class. It uses Setup and Master to bring the working
-  # directory up to sync and to run tests remotely, respectively. It exposes
-  # some helpful methods to give immediate information about the state of the
+  # directory up to sync and to run tests remotely, respectively. It exposes 
+  # some helpful methods to give immediate information about the state of the 
   # tests and other relevant information.
   class Buffet
     include Memoize
@@ -40,8 +40,8 @@ module Buffet
 
 
     # Run sets up and tests the working directory.
-    #
-    # Run takes keyword arguments.
+    # 
+    # Run takes keyword arguments. 
     #
     #   :skip_setup => Don't do any preliminary setup with the working directory.
     #       This is more helpful for testing then actually running Buffet, since
@@ -118,7 +118,7 @@ module Buffet
     ######################
     #     HOST SETUP     #
     ######################
-
+    
     def check_hosts
       hosts = Settings.get["hosts"]
 
@@ -134,7 +134,7 @@ module Buffet
 
     ######################
     # ENSURE EXCLUSIVITY #
-    ######################
+    ###################### 
 
     # Ensure that only one instance of the block passed in runs at any time,
     # across the entire machine.

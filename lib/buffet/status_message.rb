@@ -13,14 +13,14 @@ module Buffet
       @should_display = should_display
     end
 
-    # Set the status message. Support for either setting it to a string or a
-    # hash. If it's a string, StatusMessage mimics a string; similarly with
+    # Set the status message. Support for either setting it to a string or a 
+    # hash. If it's a string, StatusMessage mimics a string; similarly with 
     # hashes.
     def set(message, hide=false)
       @message = message
       @show_progress = false
 
-      display unless hide
+      display if not hide
     end
 
     # Convenience method. This makes things like puts status work.
@@ -72,7 +72,7 @@ module Buffet
       @message[method_sym]
     end
 
-    private
+    private 
 
     # The progress messages are for showing (x of y) on commands that take
     # long enough for users to feel antsy while watching them. The counter
@@ -90,7 +90,7 @@ module Buffet
     end
 
     def display
-      puts(self.to_s) if @should_display
+      puts(to_s) if @should_display
     end
   end
 end

@@ -37,7 +37,7 @@ module Buffet
     # if the dir is nonexistent or a clone of the wrong repository.
     def clone_repo
       # TODO: This is a sloppy way to get the remote. Move towards using a ruby
-      # git wrapper.
+      # git wrapper. 
       remote = `cd #{@working_dir} && git remote -v | grep "(fetch)" | head -1 | cut -f2 | cut -d" " -f1`.chomp
 
       return if remote == Settings.get["repository"]
@@ -59,7 +59,7 @@ module Buffet
       @status.set "Updating #{hosts.join(", ")}"
 
       hosts.each do |host|
-        threads << Thread.new do
+        threads << Thread.new do 
           # Sync all of Buffet.
           # TODO: The .git repository needs to be synced once, and only once.
           `rsync -aqz --delete --exclude=tmp --exclude=.bundle --exclude=log --exclude=doc #{Settings.root_dir} -e "ssh " buffet@#{host}:~/`
