@@ -1,0 +1,50 @@
+#!/usr/bin/env ruby
+
+require 'drb'
+require 'fileutils'
+
+if File.exist? 'Gemfile'
+  require 'rubygems'
+  require 'bundler/setup'
+end
+
+# NOTE: ARGV is used by the spec runner. If I leave the drb server address
+# in ARGV, rspec will think it's an argument to the test runner.
+buffet_server = DRbObject.new_with_uri(ARGV.shift)
+framework = ARGV.shift
+
+FileUtils.mkdir_p('./tmp')
+
+if framework == 'RSPEC1'
+  require 'spec'
+  require 'spec/runner/command_line'
+  require File.dirname(__FILE__) + '/rspec1_formatter.rb'
+
+  Spec::Runner::Formatter::AugmentedTextFormatter.buffet_server = buffet_server
+
+  while file = buffet_server.next_file
+    # RSpec1 surreptitiously closes stdout/stderr, so we have to open them every
+    # test.
+    stdout = File.open('./tmp/buffet.out.log', 'a')
+    stderr = File.open('./tmp/buffet.error.log', 'a')
+
+    success = Spec::Runner::CommandLine.run(
+      Spec::Runner::OptionParser.parse(
+        ['--format', 'Spec::Runner::Formatter::AugmentedTextFormatter', file], stderr, stdout
+      )
+    )
+  end
+else
+  require 'rspec'
+  require File.dirname(__FILE__) + '/rspec2_formatter.rb'
+
+  RSpec::Core::Formatters::AugmentedTextFormatter.buffet_server = buffet_server
+
+  while file = buffet_server.next_file
+    success = RSpec::Core::CommandLine.new(
+      ['--format', 'RSpec::Core::Formatters::AugmentedTextFormatter', file]
+    ).run($stderr, $stdout)
+
+    RSpec.world.reset
+  end
+end

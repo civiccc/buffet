@@ -15,7 +15,7 @@ module RSpec
         def example_to_hash(example)
           example.description
         end
-        
+
         def example_passed(example)
           super
           @@buffet_server.example_passed({:description => example.description})
@@ -24,13 +24,13 @@ module RSpec
         def example_failed(example)
           super(example)
           exception = example.metadata[:execution_result][:exception]
-          message = exception.message 
+          message = exception.message
           backtrace = format_backtrace(exception.backtrace, example).join("\n")
           description = example.description || "No description!"
 
           failure = {:header    => description,
                      :backtrace => "No backtrace yet.", #TODO.
-                     :message   => message, 
+                     :message   => message,
                      :location  => backtrace}
 
           @@buffet_server.example_failed(failure)

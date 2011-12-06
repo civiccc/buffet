@@ -1,3 +1,3 @@
 module Buffet
-  VERSION = "1.0.3alpha"
+  VERSION = '0.6'
 end

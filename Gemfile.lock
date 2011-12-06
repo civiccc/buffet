@@ -1,18 +1,14 @@
 PATH
   remote: .
   specs:
-    buffet-gem (1.0.3alpha)
-      json
-      net-ssh
+    minimal-buffet (0.6)
       wopen3
 
 GEM
   remote: http://rubygems.org/
   specs:
     diff-lcs (1.1.2)
-    json (1.6.3)
     mkdtemp (1.2.1)
-    net-ssh (2.2.1)
     rspec (2.6.0)
       rspec-core (~> 2.6.0)
       rspec-expectations (~> 2.6.0)
@@ -27,6 +23,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  buffet-gem!
+  minimal-buffet!
   mkdtemp
   rspec

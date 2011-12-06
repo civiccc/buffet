@@ -1,11 +1,3 @@
-# This is the settings file for Buffet.
-#
-# You are seeing this because you are running Buffet for the first time.
-# Edit it to include relevant information about the project you are
-# testing. Save and quit when you're done.
-#
-# If you want to change settings later, run buffet --settings.
-
 # The hosts that Buffet will test with.
 hosts:
   - hostname1
