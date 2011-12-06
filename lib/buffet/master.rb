@@ -3,15 +3,12 @@
 require 'drb'
 require 'thread'
 require 'socket'
-require 'memoize'
 
 module Buffet
   # The Buffet::Master class runs worker on all of the host machines 
   # (including itself), and then distributes the tests to the workers.
   # The workers request more tests after they finish their current tests.
-  class Master 
-    extend Memoize
-
+  class Master
     # This will initialize the server.
     def initialize(working_dir, hosts, status) 
       @ip = Settings.hostname # For druby

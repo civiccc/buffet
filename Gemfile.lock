@@ -4,7 +4,6 @@ PATH
     buffet-gem (1.0.3alpha)
       grit
       json
-      memoize
       net-ssh
       wopen3
 
@@ -15,9 +14,8 @@ GEM
     grit (2.4.1)
       diff-lcs (~> 1.1)
       mime-types (~> 1.15)
-    json (1.6.1)
-    memoize (1.3.1)
-    mime-types (1.16)
+    json (1.6.3)
+    mime-types (1.17.2)
     net-ssh (2.2.1)
     rspec (2.6.0)
       rspec-core (~> 2.6.0)

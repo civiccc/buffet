@@ -19,7 +19,6 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 
-  s.add_dependency 'memoize'
   s.add_dependency 'wopen3'
   s.add_dependency 'grit'
   s.add_dependency 'net-ssh'

@@ -8,16 +8,12 @@ require 'buffet/settings'
 require 'buffet/status_message'
 require 'buffet/setup'
 
-require 'memoize'
-
 module Buffet
   # This is the core Buffet class. It uses Setup and Master to bring the working
   # directory up to sync and to run tests remotely, respectively. It exposes 
   # some helpful methods to give immediate information about the state of the 
   # tests and other relevant information.
   class Buffet
-    include Memoize
-
     ################
     # CORE METHODS #
     ################

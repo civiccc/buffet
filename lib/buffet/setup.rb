@@ -4,13 +4,11 @@ require 'ftools'
 require 'benchmark'
 require 'net/ssh'
 
-require 'memoize'
 require 'wopen3'
 
 require 'buffet/master'
 require 'buffet/status_message'
 
-include Memoize
 module Buffet
 
   # Setup takes the repository to be tested and ensures that it is in its most
