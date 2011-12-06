@@ -52,7 +52,7 @@ module Buffet
       hosts = Settings.get["hosts"]
 
       if hosts.length == 0
-        @status.set "Buffet was unable to access any machines you listed. You should run buffet --check."
+        @status.set "Buffet was unable to access any machines you listed. You should run buffet --check-mode."
         return
       end
 
