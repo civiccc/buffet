@@ -11,6 +11,7 @@ GEM
   specs:
     diff-lcs (1.1.2)
     json (1.6.3)
+    mkdtemp (1.2.1)
     net-ssh (2.2.1)
     rspec (2.6.0)
       rspec-core (~> 2.6.0)
@@ -27,4 +28,5 @@ PLATFORMS
 
 DEPENDENCIES
   buffet-gem!
+  mkdtemp
   rspec
