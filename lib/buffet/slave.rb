@@ -19,9 +19,12 @@ module Buffet
       Buffet.run! 'scp', *args
     end
 
+    def execute_in_project command
+      execute "cd #{@project.directory_on_slave} && #{command}"
+    end
+
     def execute command
-      Buffet.run! 'ssh', "#{user_at_host}",
-                  "cd #{@project.directory_on_slave} && #{command}"
+      Buffet.run! 'ssh', "#{user_at_host}", command
     end
 
     private

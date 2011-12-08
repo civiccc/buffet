@@ -31,7 +31,7 @@ module Buffet
 
         threads = @slaves.map do |slave|
           Thread.new do
-            slave.execute ".buffet/buffet-worker #{server_uri} #{Settings.framework}"
+            slave.execute_in_project ".buffet/buffet-worker #{server_uri} #{Settings.framework}"
           end
         end
 
