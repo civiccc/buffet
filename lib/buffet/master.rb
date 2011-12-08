@@ -11,7 +11,7 @@ module Buffet
     def initialize project, slaves
       @project = project
       @slaves = slaves
-      @stats = {:examples => 0, :failures => 0}
+      @stats = {:examples => 0, :failures => 0, :pending => 0}
       @lock = Mutex.new
       @failures = []
       @passes = []
@@ -68,6 +68,13 @@ module Buffet
 
         @failures.push(details)
       end
+    end
+
+    def example_pending(details)
+     @lock.synchronize do
+       @stats[:examples] += 1
+       @stats[:pending] += 1
+     end
     end
 
     private
