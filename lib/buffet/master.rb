@@ -64,8 +64,6 @@ module Buffet
         @stats[:examples] += 1
         @stats[:failures] += 1
 
-        backtrace ||= "No backtrace found."
-
         @failures.push(details)
       end
     end

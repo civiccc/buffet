@@ -48,20 +48,20 @@ module Buffet
     end
 
     def display_results
-      results = ''
+      results = []
       @master.stats.each do |key, value|
-        results += "#{key}: #{value}\n"
+        results << "#{key}: #{value}"
       end
 
-      results += "\n"
-      results += "Buffet consumed in %d seconds" % @master.stats[:total_time]
+      results << "Buffet consumed in #{@master.stats[:total_time]} seconds"
 
-      if @master.failures.empty?
-        puts "No failures"
-      else
-        results += @master.failures.map do |fail|
-          "#{fail[:header]} FAILED.\nLocation: #{fail[:location]}"
-        end.join "\n\n"
+      unless @master.failures.empty?
+        results << @master.failures.map do |failure|
+          "#{failure[:header]} FAILED.\n" +
+          "Location: #{failure[:location]}\n" +
+          "#{failure[:message]}\n" +
+          "#{failure[:backtrace]}\n"
+        end
       end
 
       puts results

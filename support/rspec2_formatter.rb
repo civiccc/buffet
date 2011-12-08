@@ -29,7 +29,7 @@ module RSpec
           description = example.description || "No description!"
 
           failure = {:header    => description,
-                     :backtrace => "No backtrace yet.", #TODO.
+                     :backtrace => backtrace,
                      :message   => message,
                      :location  => backtrace}
 
