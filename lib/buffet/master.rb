@@ -31,7 +31,7 @@ module Buffet
 
         threads = @slaves.map do |slave|
           Thread.new do
-            slave.execute ".buffet/buffet-worker #{server_addr} #{Settings.framework}"
+            slave.execute ".buffet/buffet-worker #{server_uri} #{Settings.framework}"
           end
         end
 
@@ -72,30 +72,16 @@ module Buffet
 
     private
 
-    def server_addr
+    def server_uri
       @drb_server.uri
     end
 
     def start_service
-      @drb_thread = Thread.new do
-        @drb_server = DRb.start_service("druby://#{ip}:0", self)
-        @lock.synchronize do
-          @service_ready.signal
-        end
-        DRb.thread.join
-      end
-
-      # Block until DRb server initialized in other thread
-      until @drb_server
-        @lock.synchronize do
-          @service_ready.wait(@lock)
-        end
-      end
+      @drb_server = DRb.start_service("druby://#{ip}:0", self)
     end
 
     def stop_service
       DRb.stop_service
-      @drb_thread.join
     end
 
     def ip
