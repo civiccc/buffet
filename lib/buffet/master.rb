@@ -78,7 +78,7 @@ module Buffet
 
     def start_service
       @drb_thread = Thread.new do
-        @drb_server = DRb.start_service('druby://0.0.0.0:0', self)
+        @drb_server = DRb.start_service("druby://#{ip}:0", self)
         @lock.synchronize do
           @service_ready.signal
         end
@@ -98,9 +98,9 @@ module Buffet
       @drb_thread.join
     end
 
-    def hostname
-      result = Buffet.run! 'hostname'
-      result.stdout.split('.').first
+    def ip
+      result = Buffet.run! 'host `hostname -s`'
+      result.stdout.chomp.match(/((\d+\.){3}\d+)/)[1]
     end
   end
 end
