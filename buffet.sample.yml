@@ -1,0 +1,17 @@
+# The worker nodes Buffet will test with
+slaves:
+  - user: buffet
+    host: devmachine1
+  - user: buffet
+    host: devmachine2
+
+# Projects that we want to test
+project:
+  name: myproject
+  directory: ~/src/myproject
+
+framework: rspec1
+
+# Script to execute before each buffet run,
+# relative to top-level project dir
+prepare_script: bin/before-buffet-run

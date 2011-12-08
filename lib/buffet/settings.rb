@@ -25,5 +25,9 @@ module Buffet
     def self.framework
       self['framework'].upcase || 'RSPEC1'
     end
+
+    def self.prepare_script
+      self['prepare_script'] || 'bin/before-buffet-run'
+    end
   end
 end

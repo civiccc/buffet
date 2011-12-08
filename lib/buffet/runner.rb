@@ -38,10 +38,11 @@ module Buffet
 
     def prepare_slave slave
       @project.sync_to slave
-      slave.execute before_test_run_script
+      slave.execute Settings.prepare_script
 
-      buffet_support_dir = Pathname.new(File.dirname(__FILE__)) + '../../support'
-      slave.scp buffet_support_dir, @project.support_dir_on_slave, :recurse => true
+      # Copy support files so they can be run on the remote machine
+      slave.scp File.dirname(__FILE__) + '/../../support',
+                @project.support_dir_on_slave, :recurse => true
     end
 
     def before_test_run_script
