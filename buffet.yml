@@ -1,0 +1,14 @@
+# This is the configuration file we use to test Buffet itself.
+# See buffet.sample.yml for a more extended example with
+# annotations.
+slaves:
+  - user: buffet
+    host: sds
+  - user: buffet
+    host: humus
+
+project:
+  name: buffet
+  directory: ~/buffet
+
+framework: rspec2

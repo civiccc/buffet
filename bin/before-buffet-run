@@ -1,0 +1,7 @@
+#!/bin/sh
+#
+# This is the set-up script used by Buffet when testing itself under Buffet.
+
+# don't use developer's rsynced .bundle/config; start with a clean slate
+rm -f .bundle/config
+bundle install
