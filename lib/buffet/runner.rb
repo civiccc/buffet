@@ -16,10 +16,10 @@ module Buffet
 
       prepare_slaves
 
-      master = Master.new @project, @slaves
-      master.run
+      @master = Master.new @project, @slaves
+      @master.run
 
-      display_results master.failures
+      display_results
     end
 
     private
@@ -45,19 +45,24 @@ module Buffet
                 @project.support_dir_on_slave, :recurse => true
     end
 
-    def before_test_run_script
-      './bin/before-buffet-run'
-    end
+    def display_results
+      results = ''
+      @master.stats.each do |key, value|
+        results += "#{key}: #{value}\n"
+      end
 
-    def display_results failures
-      if failures.empty?
+      results += "\n"
+      results += "Buffet consumed in %d seconds" % @master.stats[:total_time]
+
+      if @master.failures.empty?
         puts "No failures"
       else
-        output = failures.map do |fail|
+        results += @master.failures.map do |fail|
           "#{fail[:header]} FAILED.\nLocation: #{fail[:location]}"
-        end
-        puts output
+        end.join "\n\n"
       end
+
+      puts results
     end
   end
 end

@@ -6,13 +6,15 @@ require 'socket'
 
 module Buffet
   class Master
+    attr_reader :failures, :passes, :stats
+
     def initialize project, slaves
       @project = project
       @slaves = slaves
       @stats = {:examples => 0, :failures => 0}
       @lock = Mutex.new
-      @failure_list = []
-      @pass_list = []
+      @failures = []
+      @passes = []
 
       Dir.chdir(@project.directory) do
         @files = Dir['spec/**/*_spec.rb'].sort
@@ -24,7 +26,7 @@ module Buffet
         @files_to_run = @files.dup
 
         start_service
-        @start_time = Time.now
+        @stats[:start_time] = Time.now
 
         threads = @slaves.map do |slave|
           Thread.new do
@@ -32,27 +34,19 @@ module Buffet
           end
         end
 
-        threads.each do |t|
-          t.join
-        end
+        threads.each { |t| t.join }
 
-        @end_time = Time.now
+        @stats[:end_time] = Time.now
+        @stats[:total_time] = @stats[:end_time] - @stats[:start_time]
         stop_service
       end
-
-      results = ""
-      @stats.each do |key, value|
-        results += "#{key}: #{value}\n"
-      end
-
-      results += "\n"
-      mins, secs = (@end_time - @start_time).divmod(60)
-      results += "Buffet was consumed in %d mins %d secs\n" % [mins, secs]
     end
 
     def next_file
       @lock.synchronize do
-        @files_to_run.shift
+        file = @files_to_run.shift
+        Buffet.logger.info "Dequeued #{file}"
+        file
       end
     end
 
@@ -61,7 +55,7 @@ module Buffet
         @stats[:examples] += 1
       end
 
-      @pass_list.push({:description => details[:description]})
+      @passes.push({:description => details[:description]})
     end
 
     def example_failed(details)
@@ -71,9 +65,11 @@ module Buffet
 
         backtrace ||= "No backtrace found."
 
-        @failure_list.push(details)
+        @failures.push(details)
       end
     end
+
+    private
 
     def server_addr
       @drb_server.uri
@@ -89,14 +85,6 @@ module Buffet
     def stop_service
       DRb.stop_service
       @drb_thread.join
-    end
-
-    def failures
-      @failure_list
-    end
-
-    def passes
-      @pass_list
     end
 
     def hostname
