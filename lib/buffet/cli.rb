@@ -8,11 +8,11 @@ module Buffet
   class CLI
     def initialize args
       opts = OptionParser.new do |opts|
-        opts.banner = "Usage: buffet.rb [options]"
+        opts.banner = "Usage: buffet [options] [spec-files]"
       end.parse!(args)
 
-      puts "Running Buffet"
-      Runner.new.run
+      specs = Buffet.extract_specs_from(opts.empty? ? 'spec' : opts)
+      Runner.new.run specs
     end
   end
 end

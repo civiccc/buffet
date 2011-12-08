@@ -8,44 +8,36 @@ module Buffet
   class Master
     attr_reader :failures, :passes, :stats
 
-    def initialize project, slaves
+    def initialize project, slaves, specs
       @project = project
       @slaves = slaves
       @stats = {:examples => 0, :failures => 0, :pending => 0}
       @lock = Mutex.new
       @failures = []
       @passes = []
-      @service_ready = ConditionVariable.new
-
-      Dir.chdir(@project.directory) do
-        @files = Dir['spec/**/*_spec.rb'].sort
-      end
+      @specs = specs.shuffle # Never have the same test distribution
     end
 
     def run
-      Dir.chdir(@project.directory) do
-        @files_to_run = @files.dup
+      start_service
+      @stats[:start_time] = Time.now
 
-        start_service
-        @stats[:start_time] = Time.now
-
-        threads = @slaves.map do |slave|
-          Thread.new do
-            slave.execute_in_project ".buffet/buffet-worker #{server_uri} #{Settings.framework}"
-          end
+      threads = @slaves.map do |slave|
+        Thread.new do
+          slave.execute_in_project ".buffet/buffet-worker #{server_uri} #{Settings.framework}"
         end
-
-        threads.each { |t| t.join }
-
-        @stats[:end_time] = Time.now
-        @stats[:total_time] = @stats[:end_time] - @stats[:start_time]
-        stop_service
       end
+
+      threads.each { |t| t.join }
+
+      @stats[:end_time] = Time.now
+      @stats[:total_time] = @stats[:end_time] - @stats[:start_time]
+      stop_service
     end
 
     def next_file
       @lock.synchronize do
-        file = @files_to_run.shift
+        file = @specs.shift
         Buffet.logger.info "Dequeued #{file}"
         file
       end

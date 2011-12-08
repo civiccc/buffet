@@ -1,7 +1,5 @@
 $LOAD_PATH.unshift(File.expand_path(File.dirname(__FILE__) + "/.."))
 
-require 'fileutils'
-
 require 'buffet'
 
 module Buffet
@@ -10,21 +8,26 @@ module Buffet
       @project = Settings.project
     end
 
-    def run
+    def run specs = nil
+      @specs = specs
+      raise 'No specs found' if @specs.empty?
+
       @slaves = Settings.slaves
       raise 'No slaves defined in settings.yml' if @slaves.empty?
 
+      Buffet.logger.info "Starting Buffet test run"
+      puts "Running Buffet..."
+
       prepare_slaves
-
-      @master = Master.new @project, @slaves
-      @master.run
-
+      run_tests
       display_results
     end
 
     private
 
     def prepare_slaves
+      puts "Preparing workers for testing..."
+
       threads = @slaves.map do |slave|
         Thread.new do
           prepare_slave slave
@@ -45,6 +48,12 @@ module Buffet
       # Copy support files so they can be run on the remote machine
       slave.scp File.dirname(__FILE__) + '/../../support',
                 @project.support_dir_on_slave, :recurse => true
+    end
+
+    def run_tests
+      puts "Running tests..."
+      @master = Master.new @project, @slaves, @specs
+      @master.run
     end
 
     def display_results
