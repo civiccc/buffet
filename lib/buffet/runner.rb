@@ -38,7 +38,7 @@ module Buffet
 
     def prepare_slave slave
       @project.sync_to slave
-      slave.execute Settings.prepare_script
+      slave.execute Settings.prepare_script if Settings.has_prepare_script?
 
       # Copy support files so they can be run on the remote machine
       slave.scp File.dirname(__FILE__) + '/../../support',
