@@ -15,6 +15,7 @@ module Buffet
       @lock = Mutex.new
       @failures = []
       @passes = []
+      @service_ready = ConditionVariable.new
 
       Dir.chdir(@project.directory) do
         @files = Dir['spec/**/*_spec.rb'].sort
@@ -78,7 +79,17 @@ module Buffet
     def start_service
       @drb_thread = Thread.new do
         @drb_server = DRb.start_service('druby://0.0.0.0:0', self)
+        @lock.synchronize do
+          @service_ready.signal
+        end
         DRb.thread.join
+      end
+
+      # Block until DRb server initialized in other thread
+      until @drb_server
+        @lock.synchronize do
+          @service_ready.wait(@lock)
+        end
       end
     end
 
