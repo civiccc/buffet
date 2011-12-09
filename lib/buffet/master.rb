@@ -1,5 +1,3 @@
-#!/usr/bin/env ruby
-
 require 'drb'
 require 'thread'
 require 'socket'
