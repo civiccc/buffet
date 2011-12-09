@@ -5,11 +5,6 @@ slaves:
   - user: buffet
     host: devmachine2
 
-# Projects that we want to test
-project:
-  name: myproject
-  directory: ~/src/myproject
-
 framework: rspec1
 
 # Script to execute before each buffet run,

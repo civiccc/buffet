@@ -22,10 +22,7 @@ module Buffet
       end
 
       def project
-        @project ||= begin
-          project = self['project']
-          Project.new(project['name'], project['directory'])
-        end
+        @project ||= Project.new Dir.pwd
       end
 
       def framework

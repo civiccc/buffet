@@ -2,8 +2,8 @@ module Buffet
   class Project
     attr_reader :name, :directory
 
-    def initialize name, directory
-      @name = name
+    def initialize directory
+      @name = File.basename directory
       @directory = File.expand_path directory
     end
 
