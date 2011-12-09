@@ -23,7 +23,8 @@ module Buffet
 
       threads = @slaves.map do |slave|
         Thread.new do
-          slave.execute_in_project ".buffet/buffet-worker #{server_uri} #{Settings.framework}"
+          prepare_slave slave
+          run_slave slave
         end
       end
 
@@ -87,6 +88,22 @@ module Buffet
     def ip
       result = Buffet.run! 'host `hostname -s`'
       result.stdout.chomp.match(/((\d+\.){3}\d+)/)[1]
+    end
+
+    def prepare_slave slave
+      @project.sync_to slave
+
+      if Settings.has_prepare_script?
+        slave.execute_in_project "#{Settings.prepare_script} #{Buffet.user}"
+      end
+
+      # Copy support files so they can be run on the remote machine
+      slave.scp File.dirname(__FILE__) + '/../../support',
+                @project.support_dir_on_slave, :recurse => true
+    end
+
+    def run_slave slave
+      slave.execute_in_project ".buffet/buffet-worker #{server_uri} #{Settings.framework}"
     end
   end
 end

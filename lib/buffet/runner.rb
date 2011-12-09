@@ -17,7 +17,6 @@ module Buffet
       Buffet.logger.info "Starting Buffet test run"
       puts "Running Buffet..."
 
-      prepare_slaves
       run_tests
       display_results
     end
@@ -39,35 +38,7 @@ module Buffet
 
     private
 
-    def prepare_slaves
-      puts "Preparing workers for testing..."
-
-      threads = @slaves.map do |slave|
-        Thread.new do
-          prepare_slave slave
-        end
-      end
-
-      threads.each do |thread|
-        thread.join
-      end
-    end
-
-    def prepare_slave slave
-      slave.execute 'mkdir -p .buffet'
-
-      @project.sync_to slave
-      if Settings.has_prepare_script?
-        slave.execute_in_project "#{Settings.prepare_script} #{Buffet.user}"
-      end
-
-      # Copy support files so they can be run on the remote machine
-      slave.scp File.dirname(__FILE__) + '/../../support',
-                @project.support_dir_on_slave, :recurse => true
-    end
-
     def run_tests
-      puts "Running tests..."
       @master = Master.new @project, @slaves, @specs, self
       @master.run
     end
