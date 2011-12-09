@@ -43,7 +43,9 @@ module Buffet
       slave.execute 'mkdir -p .buffet'
 
       @project.sync_to slave
-      slave.execute_in_project Settings.prepare_script if Settings.has_prepare_script?
+      if Settings.has_prepare_script?
+        slave.execute_in_project "#{Settings.prepare_script} #{Buffet.user}"
+      end
 
       # Copy support files so they can be run on the remote machine
       slave.scp File.dirname(__FILE__) + '/../../support',

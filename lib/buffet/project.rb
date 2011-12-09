@@ -1,7 +1,5 @@
 module Buffet
   class Project
-    PROJECTS_DIR = '.buffet/projects'
-
     attr_reader :name, :directory
 
     def initialize name, directory
@@ -10,8 +8,7 @@ module Buffet
     end
 
     def directory_on_slave
-      # TODO: Change based on which user is running
-      "#{PROJECTS_DIR}/#{name}" # Relative to home directory
+      "#{Buffet.workspace_dir}/#{name}"
     end
 
     def support_dir_on_slave
@@ -19,7 +16,8 @@ module Buffet
     end
 
     def sync_to slave
-      slave.rsync directory, PROJECTS_DIR
+      slave.execute "mkdir -p #{directory_on_slave}"
+      slave.rsync directory + '/', directory_on_slave
     end
   end
 end

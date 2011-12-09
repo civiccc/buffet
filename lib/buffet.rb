@@ -49,4 +49,12 @@ module Buffet
     end
     specs.uniq
   end
+
+  def self.workspace_dir
+    ".buffet/workspaces/#{user}" # Relative to home directory
+  end
+
+  def self.user
+    @user ||= `whoami`.chomp
+  end
 end
