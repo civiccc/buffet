@@ -1,4 +1,5 @@
 require 'buffet'
+require 'colorize'
 
 module Buffet
   class Runner
@@ -19,6 +20,21 @@ module Buffet
       prepare_slaves
       run_tests
       display_results
+    end
+
+    def example_passed
+      print '.'.green
+      STDOUT.flush
+    end
+
+    def example_failed
+      print 'F'.red
+      STDOUT.flush
+    end
+
+    def example_pending
+      print '*'.yellow
+      STDOUT.flush
     end
 
     private
@@ -52,12 +68,13 @@ module Buffet
 
     def run_tests
       puts "Running tests..."
-      @master = Master.new @project, @slaves, @specs
+      @master = Master.new @project, @slaves, @specs, self
       @master.run
     end
 
     def display_results
       results = []
+      results << "\n"
       @master.stats.each do |key, value|
         results << "#{key}: #{value}"
       end

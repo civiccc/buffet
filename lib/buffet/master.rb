@@ -6,7 +6,7 @@ module Buffet
   class Master
     attr_reader :failures, :passes, :stats
 
-    def initialize project, slaves, specs
+    def initialize project, slaves, specs, listener
       @project = project
       @slaves = slaves
       @stats = {:examples => 0, :failures => 0, :pending => 0}
@@ -14,6 +14,7 @@ module Buffet
       @failures = []
       @passes = []
       @specs = specs.shuffle # Never have the same test distribution
+      @listener = listener
     end
 
     def run
@@ -44,18 +45,20 @@ module Buffet
     def example_passed(details)
       @lock.synchronize do
         @stats[:examples] += 1
+        @passes.push({:description => details[:description]})
       end
 
-      @passes.push({:description => details[:description]})
+      @listener.example_passed
     end
 
     def example_failed(details)
       @lock.synchronize do
         @stats[:examples] += 1
         @stats[:failures] += 1
-
         @failures.push(details)
       end
+
+      @listener.example_failed
     end
 
     def example_pending(details)
@@ -63,6 +66,8 @@ module Buffet
        @stats[:examples] += 1
        @stats[:pending] += 1
      end
+
+      @listener.example_pending
     end
 
     private

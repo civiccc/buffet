@@ -17,6 +17,7 @@ Gem::Specification.new do |s|
   s.executables   = ['buffet']
   s.require_paths = ['lib']
 
+  s.add_dependency 'colorize'
   s.add_dependency 'wopen3'
 
   s.add_development_dependency 'rspec'
