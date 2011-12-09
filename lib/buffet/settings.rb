@@ -2,13 +2,17 @@ require 'yaml'
 
 module Buffet
   class Settings
-    SETTINGS_FILE          = 'buffet.yml'
+    DEFAULT_SETTINGS_FILE  = 'buffet.yml'
     DEFAULT_PREPARE_SCRIPT = 'bin/before-buffet-run'
 
     class << self
       def [](name)
-        @settings ||= YAML.load_file(SETTINGS_FILE)
+        @settings ||= load_file DEFAULT_SETTINGS_FILE
         @settings[name]
+      end
+
+      def load_file file
+        @settings = YAML.load_file file
       end
 
       def slaves
