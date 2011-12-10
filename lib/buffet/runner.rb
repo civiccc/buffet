@@ -21,6 +21,14 @@ module Buffet
       display_results
     end
 
+    def slave_prepared slave
+      Buffet.logger.info "#{slave.name} prepared"
+    end
+
+    def spec_taken slave, spec_file
+      Buffet.logger.info "#{slave.name} took #{spec_file}"
+    end
+
     def example_passed
       print '.'.green
       STDOUT.flush
@@ -36,6 +44,10 @@ module Buffet
       STDOUT.flush
     end
 
+    def slave_finished slave
+      Buffet.logger.info "#{slave.name} finished"
+    end
+
     private
 
     def run_tests
@@ -46,15 +58,25 @@ module Buffet
     def display_results
       results = []
       results << "\n"
-      @master.stats.each do |key, value|
-        results << "#{key}: #{value}"
+
+      @master.stats[:slaves].each do |slave_name, slave_stats|
+        results << "#{slave_name}:"
+        slave_stats.each do |key, value|
+          results << "\t#{key}: #{value}" unless key == :slave
+        end
       end
 
+      results << "Total Examples: #{@master.stats[:examples]}"
+      results << "Total Pending:  #{@master.stats[:pending]}"
+      results << "Total Failures: #{@master.stats[:failures]}"
+      results << ''
       results << "Buffet consumed in #{@master.stats[:total_time]} seconds"
 
       unless @master.failures.empty?
+        results << ''
         results << @master.failures.map do |failure|
-          "#{failure[:header]} FAILED.\n" +
+          "#{failure[:description]}\n".red +
+          "Slave: #{failure[:slave_name]}\n" +
           "Location: #{failure[:location]}\n" +
           "#{failure[:message]}\n" +
           "#{failure[:backtrace]}\n"

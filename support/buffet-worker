@@ -11,6 +11,7 @@ end
 # NOTE: ARGV is used by the spec runner. If I leave the drb server address
 # in ARGV, rspec will think it's an argument to the test runner.
 buffet_server = DRbObject.new_with_uri(ARGV.shift)
+slave_name = ARGV.shift
 framework = ARGV.shift
 
 FileUtils.mkdir_p('./tmp')
@@ -20,17 +21,18 @@ if framework == 'RSPEC1'
   require 'spec/runner/command_line'
   require File.dirname(__FILE__) + '/rspec1_formatter.rb'
 
-  Spec::Runner::Formatter::AugmentedTextFormatter.buffet_server = buffet_server
+  Spec::Runner::Formatter::AugmentedTextFormatter.configure buffet_server, slave_name
 
-  while file = buffet_server.next_file
-    # RSpec1 surreptitiously closes stdout/stderr, so we have to open them every
-    # test.
-    stdout = File.open('./tmp/buffet.out.log', 'a')
-    stderr = File.open('./tmp/buffet.error.log', 'a')
+  while file = buffet_server.next_file_for(slave_name)
+    # RSpec1 closes stderr/out after each run, so we reopen them each time
+    outlog = File.open('./tmp/buffet.out.log', 'a')
+    errlog = File.open('./tmp/buffet.error.log', 'a')
 
-    success = Spec::Runner::CommandLine.run(
+    Spec::Runner::CommandLine.run(
       Spec::Runner::OptionParser.parse(
-        ['--format', 'Spec::Runner::Formatter::AugmentedTextFormatter', file], stderr, stdout
+        ['--format', 'Spec::Runner::Formatter::AugmentedTextFormatter', file],
+        errlog,
+        outlog
       )
     )
   end
@@ -38,10 +40,10 @@ else
   require 'rspec'
   require File.dirname(__FILE__) + '/rspec2_formatter.rb'
 
-  RSpec::Core::Formatters::AugmentedTextFormatter.buffet_server = buffet_server
+  RSpec::Core::Formatters::AugmentedTextFormatter.configure buffet_server, slave_name
 
-  while file = buffet_server.next_file
-    success = RSpec::Core::CommandLine.new(
+  while file = buffet_server.next_file_for(slave_name)
+    RSpec::Core::CommandLine.new(
       ['--format', 'RSpec::Core::Formatters::AugmentedTextFormatter', file]
     ).run($stderr, $stdout)
 

@@ -1,74 +1,83 @@
+require 'benchmark'
 require 'drb'
 require 'thread'
 require 'socket'
 
 module Buffet
   class Master
-    attr_reader :failures, :passes, :stats
+    attr_reader :failures, :stats
 
     def initialize project, slaves, specs, listener
       @project = project
       @slaves = slaves
       @stats = {:examples => 0, :failures => 0, :pending => 0}
+      @slaves_stats = Hash[@slaves.map do |slave|
+        [slave.user_at_host, stats.dup.merge!(:slave => slave)]
+      end]
+      @stats[:slaves] = @slaves_stats
       @lock = Mutex.new
       @failures = []
-      @passes = []
       @specs = specs.shuffle # Never have the same test distribution
       @listener = listener
     end
 
     def run
       start_service
-      @stats[:start_time] = Time.now
 
-      threads = @slaves.map do |slave|
-        Thread.new do
-          prepare_slave slave
-          run_slave slave
+      @stats[:total_time] = Benchmark.measure do
+        threads = @slaves.map do |slave|
+          Thread.new do
+            time = Benchmark.measure do
+              prepare_slave slave
+              run_slave slave
+            end.real
+            @lock.synchronize { @slaves_stats[slave.name][:total_time] = time }
+          end
         end
-      end
 
-      threads.each { |t| t.join }
+        threads.each { |t| t.join }
+      end.real
 
-      @stats[:end_time] = Time.now
-      @stats[:total_time] = @stats[:end_time] - @stats[:start_time]
       stop_service
     end
 
-    def next_file
-      @lock.synchronize do
-        file = @specs.shift
-        Buffet.logger.info "Dequeued #{file}"
-        file
+    def next_file_for slave_name
+      file = @lock.synchronize { @specs.shift }
+      if file
+        slave = @slaves_stats[slave_name][:slave]
+        @listener.spec_taken slave, file if file
       end
+      file
     end
 
-    def example_passed(details)
+    def example_passed slave_name, details
       @lock.synchronize do
         @stats[:examples] += 1
-        @passes.push({:description => details[:description]})
+        @slaves_stats[slave_name][:examples] += 1
       end
 
       @listener.example_passed
     end
 
-    def example_failed(details)
+    def example_failed slave_name, details
       @lock.synchronize do
         @stats[:examples] += 1
         @stats[:failures] += 1
-        @failures.push(details)
+        @slaves_stats[slave_name][:failures] += 1
+        @failures << details
       end
 
       @listener.example_failed
     end
 
-    def example_pending(details)
+    def example_pending slave_name, details
      @lock.synchronize do
        @stats[:examples] += 1
        @stats[:pending] += 1
+       @slaves_stats[slave_name][:pending] += 1
      end
 
-      @listener.example_pending
+     @listener.example_pending
     end
 
     private
@@ -91,19 +100,30 @@ module Buffet
     end
 
     def prepare_slave slave
-      @project.sync_to slave
+      time = Benchmark.measure do
+        @project.sync_to slave
 
-      if Settings.has_prepare_script?
-        slave.execute_in_project "#{Settings.prepare_script} #{Buffet.user}"
-      end
+        if Settings.has_prepare_script?
+          slave.execute_in_project "#{Settings.prepare_script} #{Buffet.user}"
+        end
 
-      # Copy support files so they can be run on the remote machine
-      slave.scp File.dirname(__FILE__) + '/../../support',
-                @project.support_dir_on_slave, :recurse => true
+        # Copy support files so they can be run on the remote machine
+        slave.scp File.dirname(__FILE__) + '/../../support',
+                  @project.support_dir_on_slave, :recurse => true
+      end.real
+      @lock.synchronize { @slaves_stats[slave.name][:prepare_time] = time }
+
+      @listener.slave_prepared slave
     end
 
     def run_slave slave
-      slave.execute_in_project ".buffet/buffet-worker #{server_uri} #{Settings.framework}"
+      time = Benchmark.measure do
+      slave.execute_in_project(
+        ".buffet/buffet-worker #{server_uri} #{slave.user_at_host} #{Settings.framework}")
+      end.real
+      @lock.synchronize { @slaves_stats[slave.name][:test_time] = time }
+
+      @listener.slave_finished slave
     end
   end
 end

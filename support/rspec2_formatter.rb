@@ -8,37 +8,42 @@ module RSpec
           super(output)
         end
 
-        def self.buffet_server=(buffet_server)
+        def self.configure buffet_server, slave_name
           @@buffet_server = buffet_server
+          @@slave_name = slave_name
         end
 
-        def example_to_hash(example)
-          example.description
-        end
-
-        def example_passed(example)
+        def example_passed example
           super
-          @@buffet_server.example_passed({:description => example.description})
+          @@buffet_server.example_passed(@@slave_name, {
+            :description => example.description,
+            :location    => example.location,
+            :slave_name  => slave_name,
+          })
         end
 
-        def example_failed(example)
-          super(example)
+        def example_failed example
+          super
           exception = example.metadata[:execution_result][:exception]
-          message = exception.message
           backtrace = format_backtrace(exception.backtrace, example).join("\n")
-          description = example.description || "No description!"
 
-          failure = {:header    => description,
-                     :backtrace => backtrace,
-                     :message   => message,
-                     :location  => backtrace}
-
-          @@buffet_server.example_failed(failure)
+          @@buffet_server.example_failed(@@slave_name, {
+            :description => description,
+            :backtrace   => backtrace,
+            :message     => exception.message,
+            :location    => example.location,
+            :slave_name  => slave_name,
+          })
         end
 
-        def example_pending(example, message, deprecated_pending_location=nil)
+        def example_pending example, message, deprecated_pending_location=nil
           super
-          @@buffet_server.example_pending(example_to_hash example)
+          @@buffet_server.example_pending(@@slave_name, {
+            :description => example.description,
+            :location    => example.location,
+            :message     => message,
+            :slave_name  => slave_name,
+          })
         end
       end
     end

@@ -27,7 +27,9 @@ module Buffet
       Buffet.run! 'ssh', "#{user_at_host}", command
     end
 
-    private
+    def name
+      user_at_host
+    end
 
     def user_at_host
       "#{@user}@#{@host}"
