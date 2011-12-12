@@ -2,8 +2,9 @@ require 'yaml'
 
 module Buffet
   class Settings
-    DEFAULT_SETTINGS_FILE  = 'buffet.yml'
-    DEFAULT_PREPARE_SCRIPT = 'bin/before-buffet-run'
+    DEFAULT_SETTINGS_FILE       = 'buffet.yml'
+    DEFAULT_PREPARE_SCRIPT      = 'bin/before-buffet-run'
+    DEFAULT_EXCLUDE_FILTER_FILE = '.buffet-exclude-filter'
 
     class << self
       def [](name)
@@ -39,6 +40,14 @@ module Buffet
 
       def has_prepare_script?
         self['prepare_script'] || File.exist?(DEFAULT_PREPARE_SCRIPT)
+      end
+
+      def exclude_filter_file
+        self['exclude_filter_file'] || DEFAULT_EXCLUDE_FILTER_FILE
+      end
+
+      def has_exclude_filter_file?
+        self['exclude_filter_file'] || File.exist?(DEFAULT_EXCLUDE_FILTER_FILE)
       end
 
       def reset!

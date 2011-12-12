@@ -9,8 +9,8 @@ module Buffet
     end
 
     def rsync src, dest
-      Buffet.run! 'rsync', '-aqz', '--delete', '-e', 'ssh', src,
-                  "#{user_at_host}:#{dest}"
+      Buffet.run! 'rsync', '-aqz', '--delete', rsync_exclude_flags,
+                  '-e', 'ssh', src, "#{user_at_host}:#{dest}"
     end
 
     def scp src, dest, options = {}
@@ -33,6 +33,15 @@ module Buffet
 
     def user_at_host
       "#{@user}@#{@host}"
+    end
+
+    private
+
+    def rsync_exclude_flags
+      if Settings.has_exclude_filter_file?
+        exclude_flags = "--exclude-from=#{Settings.exclude_filter_file}"
+      end
+      exclude_flags || ''
     end
   end
 end
