@@ -104,7 +104,7 @@ module Buffet
         @project.sync_to slave
 
         if Settings.has_prepare_script?
-          slave.execute_in_project "#{Settings.prepare_script} #{Buffet.user}"
+          slave.execute_in_project "#{Settings.prepare_script} #{Buffet.user} #{@project.name}"
         end
 
         # Copy support files so they can be run on the remote machine

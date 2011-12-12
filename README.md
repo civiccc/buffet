@@ -16,6 +16,11 @@ Buffet expects to find a `buffet.yml` file in the same directory which tells it
 about the project being tested and what machines it should run on. If you want
 to specify a different configuration file, use the --config switch.
 
+Buffet also allows you to specify a name for the project using the --project
+switch. This switch is intended to allow multiple runs of the same project
+from the same master user, since the project name is used as a namespace to
+prevent resource contention.
+
 ## Details
 
 If you have a database or other set-up that needs to be prepared before every

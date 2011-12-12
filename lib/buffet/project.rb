@@ -1,6 +1,7 @@
 module Buffet
   class Project
-    attr_reader :name, :directory
+    attr_accessor :name
+    attr_reader   :directory
 
     def initialize directory
       @name = File.basename directory

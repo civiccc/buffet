@@ -21,6 +21,10 @@ module Buffet
         end
       end
 
+      def project_name=(project_name)
+        project.name = project_name
+      end
+
       def project
         @project ||= Project.new Dir.pwd
       end
