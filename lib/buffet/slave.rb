@@ -9,7 +9,8 @@ module Buffet
     end
 
     def rsync src, dest
-      Buffet.run! 'rsync', '-aqz', '--delete', rsync_exclude_flags,
+      Buffet.run! 'rsync', '-aqz', '--delete',
+                  '--delete-excluded', rsync_exclude_flags,
                   '-e', 'ssh', src, "#{user_at_host}:#{dest}"
     end
 
