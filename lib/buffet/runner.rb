@@ -48,6 +48,10 @@ module Buffet
       Buffet.logger.info "#{slave.name} finished"
     end
 
+    def failures?
+      @master.failures.any?
+    end
+
     private
 
     def run_tests
