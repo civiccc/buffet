@@ -13,7 +13,6 @@ Gem::Specification.new do |s|
   s.description = 'Buffet distributes RSpec test cases over multiple machines.'
 
   s.files         = `git ls-files -- lib support`.split("\n")
-  s.test_files    = `git ls-files -- spec/*`.split("\n")
   s.executables   = ['buffet']
   s.require_paths = ['lib']
 
