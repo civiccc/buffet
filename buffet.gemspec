@@ -3,7 +3,7 @@ $:.push File.expand_path('../lib', __FILE__)
 require 'buffet/version'
 
 Gem::Specification.new do |s|
-  s.name        = 'minimal-buffet'
+  s.name        = 'buffet-gem'
   s.version     = Buffet::VERSION
   s.platform    = Gem::Platform::RUBY
   s.authors     = ['Causes Engineering']

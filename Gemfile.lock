@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    minimal-buffet (0.6)
+    buffet-gem (1.1)
       colorize
       wopen3
 
@@ -25,6 +25,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  minimal-buffet!
+  buffet-gem!
   mkdtemp
   rspec
