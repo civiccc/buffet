@@ -6,7 +6,7 @@ significantly speeds up the testing cycle.
 
 ## Installation
 
-Install: `gem install minimal-buffet`
+Install: `gem install buffet-gem`
 
 ## Usage
 
