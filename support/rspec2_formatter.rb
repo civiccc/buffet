@@ -28,7 +28,7 @@ module RSpec
           backtrace = format_backtrace(exception.backtrace, example).join("\n")
 
           @@buffet_server.example_failed(@@slave_name, {
-            :description => description,
+            :description => example.description,
             :backtrace   => backtrace,
             :message     => exception.message,
             :location    => example.location,
