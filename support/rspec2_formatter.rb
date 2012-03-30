@@ -18,7 +18,7 @@ module RSpec
           @@buffet_server.example_passed(@@slave_name, {
             :description => example.description,
             :location    => example.location,
-            :slave_name  => slave_name,
+            :slave_name  => @@slave_name,
           })
         end
 
@@ -32,7 +32,7 @@ module RSpec
             :backtrace   => backtrace,
             :message     => exception.message,
             :location    => example.location,
-            :slave_name  => slave_name,
+            :slave_name  => @@slave_name,
           })
         end
 
@@ -42,7 +42,7 @@ module RSpec
             :description => example.description,
             :location    => example.location,
             :message     => message,
-            :slave_name  => slave_name,
+            :slave_name  => @@slave_name,
           })
         end
       end
