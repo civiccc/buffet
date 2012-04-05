@@ -36,12 +36,11 @@ module RSpec
           })
         end
 
-        def example_pending example, message, deprecated_pending_location=nil
+        def example_pending example
           super
           @@buffet_server.example_pending(@@slave_name, {
             :description => example.description,
             :location    => example.location,
-            :message     => message,
             :slave_name  => @@slave_name,
           })
         end
