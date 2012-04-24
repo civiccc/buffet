@@ -48,6 +48,8 @@ else
     config.formatter = RSpec::Core::Formatters::AugmentedTextFormatter
   end
 
+  require RSpec::Core::RubyProject.root.join("spec", "spec_helper").to_s if RSpec::Core::RubyProject.root.join("spec", "spec_helper.rb").exist?
+
   RSpec.configuration.reporter.report(-1) do |reporter|
     RSpec.configuration.run_hook(:before, :suite)
     begin
