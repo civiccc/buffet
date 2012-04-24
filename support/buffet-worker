@@ -42,11 +42,22 @@ else
 
   RSpec::Core::Formatters::AugmentedTextFormatter.configure buffet_server, slave_name
 
-  while file = buffet_server.next_file_for(slave_name)
-    RSpec::Core::CommandLine.new(
-      ['--format', 'RSpec::Core::Formatters::AugmentedTextFormatter', file]
-    ).run($stderr, $stdout)
+  RSpec.configure do |config|
+    config.error_stream = $stderr
+    config.output_stream = $stdout
+    config.formatter = RSpec::Core::Formatters::AugmentedTextFormatter
+  end
 
-    RSpec.world.reset
+  RSpec.configuration.reporter.report(-1) do |reporter|
+    RSpec.configuration.run_hook(:before, :suite)
+    begin
+      while (file = buffet_server.next_file_for(slave_name))
+        load File.expand_path(file)
+        RSpec.world.example_groups.map { |g| g.run(reporter) }.all? ? 0 : 1
+        RSpec.world.example_groups.clear
+      end
+    ensure
+      RSpec.configuration.run_hook(:after, :suite)
+    end
   end
 end

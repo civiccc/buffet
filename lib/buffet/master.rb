@@ -71,13 +71,13 @@ module Buffet
     end
 
     def example_pending slave_name, details
-     @lock.synchronize do
-       @stats[:examples] += 1
-       @stats[:pending] += 1
-       @slaves_stats[slave_name][:pending] += 1
-     end
+      @lock.synchronize do
+        @stats[:examples] += 1
+        @stats[:pending] += 1
+        @slaves_stats[slave_name][:pending] += 1
+      end
 
-     @listener.example_pending
+      @listener.example_pending
     end
 
     private
@@ -118,8 +118,7 @@ module Buffet
 
     def run_slave slave
       time = Benchmark.measure do
-      slave.execute_in_project(
-        ".buffet/buffet-worker #{server_uri} #{slave.user_at_host} #{Settings.framework}")
+        slave.execute_in_project(".buffet/buffet-worker #{server_uri} #{slave.user_at_host} #{Settings.framework}")
       end.real
       @lock.synchronize { @slaves_stats[slave.name][:test_time] = time }
 
