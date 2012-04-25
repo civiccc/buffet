@@ -19,7 +19,7 @@ FileUtils.mkdir_p('./tmp')
 if framework == 'RSPEC1'
   require 'spec'
   require 'spec/runner/command_line'
-  require File.dirname(__FILE__) + '/rspec1_formatter.rb'
+  require File.expand_path(File.join(File.dirname(__FILE__), 'rspec1_formatter'))
 
   Spec::Runner::Formatter::AugmentedTextFormatter.configure buffet_server, slave_name
 
@@ -38,7 +38,7 @@ if framework == 'RSPEC1'
   end
 else
   require 'rspec'
-  require File.dirname(__FILE__) + '/rspec2_formatter.rb'
+  require File.expand_path(File.join(File.dirname(__FILE__), 'rspec2_formatter'))
 
   RSpec::Core::Formatters::AugmentedTextFormatter.configure buffet_server, slave_name
 
