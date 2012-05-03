@@ -18,7 +18,7 @@ module Buffet
         end
       end.parse!(args)
 
-      specs = Buffet.extract_specs_from(opts.empty? ? 'spec' : opts)
+      specs = !opts.empty? ? Buffet.extract_specs_from(opts) : %w(spec)
 
       runner = Runner.new
       runner.run specs

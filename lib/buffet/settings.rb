@@ -30,6 +30,10 @@ module Buffet
         @project ||= Project.new Dir.pwd
       end
 
+      def rvm_ruby_string
+        self['rvm_ruby_string']
+      end
+
       def framework
         self['framework'].upcase || 'RSPEC1'
       end

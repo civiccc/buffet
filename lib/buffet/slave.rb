@@ -21,7 +21,9 @@ module Buffet
     end
 
     def execute_in_project command
-      execute "cd #{@project.directory_on_slave} && #{command}"
+      command = "cd #{@project.directory_on_slave} && #{command}"
+      command = "rvm_path=$HOME/.rvm && $HOME/.rvm/bin/rvm-shell #{Settings.rvm_ruby_string} -c \"#{command}\"" if Settings.rvm_ruby_string
+      execute command
     end
 
     def execute command
@@ -33,7 +35,7 @@ module Buffet
     end
 
     def user_at_host
-      "#{@user}@#{@host}"
+      @user ? "#{@user}@#{@host}" : @host
     end
 
     private
