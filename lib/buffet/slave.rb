@@ -35,7 +35,7 @@ module Buffet
     end
 
     def user_at_host
-      "#{@user}@#{@host}"
+      @user ? "#{@user}@#{@host}" : @host
     end
 
     private
