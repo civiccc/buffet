@@ -118,8 +118,12 @@ module Buffet
 
     def run_slave slave
       time = Benchmark.measure do
-      slave.execute_in_project(
-        ".buffet/buffet-worker #{server_uri} #{slave.user_at_host} #{Settings.framework}")
+      slave.execute_in_project([
+            Settings.worker_command,
+            server_uri,
+            slave.user_at_host,
+            Settings.framework,
+          ].join(' '))
       end.real
       @lock.synchronize { @slaves_stats[slave.name][:test_time] = time }
 

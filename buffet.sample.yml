@@ -11,5 +11,8 @@ framework: rspec1
 # relative to top-level project dir
 prepare_script: bin/before-buffet-run
 
+# Command to run on slaves to start a buffet worker
+worker_command: .buffet/buffet-worker
+
 # List of files to not sync over to slaves
 exclude_filter_file: .buffet-exclude-filter

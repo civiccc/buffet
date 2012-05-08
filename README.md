@@ -27,3 +27,10 @@ If you have a database or other set-up that needs to be prepared before every
 test you can create a `bin/before-buffet-run` script in your application's
 folder which makes the necessary preparations (you can customize which file
 to use by specifying the prepare_script setting in buffet.yml).
+
+Note that bin/before-buffet-run is executed separately from the actual test
+running process, so e.g. environment variables will not be preserved. To
+customize the test running environment, you can use the worker_command setting.
+To set up a specific RVM environment, for example, you could use:
+
+```worker_command: rvm use 1.9.3 && .buffet/buffet-worker```

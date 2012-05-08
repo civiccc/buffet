@@ -22,6 +22,10 @@ module Buffet
         end
       end
 
+      def worker_command
+        self['worker_command'] || '.buffet/buffet-worker'
+      end
+
       def project_name=(project_name)
         project.name = project_name
       end
