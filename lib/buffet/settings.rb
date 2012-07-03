@@ -2,6 +2,7 @@ require 'yaml'
 
 module Buffet
   class Settings
+    DEFAULT_LOG_FILE            = 'buffet.log'
     DEFAULT_SETTINGS_FILE       = 'buffet.yml'
     DEFAULT_PREPARE_SCRIPT      = 'bin/before-buffet-run'
     DEFAULT_EXCLUDE_FILTER_FILE = '.buffet-exclude-filter'
@@ -29,6 +30,14 @@ module Buffet
 
       def worker_command
         self['worker_command'] || '.buffet/buffet-worker'
+      end
+
+      def log_file=(log)
+        @log_file = log
+      end
+
+      def log_file
+        @log_file || self['log_file'] || DEFAULT_LOG_FILE
       end
 
       def project_name=(project_name)

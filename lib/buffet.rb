@@ -11,18 +11,18 @@ module Buffet
   autoload :Settings, 'buffet/settings'
   autoload :Slave, 'buffet/slave'
 
-  def self.logdir
-    @logdir ||= Pathname.new(ENV['HOME']) + '.buffet/log'
+  def self.log_dir
+    @log_dir ||= Pathname.new(ENV['HOME']) + '.buffet/log'
   end
 
-  def self.logfile
-    'buffet.log'
+  def self.log_file
+    Settings.log_file
   end
 
   def self.logger
     @logger ||= begin
-      FileUtils.mkdir_p logdir
-      Logger.new logdir + logfile
+      FileUtils.mkdir_p log_dir
+      Logger.new log_dir + log_file
     end
   end
 
