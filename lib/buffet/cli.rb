@@ -9,7 +9,7 @@ module Buffet
 
         opts.on('-c', '--config CONFIG',
                 'Use the specified CONFIG file') do |config_file|
-          Settings.load_file File.expand_path(config_file)
+          Settings.settings_file = File.expand_path(config_file)
         end
 
         opts.on('-p', '--project PROJECT',

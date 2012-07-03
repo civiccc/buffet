@@ -7,13 +7,18 @@ module Buffet
     DEFAULT_EXCLUDE_FILTER_FILE = '.buffet-exclude-filter'
 
     class << self
-      def [](name)
-        @settings ||= load_file DEFAULT_SETTINGS_FILE
-        @settings[name]
+      def settings_file=(settings_file)
+        @settings_file = settings_file
+        reset!
       end
 
-      def load_file file
-        @settings = YAML.load_file file
+      def settings_file
+        @settings_file || DEFAULT_SETTINGS_FILE
+      end
+
+      def [](name)
+        @settings ||= load_file(settings_file)
+        @settings[name]
       end
 
       def slaves
@@ -56,6 +61,12 @@ module Buffet
 
       def reset!
         @settings = nil
+      end
+
+    private
+
+      def load_file file
+        @settings = YAML.load_file file
       end
     end
   end
