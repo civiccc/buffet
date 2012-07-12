@@ -27,10 +27,16 @@ module RSpec
           exception = example.metadata[:execution_result][:exception]
           backtrace = format_backtrace(exception.backtrace, example).join("\n")
 
+          message = exception.message
+          if shared_group = find_shared_group(example)
+            message += "\nShared example group called from " +
+              backtrace_line(shared_group.metadata[:example_group][:location])
+          end
+
           @@buffet_server.example_failed(@@slave_name, {
             :description => example.description,
             :backtrace   => backtrace,
-            :message     => exception.message,
+            :message     => message,
             :location    => example.location,
             :slave_name  => @@slave_name,
           })
