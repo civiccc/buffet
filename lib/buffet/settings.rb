@@ -28,6 +28,10 @@ module Buffet
         end
       end
 
+      def allowed_slave_prepare_failures
+        self['allowed_slave_prepare_failures'] || 0
+      end
+
       def worker_command
         self['worker_command'] || '.buffet/buffet-worker'
       end

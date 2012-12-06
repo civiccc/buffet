@@ -6,9 +6,13 @@ slaves:
     host: sds
   - user: buffet
     host: humus
+  - user: buffet
+    host: non-existant-hostname-for-testing
 
 project:
   name: buffet
   directory: ~/buffet
+
+allowed_slave_prepare_failures: 1
 
 framework: rspec2

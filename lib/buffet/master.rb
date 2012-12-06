@@ -5,7 +5,7 @@ require 'socket'
 
 module Buffet
   class Master
-    attr_reader :failures, :stats
+    attr_reader :failures, :stats, :slave_exceptions
 
     def initialize project, slaves, specs, listener
       @project = project
@@ -14,31 +14,76 @@ module Buffet
       @slaves_stats = Hash[@slaves.map do |slave|
         [slave.user_at_host, stats.dup.merge!(:slave => slave)]
       end]
+      @slave_exceptions = {}
+      @max_slave_prepare_failures = [Settings.allowed_slave_prepare_failures,
+                                     @slaves.count - 1].min
       @stats[:slaves] = @slaves_stats
       @lock = Mutex.new
+      @condition = ConditionVariable.new
       @failures = []
       @specs = specs.shuffle # Never have the same test distribution
       @listener = listener
+      @halt_exception = nil
     end
 
     def run
       start_service
 
       @stats[:total_time] = Benchmark.measure do
-        threads = @slaves.map do |slave|
+        @threads = @slaves.map do |slave|
           Thread.new do
-            time = Benchmark.measure do
-              prepare_slave slave
-              run_slave slave
-            end.real
-            @lock.synchronize { @slaves_stats[slave.name][:total_time] = time }
+            run_worker slave
           end
         end
 
-        threads.each { |t| t.join }
+        wait_for_workers
       end.real
 
       stop_service
+    end
+
+    def run_worker slave
+      time = Benchmark.measure do
+        begin
+          prepare_slave slave
+        rescue CommandError => ex
+          slave_prepare_failed slave, ex
+        rescue Exception => ex
+          stop_run ex
+        else
+          begin
+            run_slave slave
+          rescue Exception => ex
+            stop_run ex
+          end
+        end
+      end.real
+
+      @lock.synchronize do
+        @slaves_stats[slave.name][:total_time] = time
+        @condition.signal # Tell master this slave is finished
+      end
+    end
+
+    def wait_for_workers
+      @threads.count.times do
+        @lock.synchronize do
+          @condition.wait(@lock)
+
+          raise @halt_exception if @halt_exception
+
+          if slave_exceptions.count > @max_slave_prepare_failures
+            raise 'Exceeded maximum number of allowed slave prepare failures'
+          end
+        end
+      end
+    end
+
+    def stop_run ex
+      @lock.synchronize do
+        @halt_exception = ex
+        @condition.signal # Alert master
+      end
     end
 
     def next_file_for slave_name
@@ -48,6 +93,16 @@ module Buffet
         @listener.spec_taken slave, file if file
       end
       file
+    end
+
+    def slave_prepare_failed slave, ex
+      @listener.slave_prepare_failed slave, ex
+
+      @lock.synchronize do
+        slave_exceptions[slave.name] = ex
+
+        @condition.signal # Alert master this slave failed
+      end
     end
 
     def example_passed slave_name, details

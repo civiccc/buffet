@@ -25,6 +25,10 @@ module Buffet
       Buffet.logger.info "#{slave.name} prepared"
     end
 
+    def slave_prepare_failed slave, exception
+      Buffet.logger.warn "#{slave.name} preparation failed: #{exception}"
+    end
+
     def spec_taken slave, spec_file
       Buffet.logger.info "#{slave.name} took #{spec_file}"
     end
@@ -65,19 +69,33 @@ module Buffet
 
       @master.stats[:slaves].each do |slave_name, slave_stats|
         results << "#{slave_name}:"
+
+        if @master.slave_exceptions[slave_name]
+          results << "\tFailed to prepare"
+          next
+        end
+
         slave_stats.each do |key, value|
           results << "\t#{key}: #{value}" unless key == :slave
         end
       end
 
+      results << ''
       results << "Total Examples: #{@master.stats[:examples]}"
       results << "Total Pending:  #{@master.stats[:pending]}"
       results << "Total Failures: #{@master.stats[:failures]}"
-      results << ''
       results << "Buffet consumed in #{@master.stats[:total_time]} seconds"
 
+      unless @master.slave_exceptions.empty?
+        results << '' << 'Slave preparation failures:'.red
+        results << @master.slave_exceptions.map do |slave, ex|
+          "#{slave}:\n".yellow +
+          "#{ex}" + (ex.backtrace ? ex.backtrace.join("\n") : 'No backtrace')
+        end
+      end
+
       unless @master.failures.empty?
-        results << ''
+        results << '' << 'Spec failures:'.red
         results << @master.failures.map do |failure|
           "#{failure[:description]}\n".red +
           "Slave: #{failure[:slave_name]}\n" +
