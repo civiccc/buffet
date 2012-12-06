@@ -11,6 +11,8 @@ module Buffet
   autoload :Settings, 'buffet/settings'
   autoload :Slave, 'buffet/slave'
 
+  class CommandError < StandardError; end
+
   def self.log_dir
     @log_dir ||= Pathname.new(ENV['HOME']) + '.buffet/log'
   end
@@ -33,8 +35,10 @@ module Buffet
   def self.run! *command
     result = runner.run *command
     unless result.success?
-      logger.error 'exiting due to non-zero exit status'
-      exit result.status
+      message = "`#{command.join(' ')}` exited with non-zero status: #{result.status}"
+      message += "\nSTDOUT: #{result.stdout}" unless result.stdout.empty?
+      message += "\nSTDERR: #{result.stderr}" unless result.stderr.empty?
+      raise CommandError.new(message)
     end
     result
   end
