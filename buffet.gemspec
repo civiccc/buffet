@@ -9,6 +9,7 @@ Gem::Specification.new do |s|
   s.authors     = ['Causes Engineering']
   s.email       = ['eng@causes.com', 'grant@causes.com', 'shane@causes.com']
   s.homepage    = 'http://github.com/causes/buffet'
+  s.license     = 'MIT'
   s.summary     = 'Distributed testing framework for Ruby, Rails and RSpec'
   s.description = 'Buffet distributes RSpec test cases over multiple machines.'
 
