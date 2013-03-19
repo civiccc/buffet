@@ -28,7 +28,7 @@ module Buffet
       runner = Runner.new
       runner.run specs
 
-      exit 1 if runner.failures?
+      exit 1 if runner.failed?
     end
   end
 end

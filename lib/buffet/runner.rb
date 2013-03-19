@@ -52,8 +52,8 @@ module Buffet
       Buffet.logger.info "#{slave.name} finished"
     end
 
-    def failures?
-      @master.failures.any?
+    def failed?
+      @master.failures.any? || no_examples_run?
     end
 
     private
@@ -94,7 +94,7 @@ module Buffet
         end
       end
 
-      unless @master.failures.empty?
+      if @master.failures.any?
         results << '' << 'Spec failures:'.red
         results << @master.failures.map do |failure|
           "#{failure[:description]}\n".red +
@@ -103,9 +103,15 @@ module Buffet
           "#{failure[:message]}\n" +
           "#{failure[:backtrace]}\n"
         end
+      elsif no_examples_run?
+        results << '' << 'No examples were run!'.red
       end
 
       puts results
+    end
+
+    def no_examples_run?
+      @master.stats[:examples] - @master.stats[:pending] == 0
     end
   end
 end
