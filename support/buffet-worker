@@ -47,6 +47,6 @@ else
       ['--format', 'RSpec::Core::Formatters::AugmentedTextFormatter', file]
     ).run($stderr, $stdout)
 
-    RSpec.world.reset
+    RSpec.world.example_groups.clear
   end
 end
