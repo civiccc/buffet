@@ -12,7 +12,7 @@ module Buffet
       @slaves = slaves
       @stats = {:examples => 0, :failures => 0, :pending => 0}
       @slaves_stats = Hash[@slaves.map do |slave|
-        [slave.user_at_host, stats.dup.merge!(:slave => slave)]
+        [slave.user_at_host, stats.dup.merge!(:slave => slave, :specs => [])]
       end]
       @slave_exceptions = {}
       @max_slave_prepare_failures = [Settings.allowed_slave_prepare_failures,
@@ -90,6 +90,7 @@ module Buffet
       file = @lock.synchronize { @specs.shift }
       if file
         slave = @slaves_stats[slave_name][:slave]
+        @lock.synchronize { @slaves_stats[slave_name][:specs] << file }
         @listener.spec_taken slave, file if file
       end
       file

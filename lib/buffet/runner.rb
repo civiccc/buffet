@@ -76,7 +76,12 @@ module Buffet
         end
 
         slave_stats.each do |key, value|
-          results << "\t#{key}: #{value}" unless key == :slave
+          results << "\t#{key}: #{value}" unless [:slave, :specs].include?(key)
+        end
+
+        if slave_stats[:failures] > 0
+          results << "\tSpec order (use to help reproduce spurious failures):"
+          results << "\t  #{slave_stats[:specs].join("\n\t  ")}"
         end
       end
 
