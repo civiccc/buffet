@@ -21,6 +21,11 @@ module Buffet
                 'Write to log to LOGFILE, instead of default buffet.log') do |log|
           Settings.log_file = log
         end
+
+        opts.on('-v', '--version', 'Show version') do
+          puts "#{opts.program_name} #{VERSION}"
+          exit
+        end
       end.parse!(args)
 
       specs = Buffet.extract_specs_from(opts.empty? ? ['spec'] : opts)
