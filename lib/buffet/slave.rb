@@ -1,6 +1,6 @@
 module Buffet
   class Slave
-    attr_reader :user, :host
+    attr_reader :user, :host, :project
 
     def initialize user, host, project
       @user = user

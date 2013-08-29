@@ -40,13 +40,20 @@ else
   require 'rspec'
   require File.expand_path('rspec2_formatter', File.dirname(__FILE__))
 
+  begin
+    require 'ci/reporter/rspec'
+    use_ci_reporter = true
+  rescue LoadError
+  end
+
   RSpec::Core::Formatters::AugmentedTextFormatter.configure buffet_server, slave_name
   RSpec::Core::Runner.disable_autorun!
-  while file = buffet_server.next_file_for(slave_name)
-    RSpec::Core::CommandLine.new(
-      ['--format', 'RSpec::Core::Formatters::AugmentedTextFormatter', file]
-    ).run($stderr, $stdout)
+  rspec_opts = ['--format', 'RSpec::Core::Formatters::AugmentedTextFormatter']
+  rspec_opts += ['--format', 'CI::Reporter::RSpec'] if use_ci_reporter
 
+  while file = buffet_server.next_file_for(slave_name)
+    RSpec::Core::CommandLine.new(rspec_opts.dup << file).
+      run($stderr, $stdout)
     RSpec.world.example_groups.clear
   end
 end

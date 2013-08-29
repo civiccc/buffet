@@ -1,5 +1,6 @@
 require 'buffet'
 require 'colorize'
+require 'fileutils'
 
 module Buffet
   class Runner
@@ -50,6 +51,7 @@ module Buffet
 
     def slave_finished slave
       Buffet.logger.info "#{slave.name} finished"
+      gather_junit slave if !!Settings['gather_junit']
     end
 
     def failed?
@@ -117,6 +119,23 @@ module Buffet
 
     def no_examples_run?
       @master.stats[:examples] - @master.stats[:pending] == 0
+    end
+
+    def gather_junit slave
+      # Jenkins tells us where we are running
+      workspace = ENV['WORKSPACE'] || './'
+      FileUtils.mkdir_p File.join(workspace, 'reports')
+
+      # Copy the junit results from the slave into reports/foo@bar/
+      # Configure jenkins to read reports/**/*.xml
+      Buffet.run! *%W[
+        rsync -aqz --delete
+        -e ssh
+        #{slave.user_at_host}:#{slave.project.directory_on_slave}/spec/reports/
+        #{workspace}/reports/#{slave.name}/
+      ]
+    rescue CommandError
+      Buffet.logger.warn "Failed to collect junit report from #{slave.name}"
     end
   end
 end
