@@ -41,7 +41,7 @@ else
   require File.expand_path('rspec2_formatter', File.dirname(__FILE__))
 
   RSpec::Core::Formatters::AugmentedTextFormatter.configure buffet_server, slave_name
-
+  RSpec::Core::Runner.disable_autorun!
   while file = buffet_server.next_file_for(slave_name)
     RSpec::Core::CommandLine.new(
       ['--format', 'RSpec::Core::Formatters::AugmentedTextFormatter', file]
