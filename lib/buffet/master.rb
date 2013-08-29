@@ -21,9 +21,15 @@ module Buffet
       @lock = Mutex.new
       @condition = ConditionVariable.new
       @failures = []
-      @specs = specs.shuffle # Never have the same test distribution
+      @specs = order_specs(specs)
       @listener = listener
       @halt_exception = nil
+    end
+
+    def order_specs(specs)
+      specs.map do |spec|
+        [`wc -l #{spec}`.to_i, spec]
+      end.sort.reverse.map(&:last)
     end
 
     def run
