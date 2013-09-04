@@ -15,9 +15,11 @@ module RSpec
 
         def example_passed example
           super
+
           @@buffet_server.example_passed(@@slave_name, {
             :description => example.description,
             :location    => example.location,
+            :status      => :passed,
             :slave_name  => @@slave_name,
           })
         end
@@ -38,6 +40,7 @@ module RSpec
             :backtrace   => backtrace,
             :message     => exception.message,
             :location    => location,
+            :status      => :failed,
             :slave_name  => @@slave_name,
           })
         end

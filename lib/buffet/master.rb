@@ -5,12 +5,12 @@ require 'socket'
 
 module Buffet
   class Master
-    attr_reader :failures, :stats, :slave_exceptions
+    attr_reader :failures, :stats, :slave_exceptions, :spurious_failures
 
     def initialize project, slaves, specs, listener
       @project = project
       @slaves = slaves
-      @stats = {:examples => 0, :failures => 0, :pending => 0}
+      @stats = { :examples => 0, :failures => 0, :pending => 0, :spurious_failures => 0 }
       @slaves_stats = Hash[@slaves.map do |slave|
         [slave.user_at_host, stats.dup.merge!(:slave => slave, :specs => [])]
       end]
@@ -21,9 +21,21 @@ module Buffet
       @lock = Mutex.new
       @condition = ConditionVariable.new
       @failures = []
+      @spurious_failures = []
       @specs = order_specs(specs)
       @listener = listener
       @halt_exception = nil
+
+      # How many times a particular spec file was queued
+      @spec_queue_count = Hash.new { |h, k| h[k] = 0 }
+
+      # Need this so when we get back an example result from a slave we can know
+      # which spec it is from. This prevents the wrong file from being reported
+      # in the case of shared examples.
+      @current_spec_for_slave = {}
+
+      # Store spec results on per spec per line basis
+      @spec_results = Hash.new { |h, k| h[k] = [] }
     end
 
     def order_specs(specs)
@@ -46,6 +58,8 @@ module Buffet
       end.real
 
       stop_service
+
+      process_spec_results
     end
 
     def run_worker slave
@@ -92,13 +106,31 @@ module Buffet
       end
     end
 
-    def next_file_for slave_name
-      file = @lock.synchronize { @specs.shift }
-      if file
-        slave = @slaves_stats[slave_name][:slave]
-        @lock.synchronize { @slaves_stats[slave_name][:specs] << file }
-        @listener.spec_taken slave, file if file
+    def next_file_for(slave_name, previous_spec)
+      file = nil
+
+      @lock.synchronize do
+        if rerun_spec?(previous_spec)
+          @spec_queue_count[previous_spec] += 1
+          return previous_spec
+        else
+          if file = @specs.shift
+            @spec_queue_count[file] += 1
+            @current_spec_for_slave[slave_name] = file
+
+            @slaves_stats[slave_name][:specs] << file
+          end
+        end
       end
+
+      if file
+        slave = nil
+        @lock.synchronize do
+          slave = @slaves_stats[slave_name][:slave]
+        end
+        @listener.spec_taken(slave, file)
+      end
+
       file
     end
 
@@ -112,21 +144,17 @@ module Buffet
       end
     end
 
-    def example_passed slave_name, details
+    def example_passed(slave_name, details)
       @lock.synchronize do
-        @stats[:examples] += 1
-        @slaves_stats[slave_name][:examples] += 1
+        @spec_results[@current_spec_for_slave[slave_name]] << details
       end
 
       @listener.example_passed
     end
 
-    def example_failed slave_name, details
+    def example_failed(slave_name, details)
       @lock.synchronize do
-        @stats[:examples] += 1
-        @stats[:failures] += 1
-        @slaves_stats[slave_name][:failures] += 1
-        @failures << details
+        @spec_results[@current_spec_for_slave[slave_name]] << details
       end
 
       @listener.example_failed
@@ -142,7 +170,7 @@ module Buffet
      @listener.example_pending
     end
 
-    private
+  private
 
     def server_uri
       @drb_server.uri
@@ -191,6 +219,102 @@ module Buffet
       @lock.synchronize { @slaves_stats[slave.name][:test_time] = time }
 
       @listener.slave_finished slave
+    end
+
+    def rerun_spec?(spec)
+      spec && example_failed_last_run?(spec) && unconfirmed_failures(spec) > 0
+    end
+
+    def example_count(spec)
+      @spec_results[spec].count / @spec_queue_count[spec]
+    end
+
+    def example_failed_last_run?(spec)
+      (1..example_count(spec)).any? do |i|
+        @spec_results[spec][-i][:status] == :failed
+      end
+    end
+
+    def confirmed_failures(spec)
+      failure_counts_for_spec(spec).count do |failure_count|
+        failure_count >= Settings.failure_threshold
+      end
+    end
+
+    def unconfirmed_failures(spec)
+      failure_counts_for_spec(spec).count do |failure_count|
+        (1...Settings.failure_threshold).member?(failure_count)
+      end
+    end
+
+    # Returns an array of failure counts over all spec runs for each example
+    def failure_counts_for_spec(spec)
+      example_result_list = @spec_results[spec]
+      example_count = example_count(spec)
+
+      (0...example_count).map do |i|
+        example_result_list.select.
+                            with_index { |_, j| j % example_count == i }.
+                            count { |example_result| example_result[:status] == :failed }
+      end
+    end
+
+    def process_spec_results
+      @spec_results.each do |spec, example_results|
+        next if example_results.empty?  # Can legitimately happen when spec has no examples
+
+        slave_name = example_results.last[:slave_name]
+
+        spec_examples_count = example_count(spec)
+        @stats[:examples] += spec_examples_count
+        @slaves_stats[slave_name][:examples] += spec_examples_count
+
+        confirmed_failures = confirmed_failures(spec)
+        @stats[:failures] += confirmed_failures
+        @slaves_stats[slave_name][:failures] += confirmed_failures
+        @failures += confirmed_failure_results(spec)
+
+        spurious_failures = unconfirmed_failures(spec)
+        @stats[:spurious_failures] += spurious_failures
+        @slaves_stats[slave_name][:spurious_failures] += spurious_failures
+        @spurious_failures += spurious_failure_results(spec)
+      end
+    end
+
+    def confirmed_failure_results(spec)
+      failures = []
+
+      example_count = example_count(spec)
+
+      failure_counts_for_spec(spec).each_with_index do |count, index|
+        if count >= Settings.failure_threshold
+          # Find first failure for spec
+          failures << @spec_results[spec].
+            select.
+            with_index { |_, i| i % example_count == index }.
+            find { |example_result| example_result[:status] == :failed }
+        end
+      end
+
+      failures
+    end
+
+    def spurious_failure_results(spec)
+      spurious_failures = []
+
+      example_count = example_count(spec)
+
+      failure_counts_for_spec(spec).each_with_index do |count, index|
+        if (1...Settings.failure_threshold).member?(count)
+          # Find first failure for spec
+          spurious_failures << @spec_results[spec].
+            select.
+            with_index { |_, i| i % example_count == index }.
+            find { |example_result| example_result[:status] == :failed }
+        end
+      end
+
+      spurious_failures
     end
   end
 end

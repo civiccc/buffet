@@ -72,6 +72,10 @@ module Buffet
         self['exclude_filter_file'] || File.exist?(DEFAULT_EXCLUDE_FILTER_FILE)
       end
 
+      def failure_threshold
+        self['failure_threshold'] || 2
+      end
+
       def reset!
         @settings = nil
       end

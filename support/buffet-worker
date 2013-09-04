@@ -51,7 +51,7 @@ else
   rspec_opts = ['--format', 'RSpec::Core::Formatters::AugmentedTextFormatter']
   rspec_opts += ['--format', 'CI::Reporter::RSpec'] if use_ci_reporter
 
-  while file = buffet_server.next_file_for(slave_name)
+  while file = buffet_server.next_file_for(slave_name, file)
     RSpec::Core::CommandLine.new(rspec_opts.dup << file).
       run($stderr, $stdout)
     RSpec.world.example_groups.clear

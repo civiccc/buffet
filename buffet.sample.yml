@@ -14,5 +14,9 @@ prepare_script: bin/before-buffet-run
 # Command to run on slaves to start a buffet worker
 worker_command: .buffet/buffet-worker
 
+# Maximum number of failures a single example can have before we rule it an
+# actual failure.
+failure_threshold: 2
+
 # List of files to not sync over to slaves
 exclude_filter_file: .buffet-exclude-filter

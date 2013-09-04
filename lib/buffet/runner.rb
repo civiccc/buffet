@@ -91,6 +91,7 @@ module Buffet
       results << "Total Examples: #{@master.stats[:examples]}"
       results << "Total Pending:  #{@master.stats[:pending]}"
       results << "Total Failures: #{@master.stats[:failures]}"
+      results << "Total Spurious Failures: #{@master.stats[:spurious_failures]}"
       results << "Buffet consumed in #{@master.stats[:total_time]} seconds"
 
       unless @master.slave_exceptions.empty?
@@ -102,19 +103,30 @@ module Buffet
       end
 
       if @master.failures.any?
-        results << '' << 'Spec failures:'.red
+        results << '' << 'SPEC FAILURES:'.red
+        results << ('=' * 80).red
         results << @master.failures.map do |failure|
-          "#{failure[:description]}\n".red +
-          "Slave: #{failure[:slave_name]}\n" +
-          "Location: #{failure[:location]}\n" +
-          "#{failure[:message]}\n" +
-          "#{failure[:backtrace]}\n"
+          example_details(failure)
+        end
+      elsif @master.spurious_failures.any?
+        results << '' << 'SPURIOUS FAILURES:'.yellow
+        results << ('-' * 80).yellow
+        results << @master.spurious_failures.map do |spurious_failure|
+          example_details(spurious_failure)
         end
       elsif no_examples_run?
         results << '' << 'No examples were run!'.red
       end
 
       puts results
+    end
+
+    def example_details(details)
+      "#{details[:description]}\n".red +
+      "Slave: #{details[:slave_name]}\n" +
+      "Location: #{details[:location]}\n" +
+      "#{details[:message]}\n".yellow +
+      "#{details[:backtrace]}\n"
     end
 
     def no_examples_run?
