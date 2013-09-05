@@ -69,6 +69,30 @@ module Buffet
       results = []
       results << "\n"
 
+      results << "Total Examples: #{@master.stats[:examples]}"
+      results << "Total Pending:  #{@master.stats[:pending]}"
+      results << "Total Failures: #{@master.stats[:failures]}"
+      results << "Total Spurious Failures: #{@master.stats[:spurious_failures]}"
+      results << "Buffet consumed in #{@master.stats[:total_time]} seconds"
+
+      if @master.failures.any?
+        results << '' << 'SPEC FAILURES:'.red
+        results << ('=' * 80).red
+        results << @master.failures.map do |failure|
+          example_details(failure)
+        end
+      elsif @master.spurious_failures.any?
+        results << '' << 'SPURIOUS FAILURES:'.yellow
+        results << ('-' * 80).yellow
+        results << @master.spurious_failures.map do |spurious_failure|
+          example_details(spurious_failure)
+        end
+      elsif no_examples_run?
+        results << '' << 'No examples were run!'.red
+      end
+
+      results << '' << 'SLAVE STATS:'
+      results << ('-' * 80)
       @master.stats[:slaves].each do |slave_name, slave_stats|
         results << "#{slave_name}:"
 
@@ -87,35 +111,13 @@ module Buffet
         end
       end
 
-      results << ''
-      results << "Total Examples: #{@master.stats[:examples]}"
-      results << "Total Pending:  #{@master.stats[:pending]}"
-      results << "Total Failures: #{@master.stats[:failures]}"
-      results << "Total Spurious Failures: #{@master.stats[:spurious_failures]}"
-      results << "Buffet consumed in #{@master.stats[:total_time]} seconds"
-
       unless @master.slave_exceptions.empty?
-        results << '' << 'Slave preparation failures:'.red
+        results << '' << 'SLAVE PREPARATION_FAILURES'.yellow
+        results << ('-' * 80).yellow
         results << @master.slave_exceptions.map do |slave, ex|
           "#{slave}:\n".yellow +
           "#{ex}" + (ex.backtrace ? ex.backtrace.join("\n") : 'No backtrace')
         end
-      end
-
-      if @master.failures.any?
-        results << '' << 'SPEC FAILURES:'.red
-        results << ('=' * 80).red
-        results << @master.failures.map do |failure|
-          example_details(failure)
-        end
-      elsif @master.spurious_failures.any?
-        results << '' << 'SPURIOUS FAILURES:'.yellow
-        results << ('-' * 80).yellow
-        results << @master.spurious_failures.map do |spurious_failure|
-          example_details(spurious_failure)
-        end
-      elsif no_examples_run?
-        results << '' << 'No examples were run!'.red
       end
 
       puts results
