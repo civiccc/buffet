@@ -3,14 +3,14 @@ $:.push File.expand_path('../lib', __FILE__)
 require 'buffet/version'
 
 Gem::Specification.new do |s|
-  s.name        = 'buffet-gem'
+  s.name        = 'buffet'
   s.version     = Buffet::VERSION
   s.platform    = Gem::Platform::RUBY
   s.authors     = ['Causes Engineering']
   s.email       = ['eng@causes.com', 'grant@causes.com', 'shane@causes.com']
   s.homepage    = 'http://github.com/causes/buffet'
   s.license     = 'MIT'
-  s.summary     = 'Distributed testing framework for Ruby, Rails and RSpec'
+  s.summary     = 'Distributed testing framework for RSpec'
   s.description = 'Buffet distributes RSpec test cases over multiple machines.'
 
   s.files         = `git ls-files -- lib support`.split("\n")
