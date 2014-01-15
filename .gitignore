@@ -1,6 +1,7 @@
 *.sw*
 .bundle
 failures
+Gemfile.lock
 settings.yml
 working-directory
 test
