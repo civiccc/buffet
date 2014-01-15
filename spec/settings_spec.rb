@@ -24,7 +24,7 @@ describe Buffet::Settings do
   describe '.prepare_script' do
     context 'with an explicit setting' do
       before do
-        YAML.stub!(:load_file).
+        YAML.stub(:load_file).
           and_return({'prepare_script' => 'prep'})
       end
 
@@ -35,7 +35,7 @@ describe Buffet::Settings do
 
     context 'with no explicit setting' do
       before do
-        YAML.stub!(:load_file).and_return({})
+        YAML.stub(:load_file).and_return({})
       end
 
       it 'returns the default value' do
@@ -47,7 +47,7 @@ describe Buffet::Settings do
   describe '.has_prepare_script?' do
     context 'with an explicit setting' do
       before do
-        YAML.stub!(:load_file).
+        YAML.stub(:load_file).
           and_return({'prepare_script' => 'foo'})
       end
 
@@ -58,12 +58,12 @@ describe Buffet::Settings do
 
     context 'with no explicit setting' do
       before do
-        YAML.stub!(:load_file).and_return({})
+        YAML.stub(:load_file).and_return({})
       end
 
       context 'with the default file present' do
         before do
-          File.stub!(:exist?).and_return(true)
+          File.stub(:exist?).and_return(true)
         end
 
         it 'returns true' do
@@ -73,7 +73,7 @@ describe Buffet::Settings do
 
       context 'without the default file present' do
         before do
-          File.stub!(:exist?).and_return(false)
+          File.stub(:exist?).and_return(false)
         end
 
         it 'returns false' do

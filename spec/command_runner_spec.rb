@@ -2,14 +2,14 @@ require 'spec_helper'
 require 'mkdtemp'
 
 describe Buffet::CommandRunner do
-  let(:log_buffer) { StringIO.new "" }
+  let(:log_buffer) { StringIO.new '' }
   let(:logger) { Logger.new log_buffer }
   let(:runner) { Buffet::CommandRunner.new logger }
 
   context 'with a successful command' do
     let(:touch_file) { 'file1' }
 
-    before :all do
+    before do
       Dir.mkdtemp do
         `touch #{touch_file}`
         @result = runner.run 'ls'
@@ -55,7 +55,7 @@ describe Buffet::CommandRunner do
     let(:existing_file) { 'file1' }
     let(:non_existing_file) { 'file2' }
 
-    before :all do
+    before do
       Dir.mkdtemp do
         `touch #{existing_file}`
         @result = runner.run 'ls', existing_file, non_existing_file
@@ -101,6 +101,6 @@ describe Buffet::CommandRunner do
 
   it 'logs to stdout by default' do
     Logger.should_receive(:new).with(STDOUT)
-    runner = Buffet::CommandRunner.new
+    Buffet::CommandRunner.new
   end
 end
