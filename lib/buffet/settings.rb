@@ -80,6 +80,10 @@ module Buffet
         @settings = nil
       end
 
+      def display_progress?
+        @settings.fetch('display_progress', true)
+      end
+
     private
 
       def load_file file

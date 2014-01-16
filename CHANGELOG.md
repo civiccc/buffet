@@ -3,6 +3,8 @@
 ## master (unreleased)
 
 * Fix `--version` flag crash
+* Allow display of progress dots to be disabled via configuration file's
+  `display_progress` option
 
 ## 1.3.0
 

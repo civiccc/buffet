@@ -35,18 +35,24 @@ module Buffet
     end
 
     def example_passed
-      print '.'.green
-      STDOUT.flush
+      if Settings.display_progress?
+        print '.'.green
+        STDOUT.flush
+      end
     end
 
     def example_failed
-      print 'F'.red
-      STDOUT.flush
+      if Settings.display_progress?
+        print 'F'.red
+        STDOUT.flush
+      end
     end
 
     def example_pending
-      print '*'.yellow
-      STDOUT.flush
+      if Settings.display_progress?
+        print '*'.yellow
+        STDOUT.flush
+      end
     end
 
     def slave_finished slave
