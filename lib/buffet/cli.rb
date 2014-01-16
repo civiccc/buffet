@@ -1,4 +1,5 @@
 require 'buffet'
+require 'buffet/version'
 require 'optparse'
 
 module Buffet
@@ -23,7 +24,7 @@ module Buffet
         end
 
         opts.on('-v', '--version', 'Show version') do
-          puts "#{opts.program_name} #{VERSION}"
+          puts "#{opts.program_name} #{Buffet::VERSION}"
           exit
         end
       end.parse!(args)

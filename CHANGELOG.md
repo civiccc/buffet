@@ -1,5 +1,9 @@
 # Buffet Changelog
 
+## master (unreleased)
+
+* Fix `--version` flag crash
+
 ## 1.3.0
 
 * Add spurious failure detection
