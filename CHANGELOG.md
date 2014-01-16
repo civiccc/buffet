@@ -1,6 +1,6 @@
 # Buffet Changelog
 
-## master (unreleased)
+## 1.4.0
 
 * Fix `--version` flag crash
 * Allow display of progress dots to be disabled via configuration file's
