@@ -59,10 +59,6 @@ module Buffet
         @project ||= Project.new Dir.pwd
       end
 
-      def framework
-        self['framework'].upcase || 'RSPEC1'
-      end
-
       def prepare_script
         self['prepare_script'] || DEFAULT_PREPARE_SCRIPT
       end

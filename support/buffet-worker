@@ -20,48 +20,25 @@ end
 # in ARGV, rspec will think it's an argument to the test runner.
 buffet_server = DRbObject.new_with_uri(ARGV.shift)
 slave_name = ARGV.shift
-framework = ARGV.shift
 
 FileUtils.mkdir_p('./tmp')
 
-if framework == 'RSPEC1'
-  require 'spec'
-  require 'spec/runner/command_line'
-  require File.expand_path('rspec1_formatter', File.dirname(__FILE__))
+require 'rspec'
+require File.expand_path('rspec2_formatter', File.dirname(__FILE__))
 
-  Spec::Runner::Formatter::AugmentedTextFormatter.configure buffet_server, slave_name
+begin
+  require 'ci/reporter/rspec'
+  use_ci_reporter = true
+rescue LoadError
+end
 
-  while file = buffet_server.next_file_for(slave_name)
-    # RSpec1 closes stderr/out after each run, so we reopen them each time
-    outlog = File.open('./tmp/buffet.out.log', 'a')
-    errlog = File.open('./tmp/buffet.error.log', 'a')
+RSpec::Core::Formatters::AugmentedTextFormatter.configure buffet_server, slave_name
+RSpec::Core::Runner.disable_autorun!
+rspec_opts = ['--format', 'RSpec::Core::Formatters::AugmentedTextFormatter']
+rspec_opts += ['--format', 'CI::Reporter::RSpec'] if use_ci_reporter
 
-    Spec::Runner::CommandLine.run(
-      Spec::Runner::OptionParser.parse(
-        ['--format', 'Spec::Runner::Formatter::AugmentedTextFormatter', file],
-        errlog,
-        outlog
-      )
-    )
-  end
-else
-  require 'rspec'
-  require File.expand_path('rspec2_formatter', File.dirname(__FILE__))
-
-  begin
-    require 'ci/reporter/rspec'
-    use_ci_reporter = true
-  rescue LoadError
-  end
-
-  RSpec::Core::Formatters::AugmentedTextFormatter.configure buffet_server, slave_name
-  RSpec::Core::Runner.disable_autorun!
-  rspec_opts = ['--format', 'RSpec::Core::Formatters::AugmentedTextFormatter']
-  rspec_opts += ['--format', 'CI::Reporter::RSpec'] if use_ci_reporter
-
-  while file = buffet_server.next_file_for(slave_name, file)
-    RSpec::Core::CommandLine.new(rspec_opts.dup << file).
-      run($stderr, $stdout)
-    RSpec.world.example_groups.clear
-  end
+while file = buffet_server.next_file_for(slave_name, file)
+  RSpec::Core::CommandLine.new(rspec_opts.dup << file).
+    run($stderr, $stdout)
+  RSpec.world.example_groups.clear
 end

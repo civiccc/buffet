@@ -5,8 +5,6 @@ slaves:
   - user: buffet
     host: devmachine2
 
-framework: rspec1
-
 # Script to execute before each buffet run,
 # relative to top-level project dir
 prepare_script: bin/before-buffet-run

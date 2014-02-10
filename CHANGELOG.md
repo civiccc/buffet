@@ -6,6 +6,7 @@
   and `BUFFET_PROJECT` environment variables
 * `prepare_script` will no longer receive master and project name from the
   command line
+* Drop support for RSpec 1
 
 ## 1.4.0
 

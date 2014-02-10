@@ -14,5 +14,3 @@ project:
   directory: ~/buffet
 
 allowed_slave_prepare_failures: 1
-
-framework: rspec2

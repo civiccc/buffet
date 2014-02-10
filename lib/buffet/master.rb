@@ -216,7 +216,6 @@ module Buffet
           Settings.worker_command,
           server_uri,
           slave.user_at_host,
-          Settings.framework,
         ].join(' ')
       end.real
 
