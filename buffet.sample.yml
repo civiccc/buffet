@@ -7,7 +7,7 @@ slaves:
 
 # Script to execute before each buffet run,
 # relative to top-level project dir
-prepare_script: bin/before-buffet-run
+prepare_command: bin/before-buffet-run
 
 # Command to run on slaves to start a buffet worker
 worker_command: .buffet/buffet-worker

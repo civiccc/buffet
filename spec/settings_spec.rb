@@ -21,15 +21,15 @@ describe Buffet::Settings do
     end
   end
 
-  describe '.prepare_script' do
+  describe '.prepare_command' do
     context 'with an explicit setting' do
       before do
         YAML.stub(:load_file).
-          and_return({'prepare_script' => 'prep'})
+          and_return('prepare_command' => 'prep')
       end
 
       it 'returns the set value' do
-        Buffet::Settings.prepare_script.should == 'prep'
+        Buffet::Settings.prepare_command.should == 'prep'
       end
     end
 
@@ -39,20 +39,20 @@ describe Buffet::Settings do
       end
 
       it 'returns the default value' do
-        Buffet::Settings.prepare_script.should == 'bin/before-buffet-run'
+        Buffet::Settings.prepare_command.should == 'bin/before-buffet-run'
       end
     end
   end
 
-  describe '.has_prepare_script?' do
+  describe '.prepare_command?' do
     context 'with an explicit setting' do
       before do
         YAML.stub(:load_file).
-          and_return({'prepare_script' => 'foo'})
+          and_return('prepare_command' => 'foo')
       end
 
       it 'returns true' do
-        Buffet::Settings.has_prepare_script?.should be_true
+        Buffet::Settings.prepare_command?.should be_true
       end
     end
 
@@ -67,7 +67,7 @@ describe Buffet::Settings do
         end
 
         it 'returns true' do
-          Buffet::Settings.has_prepare_script?.should be_true
+          Buffet::Settings.prepare_command?.should be_true
         end
       end
 
@@ -77,7 +77,7 @@ describe Buffet::Settings do
         end
 
         it 'returns false' do
-          Buffet::Settings.has_prepare_script?.should be_false
+          Buffet::Settings.prepare_command?.should be_false
         end
       end
     end

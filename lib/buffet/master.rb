@@ -193,10 +193,10 @@ module Buffet
       time = Benchmark.measure do
         @project.sync_to slave
 
-        if Settings.has_prepare_script?
+        if Settings.prepare_command?
           slave.execute_in_project [
             Buffet.environment_to_shell_string(Settings.execution_environment),
-            Settings.prepare_script,
+            Settings.prepare_command,
           ].join(' ')
         end
 

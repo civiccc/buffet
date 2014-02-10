@@ -1,10 +1,11 @@
 require 'yaml'
 
 module Buffet
+  # Stores configuration settings for Buffet.
   class Settings
     DEFAULT_LOG_FILE            = 'buffet.log'
     DEFAULT_SETTINGS_FILE       = 'buffet.yml'
-    DEFAULT_PREPARE_SCRIPT      = 'bin/before-buffet-run'
+    DEFAULT_PREPARE_COMMAND     = 'bin/before-buffet-run'
     DEFAULT_EXCLUDE_FILTER_FILE = '.buffet-exclude-filter'
 
     class << self
@@ -59,12 +60,12 @@ module Buffet
         @project ||= Project.new Dir.pwd
       end
 
-      def prepare_script
-        self['prepare_script'] || DEFAULT_PREPARE_SCRIPT
+      def prepare_command
+        self['prepare_command'] || DEFAULT_PREPARE_COMMAND
       end
 
-      def has_prepare_script?
-        self['prepare_script'] || File.exist?(DEFAULT_PREPARE_SCRIPT)
+      def prepare_command?
+        self['prepare_command'] || File.exist?(DEFAULT_PREPARE_COMMAND)
       end
 
       def exclude_filter_file
