@@ -8,6 +8,14 @@ if File.exist? 'Gemfile'
   require 'bundler/setup'
 end
 
+if ENV['BUFFET_MASTER'].to_s.strip.empty?
+  puts 'BUFFET_MASTER environment variable not defined'
+  exit 1
+elsif ENV['BUFFET_PROJECT'].to_s.strip.empty?
+  puts 'BUFFET_MASTER environment variable not defined'
+  exit 1
+end
+
 # NOTE: ARGV is used by the spec runner. If I leave the drb server address
 # in ARGV, rspec will think it's an argument to the test runner.
 buffet_server = DRbObject.new_with_uri(ARGV.shift)

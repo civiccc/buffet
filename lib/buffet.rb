@@ -54,6 +54,10 @@ module Buffet
     specs.uniq
   end
 
+  def self.environment_to_shell_string(env)
+    env.map { |key, value| "#{key}=#{value}" }.join(' ')
+  end
+
   def self.workspace_dir
     ".buffet/workspaces/#{user}" # Relative to home directory
   end

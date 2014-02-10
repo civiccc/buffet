@@ -194,7 +194,10 @@ module Buffet
         @project.sync_to slave
 
         if Settings.has_prepare_script?
-          slave.execute_in_project "#{Settings.prepare_script} #{Buffet.user} #{@project.name}"
+          slave.execute_in_project [
+            Buffet.environment_to_shell_string(Settings.execution_environment),
+            Settings.prepare_script,
+          ].join(' ')
         end
 
         # Copy support files so they can be run on the remote machine
@@ -208,12 +211,13 @@ module Buffet
 
     def run_slave slave
       time = Benchmark.measure do
-        slave.execute_in_project([
+        slave.execute_in_project [
+          Buffet.environment_to_shell_string(Settings.execution_environment),
           Settings.worker_command,
           server_uri,
           slave.user_at_host,
           Settings.framework,
-        ].join(' '))
+        ].join(' ')
       end.real
 
       @lock.synchronize { @slaves_stats[slave.name][:test_time] = time }

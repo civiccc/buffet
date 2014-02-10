@@ -36,6 +36,13 @@ module Buffet
         self['worker_command'] || '.buffet/buffet-worker'
       end
 
+      def execution_environment
+        {
+          'BUFFET_MASTER' => Buffet.user,
+          'BUFFET_PROJECT' => project.name,
+        }.merge(self['execution_environment'] || {})
+      end
+
       def log_file=(log)
         @log_file = log
       end

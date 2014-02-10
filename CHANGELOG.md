@@ -1,5 +1,12 @@
 # Buffet Changelog
 
+## master (unreleased)
+
+* `prepare_script` and `worker_command` commands will passed `BUFFET_MASTER`
+  and `BUFFET_PROJECT` environment variables
+* `prepare_script` will no longer receive master and project name from the
+  command line
+
 ## 1.4.0
 
 * Fix `--version` flag crash
