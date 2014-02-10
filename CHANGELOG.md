@@ -1,6 +1,6 @@
 # Buffet Changelog
 
-## master (unreleased)
+## 2.0.0
 
 * `prepare_script` and `worker_command` commands will passed `BUFFET_MASTER`
   and `BUFFET_PROJECT` environment variables
