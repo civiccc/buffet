@@ -77,7 +77,7 @@ module Buffet
       end
 
       def failure_threshold
-        self['failure_threshold'] || 2
+        self['failure_threshold'] || 3
       end
 
       def reset!

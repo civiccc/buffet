@@ -87,13 +87,17 @@ module Buffet
         results << @master.failures.map do |failure|
           example_details(failure)
         end
-      elsif @master.spurious_failures.any?
+      end
+
+      if @master.spurious_failures.any?
         results << '' << 'SPURIOUS FAILURES:'.yellow
         results << ('-' * 80).yellow
         results << @master.spurious_failures.map do |spurious_failure|
           example_details(spurious_failure)
         end
-      elsif no_examples_run?
+      end
+
+      if no_examples_run?
         results << '' << 'No examples were run!'.red
       end
 

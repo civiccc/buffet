@@ -1,5 +1,10 @@
 # Buffet Changelog
 
+## master (unreleased)
+
+* Fix bug where a spec could be retried an infinite number of times when attempting
+  to detect spurious failures
+
 ## 2.0.0
 
 * `prepare_script` and `worker_command` commands will passed `BUFFET_MASTER`

@@ -225,7 +225,8 @@ module Buffet
     end
 
     def rerun_spec?(spec)
-      spec && example_failed_last_run?(spec) && unconfirmed_failures(spec) > 0
+      spec && example_failed_last_run?(spec) && unconfirmed_failures(spec) > 0 &&
+        @spec_queue_count[spec] <= Settings.failure_threshold
     end
 
     def example_count(spec)
