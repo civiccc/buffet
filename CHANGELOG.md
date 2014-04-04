@@ -1,6 +1,6 @@
 # Buffet Changelog
 
-## master (unreleased)
+## 2.0.1
 
 * Fix bug where a spec could be retried an infinite number of times when attempting
   to detect spurious failures
