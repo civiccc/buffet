@@ -18,6 +18,11 @@ module Buffet
           Settings.project_name = project_name
         end
 
+        opts.on('-x', '--exclude path,...', Array,
+                'Exclude the given set of files') do |excludes|
+          Settings.excludes = excludes
+        end
+
         opts.on('-l', '--log LOGFILE',
                 'Write to log to LOGFILE, instead of default buffet.log') do |log|
           Settings.log_file = log

@@ -80,6 +80,20 @@ module Buffet
         self['failure_threshold'] || 3
       end
 
+      def excludes=(exclusions)
+        self['exclude'] = exclusions
+      end
+
+      def excludes
+        self['exclude'] || []
+      end
+
+      def file_excluded?(file)
+        excludes.any? do |exclude_prefix|
+          file.start_with?(exclude_prefix)
+        end
+      end
+
       def reset!
         @settings = nil
       end

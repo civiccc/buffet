@@ -47,8 +47,10 @@ module Buffet
   def self.extract_specs_from files
     specs = []
     files.each do |spec_file|
-      Find.find(spec_file) do |f|
-        specs << f if f.match /_spec\.rb$/
+      Find.find(spec_file).
+        reject { |file| Settings.file_excluded?(file) }.
+        each do |file|
+        specs << file if file.match /_spec\.rb$/
       end
     end
     specs.uniq

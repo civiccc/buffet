@@ -18,3 +18,6 @@ failure_threshold: 2
 
 # List of files to not sync over to slaves
 exclude_filter_file: .buffet-exclude-filter
+
+# List of specs to exclude (prefix matched list)
+exclude: []

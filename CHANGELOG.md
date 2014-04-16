@@ -1,5 +1,11 @@
 # Buffet Changelog
 
+## master (unreleased)
+
+* Add `--exclude` flag with accompanying `buffet.yml` setting which allows
+  users to ignore spec files whose prefix matches any file in a comma separated
+  list
+
 ## 2.0.1
 
 * Fix bug where a spec could be retried an infinite number of times when attempting
