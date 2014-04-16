@@ -1,6 +1,6 @@
 # Buffet Changelog
 
-## master (unreleased)
+## 2.1.0
 
 * Add `--exclude` flag with accompanying `buffet.yml` setting which allows
   users to ignore spec files whose prefix matches any file in a comma separated
